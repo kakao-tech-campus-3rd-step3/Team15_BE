@@ -2,10 +2,13 @@ package katecam.hyuswim.report;
 
 import jakarta.persistence.*;
 import katecam.hyuswim.user.User;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 
 @Entity
+@EntityListeners(AuditingEntityListener.class)
 public class Report {
 
     @Id
@@ -28,7 +31,8 @@ public class Report {
     @Enumerated(EnumType.STRING)
     private ReasonType reasonType;
 
-    @Column(name = "reported_at")
+    @CreatedDate
+    @Column(name = "reported_at", updatable = false)
     private LocalDateTime reportedAt;  // 신고 시간
 
     private Boolean isProcessed;  // 처리 완료 여부
