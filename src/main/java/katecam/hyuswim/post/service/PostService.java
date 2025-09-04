@@ -50,5 +50,23 @@ public class PostService {
 
         return PostResponse.from(post);
     }
+
+    @Transactional
+    public PostResponse updatePost(Long id, PostRequest request, Long userId) {
+        Post post = postRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시글입니다."));
+
+        if (!post.getUser().getId().equals(userId)) {
+            throw new IllegalStateException("작성자만 게시글을 수정할 수 있습니다.");
+        }
+
+        post.update(
+                request.getTitle(),
+                request.getContent(),
+                request.getPostCategory()
+        );
+
+        return PostResponse.from(post);
+    }
 }
 

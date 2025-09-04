@@ -34,4 +34,12 @@ public class PostController {
         PostResponse response = postService.getPost(id);
         return ApiResponse.success(response);
     }
+
+    @PatchMapping("/{id}")
+    public ApiResponse<PostResponse> updatePost(@PathVariable Long id,
+                                                @RequestBody PostRequest request,
+                                                @RequestParam Long userId) {
+        PostResponse response = postService.updatePost(id, request, userId);
+        return ApiResponse.success(response);
+    }
 }
