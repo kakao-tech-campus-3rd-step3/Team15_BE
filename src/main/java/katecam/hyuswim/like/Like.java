@@ -1,7 +1,7 @@
 package katecam.hyuswim.like;
 
 import jakarta.persistence.*;
-import katecam.hyuswim.board.domain.Board;
+import katecam.hyuswim.post.domain.Post;
 import katecam.hyuswim.user.User;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -18,7 +18,7 @@ public class Like {
 
     @ManyToOne
     @JoinColumn(name = "board_id")
-    private Board board;
+    private Post post;
 
     @ManyToOne
     @JoinColumn(name = "user_id")

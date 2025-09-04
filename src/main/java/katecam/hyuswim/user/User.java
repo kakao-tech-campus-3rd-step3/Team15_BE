@@ -2,7 +2,7 @@ package katecam.hyuswim.user;
 
 import jakarta.persistence.*;
 import katecam.hyuswim.badge.Badge;
-import katecam.hyuswim.board.domain.Board;
+import katecam.hyuswim.post.domain.Post;
 import katecam.hyuswim.comment.Comment;
 import katecam.hyuswim.mission.progress.MissionProgress;
 import lombok.Getter;
@@ -32,7 +32,7 @@ public class User {
     private List<Badge> badges;
 
     @OneToMany(mappedBy = "user")
-    private List<Board> boards;
+    private List<Post> posts;
 
     @OneToMany(mappedBy = "user")
     private List<Comment> comments;

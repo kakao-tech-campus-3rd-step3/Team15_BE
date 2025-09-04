@@ -1,14 +1,14 @@
-package katecam.hyuswim.board.dto;
+package katecam.hyuswim.post.dto;
 
-import katecam.hyuswim.board.domain.BoardCategory;
+import katecam.hyuswim.post.domain.PostCategory;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-public class BoardRequest {
+public class PostRequest {
     private String title;
     private String content;
     private Boolean isAnonymous;
-    private BoardCategory boardCategory;
+    private PostCategory postCategory;
 }
