@@ -2,7 +2,7 @@ package katecam.hyuswim.user;
 
 import jakarta.persistence.*;
 import katecam.hyuswim.badge.Badge;
-import katecam.hyuswim.board.Board;
+import katecam.hyuswim.board.domain.Board;
 import katecam.hyuswim.comment.Comment;
 import katecam.hyuswim.mission.progress.MissionProgress;
 import org.springframework.data.annotation.CreatedDate;
