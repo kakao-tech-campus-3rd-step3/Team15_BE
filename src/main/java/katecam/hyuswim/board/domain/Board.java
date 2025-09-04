@@ -50,4 +50,12 @@ public class Board {
     @LastModifiedDate
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    public Board(String title, String content, BoardCategory boardCategory, User user, Boolean isAnonymous) {
+        this.title = title;
+        this.content = content;
+        this.boardCategory = boardCategory;
+        this.user = user;
+        this.isAnonymous = isAnonymous;
+    }
 }
