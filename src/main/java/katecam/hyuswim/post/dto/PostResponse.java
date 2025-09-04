@@ -22,6 +22,7 @@ public class PostResponse {
     private Boolean isDeleted;
     private Boolean isLiked;
     private Long viewCount;
+    private Long likeCount;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
@@ -36,6 +37,7 @@ public class PostResponse {
                 .isDeleted(entity.getIsDeleted())
                 .isLiked(false)
                 .viewCount(entity.getViewCount())
+                .likeCount((long) entity.getLikes().size())
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())
                 .build();
