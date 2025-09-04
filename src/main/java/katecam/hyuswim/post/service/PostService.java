@@ -39,15 +39,14 @@ public class PostService {
     }
 
     public List<PostResponse> getPosts() {
-        return postRepository.findAll().stream()
+        return postRepository.findAllByIsDeletedFalse().stream()
                 .map(PostResponse::from)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public PostResponse getPost(Long id) {
-        Post post = postRepository.findById(id)
+        Post post = postRepository.findByIdAndIsDeletedFalse(id)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시글입니다."));
-
         return PostResponse.from(post);
     }
 
