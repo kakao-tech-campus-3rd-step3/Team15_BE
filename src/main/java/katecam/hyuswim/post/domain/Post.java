@@ -68,5 +68,9 @@ public class Post {
         if (content != null) this.content = content;
         if (postCategory != null) this.postCategory = postCategory;
     }
+
+    public void delete() {
+        this.isDeleted = true;
+    }
 }
 

@@ -42,4 +42,11 @@ public class PostController {
         PostResponse response = postService.updatePost(id, request, userId);
         return ApiResponse.success(response);
     }
+
+    @DeleteMapping("/{id}")
+    public ApiResponse<String> deletePost(@PathVariable Long id,
+                                          @RequestParam Long userId) {
+        postService.deletePost(id, userId);
+        return ApiResponse.success("게시글이 삭제되었습니다.");
+    }
 }
