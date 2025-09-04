@@ -19,8 +19,8 @@ public class Board {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @JoinColumn(name = "user_id")
     @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "user_id")
     private User user;
 
     @OneToMany(mappedBy = "board")
@@ -30,16 +30,16 @@ public class Board {
     private List<Comment> comments;
 
     @Enumerated(EnumType.STRING)
-    private BoardType boardType;
+    private BoardCategory boardCategory;
 
     private String title;
-
     private String content;
-
-    private Long viewCount;
-
+    private Long viewCount = 0L;
     @Column(name = "is_anonymous")
-    private Boolean isAnonymous;
+    private Boolean isAnonymous = false;
+
+    @Column(name = "is_deleted")
+    private Boolean isDeleted = false;
 
     @CreatedDate
     @Column(name = "created_at", updatable = false)
