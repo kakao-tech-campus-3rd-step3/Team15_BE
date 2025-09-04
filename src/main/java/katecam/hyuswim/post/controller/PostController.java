@@ -7,6 +7,8 @@ import katecam.hyuswim.post.service.PostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/posts")
 @RequiredArgsConstructor
@@ -18,6 +20,18 @@ public class PostController {
     public ApiResponse<PostResponse> createPost(@RequestBody PostRequest request,
                                                 @RequestParam Long userId) {
         PostResponse response = postService.createPost(request, userId);
+        return ApiResponse.success(response);
+    }
+
+    @GetMapping
+    public ApiResponse<List<PostResponse>> getPosts() {
+        List<PostResponse> response = postService.getPosts();
+        return ApiResponse.success(response);
+    }
+
+    @GetMapping("/{id}")
+    public ApiResponse<PostResponse> getPost(@PathVariable Long id) {
+        PostResponse response = postService.getPost(id);
         return ApiResponse.success(response);
     }
 }

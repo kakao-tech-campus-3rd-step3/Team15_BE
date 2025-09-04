@@ -10,6 +10,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -33,6 +36,19 @@ public class PostService {
 
         Post saved = postRepository.save(post);
         return PostResponse.from(saved);
+    }
+
+    public List<PostResponse> getPosts() {
+        return postRepository.findAll().stream()
+                .map(PostResponse::from)
+                .collect(Collectors.toList());
+    }
+
+    public PostResponse getPost(Long id) {
+        Post post = postRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시글입니다."));
+
+        return PostResponse.from(post);
     }
 }
 
