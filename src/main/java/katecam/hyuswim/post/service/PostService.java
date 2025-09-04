@@ -1,9 +1,10 @@
 package katecam.hyuswim.post.service;
 
 import katecam.hyuswim.post.domain.Post;
+import katecam.hyuswim.post.dto.PostListResponse;
 import katecam.hyuswim.post.repository.PostRepository;
 import katecam.hyuswim.post.dto.PostRequest;
-import katecam.hyuswim.post.dto.PostResponse;
+import katecam.hyuswim.post.dto.PostDetailResponse;
 import katecam.hyuswim.user.User;
 import katecam.hyuswim.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -11,7 +12,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -22,7 +22,7 @@ public class PostService {
     private final UserRepository userRepository;
 
     @Transactional
-    public PostResponse createPost(PostRequest request, Long userId) {
+    public PostDetailResponse createPost(PostRequest request, Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
 
@@ -35,23 +35,24 @@ public class PostService {
         );
 
         Post saved = postRepository.save(post);
-        return PostResponse.from(saved);
+        return PostDetailResponse.from(saved);
     }
 
-    public List<PostResponse> getPosts() {
-        return postRepository.findAllByIsDeletedFalse().stream()
-                .map(PostResponse::from)
+    public List<PostListResponse> getPosts() {
+        return postRepository.findAll().stream()
+                .filter(post -> !post.getIsDeleted())
+                .map(PostListResponse::from)
                 .toList();
     }
 
-    public PostResponse getPost(Long id) {
+    public PostDetailResponse getPost(Long id) {
         Post post = postRepository.findByIdAndIsDeletedFalse(id)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시글입니다."));
-        return PostResponse.from(post);
+        return PostDetailResponse.from(post);
     }
 
     @Transactional
-    public PostResponse updatePost(Long id, PostRequest request, Long userId) {
+    public PostDetailResponse updatePost(Long id, PostRequest request, Long userId) {
         Post post = postRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시글입니다."));
 
@@ -65,7 +66,7 @@ public class PostService {
                 request.getPostCategory()
         );
 
-        return PostResponse.from(post);
+        return PostDetailResponse.from(post);
     }
 
     @Transactional

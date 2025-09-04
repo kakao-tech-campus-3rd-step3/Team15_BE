@@ -1,8 +1,9 @@
 package katecam.hyuswim.post.controller;
 
 import katecam.hyuswim.common.ApiResponse;
+import katecam.hyuswim.post.dto.PostListResponse;
 import katecam.hyuswim.post.dto.PostRequest;
-import katecam.hyuswim.post.dto.PostResponse;
+import katecam.hyuswim.post.dto.PostDetailResponse;
 import katecam.hyuswim.post.service.PostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -17,29 +18,29 @@ public class PostController {
     private final PostService postService;
 
     @PostMapping
-    public ApiResponse<PostResponse> createPost(@RequestBody PostRequest request,
-                                                @RequestParam Long userId) {
-        PostResponse response = postService.createPost(request, userId);
+    public ApiResponse<PostDetailResponse> createPost(@RequestBody PostRequest request,
+                                                      @RequestParam Long userId) {
+        PostDetailResponse response = postService.createPost(request, userId);
         return ApiResponse.success(response);
     }
 
     @GetMapping
-    public ApiResponse<List<PostResponse>> getPosts() {
-        List<PostResponse> response = postService.getPosts();
+    public ApiResponse<List<PostListResponse>> getPosts() {
+        List<PostListResponse> response = postService.getPosts();
         return ApiResponse.success(response);
     }
 
     @GetMapping("/{id}")
-    public ApiResponse<PostResponse> getPost(@PathVariable Long id) {
-        PostResponse response = postService.getPost(id);
+    public ApiResponse<PostDetailResponse> getPost(@PathVariable Long id) {
+        PostDetailResponse response = postService.getPost(id);
         return ApiResponse.success(response);
     }
 
     @PatchMapping("/{id}")
-    public ApiResponse<PostResponse> updatePost(@PathVariable Long id,
-                                                @RequestBody PostRequest request,
-                                                @RequestParam Long userId) {
-        PostResponse response = postService.updatePost(id, request, userId);
+    public ApiResponse<PostDetailResponse> updatePost(@PathVariable Long id,
+                                                      @RequestBody PostRequest request,
+                                                      @RequestParam Long userId) {
+        PostDetailResponse response = postService.updatePost(id, request, userId);
         return ApiResponse.success(response);
     }
 

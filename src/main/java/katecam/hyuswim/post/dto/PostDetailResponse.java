@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class PostResponse {
+public class PostDetailResponse {
     private Long id;
     private String title;
     private String content;
@@ -26,8 +26,8 @@ public class PostResponse {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    public static PostResponse from(Post entity) {
-        return PostResponse.builder()
+    public static PostDetailResponse from(Post entity) {
+        return PostDetailResponse.builder()
                 .id(entity.getId())
                 .title(entity.getTitle())
                 .content(entity.getContent())
