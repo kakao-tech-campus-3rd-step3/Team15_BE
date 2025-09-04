@@ -62,5 +62,11 @@ public class Post {
         this.user = user;
         this.isAnonymous = isAnonymous;
     }
+
+    public void update(String title, String content, PostCategory postCategory) {
+        if (title != null) this.title = title;
+        if (content != null) this.content = content;
+        if (postCategory != null) this.postCategory = postCategory;
+    }
 }
 
