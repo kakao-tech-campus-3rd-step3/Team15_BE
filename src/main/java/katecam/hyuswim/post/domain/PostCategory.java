@@ -1,6 +1,6 @@
-package katecam.hyuswim.board.domain;
+package katecam.hyuswim.post.domain;
 
-public enum BoardCategory {
+public enum PostCategory {
     FREE("자유"),
     CAREER("진로취업"),
     STUDY("학업"),
@@ -13,7 +13,7 @@ public enum BoardCategory {
 
     private final String displayName;
 
-    BoardCategory(String displayName) {
+    PostCategory(String displayName) {
         this.displayName = displayName;
     }
 

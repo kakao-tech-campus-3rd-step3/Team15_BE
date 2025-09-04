@@ -1,6 +1,6 @@
-package katecam.hyuswim.board.dto;
+package katecam.hyuswim.post.dto;
 
-import katecam.hyuswim.board.domain.Board;
+import katecam.hyuswim.post.domain.Post;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,11 +12,11 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class BoardResponse {
+public class PostResponse {
     private Long id;
     private String title;
     private String content;
-    private String boardCategory;
+    private String postCategory;
     private String author;
     private Boolean isAnonymous;
     private Boolean isDeleted;
@@ -25,12 +25,12 @@ public class BoardResponse {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    public static BoardResponse from(Board entity) {
-        return BoardResponse.builder()
+    public static PostResponse from(Post entity) {
+        return PostResponse.builder()
                 .id(entity.getId())
                 .title(entity.getTitle())
                 .content(entity.getContent())
-                .boardCategory(entity.getBoardCategory().name())
+                .postCategory(entity.getPostCategory().name())
                 .author(entity.getUser().getUsername())
                 .isAnonymous(entity.getIsAnonymous())
                 .isDeleted(entity.getIsDeleted())
