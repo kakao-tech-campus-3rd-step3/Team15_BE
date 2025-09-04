@@ -1,4 +1,4 @@
-package katecam.hyuswim.board;
+package katecam.hyuswim.board.domain;
 
 public enum BoardCategory {
     FREE("자유"),

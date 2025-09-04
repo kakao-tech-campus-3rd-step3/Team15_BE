@@ -1,7 +1,7 @@
 package katecam.hyuswim.like;
 
 import jakarta.persistence.*;
-import katecam.hyuswim.board.Board;
+import katecam.hyuswim.board.domain.Board;
 import katecam.hyuswim.user.User;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;

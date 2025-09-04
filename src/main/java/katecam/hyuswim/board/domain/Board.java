@@ -1,4 +1,4 @@
-package katecam.hyuswim.board;
+package katecam.hyuswim.board.domain;
 
 import jakarta.persistence.*;
 import katecam.hyuswim.comment.Comment;
