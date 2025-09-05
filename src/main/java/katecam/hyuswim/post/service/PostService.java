@@ -2,6 +2,7 @@ package katecam.hyuswim.post.service;
 
 import katecam.hyuswim.post.domain.Post;
 import katecam.hyuswim.post.domain.PostCategory;
+import katecam.hyuswim.post.dto.PageResponse;
 import katecam.hyuswim.post.dto.PostListResponse;
 import katecam.hyuswim.post.repository.PostRepository;
 import katecam.hyuswim.post.dto.PostRequest;
@@ -9,6 +10,7 @@ import katecam.hyuswim.post.dto.PostDetailResponse;
 import katecam.hyuswim.user.User;
 import katecam.hyuswim.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,11 +41,11 @@ public class PostService {
         return PostDetailResponse.from(saved);
     }
 
-    public List<PostListResponse> getPosts() {
-        return postRepository.findAllByIsDeletedFalse().stream()
-                .filter(post -> !post.getIsDeleted())
-                .map(PostListResponse::from)
-                .toList();
+    public PageResponse<PostListResponse> getPosts(Pageable pageable) {
+        return new PageResponse<>(
+                postRepository.findAllByIsDeletedFalse(pageable)
+                        .map(PostListResponse::from)
+        );
     }
 
     public List<PostListResponse> getPostsByCategory(PostCategory category) {
