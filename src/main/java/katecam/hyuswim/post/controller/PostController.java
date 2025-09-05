@@ -41,8 +41,15 @@ public class PostController {
     }
 
     @GetMapping("/category/{category}")
-    public ApiResponse<List<PostListResponse>> getPostsByCategory(@PathVariable PostCategory category) {
-        return ApiResponse.success(postService.getPostsByCategory(category));
+    public ApiResponse<PageResponse<PostListResponse>> getPostsByCategory(
+            @PathVariable PostCategory category,
+            @PageableDefault(
+                    sort = "createdAt",
+                    direction = Sort.Direction.DESC,
+                    size = 10)
+            Pageable pageable
+    ) {
+        return ApiResponse.success(postService.getPostsByCategory(category, pageable));
     }
 
     @GetMapping("/{id}")
