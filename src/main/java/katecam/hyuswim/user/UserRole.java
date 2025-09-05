@@ -1,5 +1,5 @@
 package katecam.hyuswim.user;
 
 public enum UserRole {
-    TEMP
+    USER, ADMIN
 }
