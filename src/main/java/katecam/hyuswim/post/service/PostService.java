@@ -61,12 +61,11 @@ public class PostService {
         return PostDetailResponse.from(post);
     }
 
-    public List<PostListResponse> searchPosts(String keyword) {
-        return postRepository
-                .searchByKeyword(keyword)
-                .stream()
-                .map(PostListResponse::from)
-                .toList();
+    public PageResponse<PostListResponse> searchPosts(String keyword, Pageable pageable) {
+        return new PageResponse<>(
+                postRepository.searchByKeyword(keyword, pageable)
+                        .map(PostListResponse::from)
+        );
     }
 
     @Transactional
