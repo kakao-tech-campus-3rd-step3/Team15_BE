@@ -2,9 +2,10 @@ package katecam.hyuswim.user;
 
 import jakarta.persistence.*;
 import katecam.hyuswim.badge.Badge;
-import katecam.hyuswim.board.Board;
+import katecam.hyuswim.post.domain.Post;
 import katecam.hyuswim.comment.Comment;
 import katecam.hyuswim.mission.progress.MissionProgress;
+import lombok.Getter;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -12,6 +13,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Getter
 @Entity
 @EntityListeners(AuditingEntityListener.class)
 public class User {
@@ -30,7 +32,7 @@ public class User {
     private List<Badge> badges;
 
     @OneToMany(mappedBy = "user")
-    private List<Board> boards;
+    private List<Post> posts;
 
     @OneToMany(mappedBy = "user")
     private List<Comment> comments;
