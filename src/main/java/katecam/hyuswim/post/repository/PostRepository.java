@@ -14,8 +14,11 @@ import java.util.Optional;
 
 public interface PostRepository extends JpaRepository<Post, Long> {
     Page<Post> findAllByIsDeletedFalse(Pageable pageable);
+
     Optional<Post> findByIdAndIsDeletedFalse(Long id);
+
     Page<Post> findByCategoryAndIsDeletedFalse(PostCategory category, Pageable pageable);
+
     @Query("SELECT p FROM Post p WHERE p.isDeleted = false AND (:category IS NULL OR p.category = :category) AND (:keyword IS NULL OR p.title LIKE %:keyword% OR p.content LIKE %:keyword%) AND (:startDate IS NULL OR p.createdAt >= :startDate) AND (:endDate IS NULL OR p.createdAt <= :endDate)")
     Page<Post> searchByCategoryAndKeywordAndPeriod(
             @Param("category") PostCategory category,
@@ -24,4 +27,8 @@ public interface PostRepository extends JpaRepository<Post, Long> {
             @Param("endDate") LocalDateTime endDate,
             Pageable pageable
     );
+
+    long countByIsDeletedFalse();
+
+    long countByIsDeletedFalseAndCreatedAtBetween(LocalDateTime start, LocalDateTime end);
 }
