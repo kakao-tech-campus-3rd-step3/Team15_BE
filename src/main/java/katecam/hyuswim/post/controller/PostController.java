@@ -1,6 +1,8 @@
 package katecam.hyuswim.post.controller;
 
 import katecam.hyuswim.common.ApiResponse;
+import katecam.hyuswim.post.domain.Post;
+import katecam.hyuswim.post.domain.PostCategory;
 import katecam.hyuswim.post.dto.PostListResponse;
 import katecam.hyuswim.post.dto.PostRequest;
 import katecam.hyuswim.post.dto.PostDetailResponse;
@@ -28,6 +30,11 @@ public class PostController {
     public ApiResponse<List<PostListResponse>> getPosts() {
         List<PostListResponse> response = postService.getPosts();
         return ApiResponse.success(response);
+    }
+
+    @GetMapping("/category/{category}")
+    public ApiResponse<List<PostListResponse>> getPostsByCategory(@PathVariable PostCategory category) {
+        return ApiResponse.success(postService.getPostsByCategory(category));
     }
 
     @GetMapping("/{id}")
