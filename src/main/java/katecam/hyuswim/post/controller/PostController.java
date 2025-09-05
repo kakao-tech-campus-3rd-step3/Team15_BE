@@ -2,17 +2,17 @@ package katecam.hyuswim.post.controller;
 
 import katecam.hyuswim.common.ApiResponse;
 import katecam.hyuswim.post.domain.PostCategory;
-import katecam.hyuswim.post.dto.PageResponse;
-import katecam.hyuswim.post.dto.PostListResponse;
-import katecam.hyuswim.post.dto.PostRequest;
-import katecam.hyuswim.post.dto.PostDetailResponse;
+import katecam.hyuswim.post.dto.*;
 import katecam.hyuswim.post.service.PostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -60,15 +60,10 @@ public class PostController {
 
     @GetMapping("/search")
     public ApiResponse<PageResponse<PostListResponse>> searchPosts(
-            @RequestParam(required = false) PostCategory category,
-            @RequestParam(required = false) String keyword,
-            @PageableDefault(
-                    sort = "createdAt",
-                    direction = Sort.Direction.DESC,
-                    size = 10)
-            Pageable pageable
+            PostSearchRequest request,
+            @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC, size = 10) Pageable pageable
     ) {
-        return ApiResponse.success(postService.searchPosts(category, keyword, pageable));
+        return ApiResponse.success(postService.searchPosts(request, pageable));
     }
 
     @PatchMapping("/{id}")

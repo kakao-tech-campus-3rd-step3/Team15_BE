@@ -2,11 +2,8 @@ package katecam.hyuswim.post.service;
 
 import katecam.hyuswim.post.domain.Post;
 import katecam.hyuswim.post.domain.PostCategory;
-import katecam.hyuswim.post.dto.PageResponse;
-import katecam.hyuswim.post.dto.PostListResponse;
+import katecam.hyuswim.post.dto.*;
 import katecam.hyuswim.post.repository.PostRepository;
-import katecam.hyuswim.post.dto.PostRequest;
-import katecam.hyuswim.post.dto.PostDetailResponse;
 import katecam.hyuswim.user.User;
 import katecam.hyuswim.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +11,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -61,10 +60,18 @@ public class PostService {
         return PostDetailResponse.from(post);
     }
 
-    public PageResponse<PostListResponse> searchPosts(PostCategory category, String keyword, Pageable pageable) {
+    public PageResponse<PostListResponse> searchPosts(PostSearchRequest request, Pageable pageable) {
+        LocalDateTime startDateTime = (request.getStartDate() != null) ? request.getStartDate().atStartOfDay() : null;
+        LocalDateTime endDateTime = (request.getEndDate() != null) ? request.getEndDate().plusDays(1).atStartOfDay().minusNanos(1) : null;
+
         return new PageResponse<>(
-                postRepository.searchByCategoryAndKeyword(category, keyword, pageable)
-                        .map(PostListResponse::from)
+                postRepository.searchByCategoryAndKeywordAndPeriod(
+                        request.getCategory(),
+                        request.getKeyword(),
+                        startDateTime,
+                        endDateTime,
+                        pageable
+                ).map(PostListResponse::from)
         );
     }
 
