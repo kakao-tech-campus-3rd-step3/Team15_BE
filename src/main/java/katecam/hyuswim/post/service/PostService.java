@@ -39,7 +39,7 @@ public class PostService {
     }
 
     public List<PostListResponse> getPosts() {
-        return postRepository.findAll().stream()
+        return postRepository.findAllByIsDeletedFalse().stream()
                 .filter(post -> !post.getIsDeleted())
                 .map(PostListResponse::from)
                 .toList();
