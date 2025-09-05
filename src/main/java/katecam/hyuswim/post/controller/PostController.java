@@ -43,6 +43,11 @@ public class PostController {
         return ApiResponse.success(response);
     }
 
+    @GetMapping("/search")
+    public ApiResponse<List<PostListResponse>> searchPosts(@RequestParam String keyword) {
+        return ApiResponse.success(postService.searchPosts(keyword));
+    }
+
     @PatchMapping("/{id}")
     public ApiResponse<PostDetailResponse> updatePost(@PathVariable Long id,
                                                       @RequestBody PostRequest request,
