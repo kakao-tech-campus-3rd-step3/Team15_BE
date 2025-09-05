@@ -47,7 +47,7 @@ public class PostService {
 
     public PageResponse<PostListResponse> getPostsByCategory(PostCategory category, Pageable pageable) {
         return new PageResponse<>(
-                postRepository.findByCategoryAndIsDeletedFalse(category, pageable)
+                postRepository.findByPostCategoryAndIsDeletedFalse(category, pageable)
                         .map(PostListResponse::from)
         );
     }
