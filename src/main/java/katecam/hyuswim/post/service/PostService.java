@@ -61,9 +61,9 @@ public class PostService {
         return PostDetailResponse.from(post);
     }
 
-    public PageResponse<PostListResponse> searchPosts(String keyword, Pageable pageable) {
+    public PageResponse<PostListResponse> searchPosts(PostCategory category, String keyword, Pageable pageable) {
         return new PageResponse<>(
-                postRepository.searchByKeyword(keyword, pageable)
+                postRepository.searchByCategoryAndKeyword(category, keyword, pageable)
                         .map(PostListResponse::from)
         );
     }

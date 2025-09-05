@@ -60,14 +60,15 @@ public class PostController {
 
     @GetMapping("/search")
     public ApiResponse<PageResponse<PostListResponse>> searchPosts(
-            @RequestParam String keyword,
+            @RequestParam(required = false) PostCategory category,
+            @RequestParam(required = false) String keyword,
             @PageableDefault(
                     sort = "createdAt",
                     direction = Sort.Direction.DESC,
                     size = 10)
             Pageable pageable
     ) {
-        return ApiResponse.success(postService.searchPosts(keyword, pageable));
+        return ApiResponse.success(postService.searchPosts(category, keyword, pageable));
     }
 
     @PatchMapping("/{id}")
