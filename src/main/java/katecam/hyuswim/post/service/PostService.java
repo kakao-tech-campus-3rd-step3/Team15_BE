@@ -1,6 +1,7 @@
 package katecam.hyuswim.post.service;
 
 import katecam.hyuswim.post.domain.Post;
+import katecam.hyuswim.post.domain.PostCategory;
 import katecam.hyuswim.post.dto.PostListResponse;
 import katecam.hyuswim.post.repository.PostRepository;
 import katecam.hyuswim.post.dto.PostRequest;
@@ -41,6 +42,12 @@ public class PostService {
     public List<PostListResponse> getPosts() {
         return postRepository.findAllByIsDeletedFalse().stream()
                 .filter(post -> !post.getIsDeleted())
+                .map(PostListResponse::from)
+                .toList();
+    }
+
+    public List<PostListResponse> getPostsByCategory(PostCategory category) {
+        return postRepository.findByCategoryAndIsDeletedFalse(category).stream()
                 .map(PostListResponse::from)
                 .toList();
     }
