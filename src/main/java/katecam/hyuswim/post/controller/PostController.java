@@ -1,13 +1,16 @@
 package katecam.hyuswim.post.controller;
 
 import katecam.hyuswim.common.ApiResponse;
-import katecam.hyuswim.post.domain.Post;
 import katecam.hyuswim.post.domain.PostCategory;
+import katecam.hyuswim.post.dto.PageResponse;
 import katecam.hyuswim.post.dto.PostListResponse;
 import katecam.hyuswim.post.dto.PostRequest;
 import katecam.hyuswim.post.dto.PostDetailResponse;
 import katecam.hyuswim.post.service.PostService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -27,9 +30,14 @@ public class PostController {
     }
 
     @GetMapping
-    public ApiResponse<List<PostListResponse>> getPosts() {
-        List<PostListResponse> response = postService.getPosts();
-        return ApiResponse.success(response);
+    public ApiResponse<PageResponse<PostListResponse>> getPosts(
+            @PageableDefault(
+                    sort = "createdAt",
+                    direction = Sort.Direction.DESC,
+                    size = 10
+            ) Pageable pageable
+    ) {
+        return ApiResponse.success(postService.getPosts(pageable));
     }
 
     @GetMapping("/category/{category}")
