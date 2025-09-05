@@ -58,6 +58,14 @@ public class PostService {
         return PostDetailResponse.from(post);
     }
 
+    public List<PostListResponse> searchPosts(String keyword) {
+        return postRepository
+                .searchByKeyword(keyword)
+                .stream()
+                .map(PostListResponse::from)
+                .toList();
+    }
+
     @Transactional
     public PostDetailResponse updatePost(Long id, PostRequest request, Long userId) {
         Post post = postRepository.findById(id)
