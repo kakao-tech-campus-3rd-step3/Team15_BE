@@ -48,10 +48,11 @@ public class PostService {
         );
     }
 
-    public List<PostListResponse> getPostsByCategory(PostCategory category) {
-        return postRepository.findByCategoryAndIsDeletedFalse(category).stream()
-                .map(PostListResponse::from)
-                .toList();
+    public PageResponse<PostListResponse> getPostsByCategory(PostCategory category, Pageable pageable) {
+        return new PageResponse<>(
+                postRepository.findByCategoryAndIsDeletedFalse(category, pageable)
+                        .map(PostListResponse::from)
+        );
     }
 
     public PostDetailResponse getPost(Long id) {

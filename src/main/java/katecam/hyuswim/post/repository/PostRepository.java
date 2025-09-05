@@ -14,7 +14,7 @@ import java.util.Optional;
 public interface PostRepository extends JpaRepository<Post, Long> {
     Page<Post> findAllByIsDeletedFalse(Pageable pageable);
     Optional<Post> findByIdAndIsDeletedFalse(Long id);
-    List<Post> findByCategoryAndIsDeletedFalse(PostCategory category);
+    Page<Post> findByCategoryAndIsDeletedFalse(PostCategory category, Pageable pageable);
     @Query("SELECT p FROM Post p WHERE p.isDeleted = false AND (p.title LIKE %:keyword% OR p.content LIKE %:keyword%)")
     List<Post> searchByKeyword(@Param("keyword") String keyword);
 }
