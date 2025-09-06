@@ -103,4 +103,16 @@ jobs:
             nohup java -jar \
               -Djwt.secret.key=${{ secrets.JWT_SECRET }} \
               $JAR_PATH > $LOG_PATH 2>&1 &
-
+            
+            # --- 실행 후 검증 코드 추가 ---
+            echo "Verifying application startup..."
+            sleep 15 # 애플리케이션이 시작될 시간을 줍니다.
+                    
+            if pgrep -f $JAR_PATH > /dev/null; then
+              echo "Application started successfully."
+            else
+              echo "ERROR: Application failed to start. Please check the logs."
+            # 로그 파일의 마지막 50줄을 출력하여 GitHub Actions에서 바로 확인
+              tail -n 50 $LOG_FILE_PATH
+              exit 1 # 워크플로우를 실패 처리
+            fi
