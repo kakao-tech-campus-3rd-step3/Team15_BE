@@ -83,6 +83,6 @@ jobs:
 
             echo "Executing JAR file: $JAR_PATH"
             nohup java -jar \
-              -Djwt.secret.key=${{ secrets.JWT_SECRET_KEY }} \
+              -Djwt.secret.key=${{ secrets.JWT_SECRET }} \
               $JAR_PATH > $LOG_PATH 2>&1 &
 
