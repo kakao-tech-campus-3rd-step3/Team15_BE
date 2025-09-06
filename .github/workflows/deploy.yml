@@ -50,9 +50,9 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_PEM_KEY }}
-          # 개선 사항 1: 새 파일을 복사하기 전에 기존 SNAPSHOT JAR 파일을 먼저 삭제합니다.
+          # 개선 사항 1: 새 파일을 복사하기 전에 기존 app JAR 파일을 먼저 삭제합니다.
           before_script: |
-            rm -f /home/ubuntu/Team15_BE/*SNAPSHOT.jar
+            rm -f /home/ubuntu/Team15_BE/app.jar
           source: "build/libs/app.jar"
           target: "/home/ubuntu/Team15_BE"
 
@@ -102,7 +102,7 @@ jobs:
             echo "Executing JAR file: $JAR_PATH"
             nohup java -jar \
               -Djwt.secret.key=${{ secrets.JWT_SECRET }} \
-              $JAR_PATH > $LOG_PATH 2>&1 &
+              $JAR_PATH > $LOG_FILE_PATH 2>&1 &
             
             # --- 실행 후 검증 코드 추가 ---
             echo "Verifying application startup..."
