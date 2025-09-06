@@ -90,7 +90,14 @@ jobs:
 
             # 개선 사항 3: 환경 변수를 주입하고 로그 파일을 지정하여 애플리케이션을 실행합니다.
             JAR_PATH=$(ls -t /home/ubuntu/Team15_BE/*SNAPSHOT.jar | head -n 1)
-            LOG_PATH="/home/ubuntu/Team15_BE/app.log"
+            LOG_DIR="/home/ubuntu/Team15_BE/logs"
+            
+            # 로그를 저장할 디렉터리가 없으면 생성합니다.
+            mkdir -p $LOG_DIR
+            
+            # '년-월-일_시-분-초.log' 형식으로 로그 파일 이름을 만듭니다.
+            LOG_FILE_NAME="$(date +'%Y-%m-%d_%H-%M-%S').log"
+            LOG_FILE_PATH="$LOG_DIR/$LOG_FILE_NAME"
 
             echo "Executing JAR file: $JAR_PATH"
             nohup java -jar \
