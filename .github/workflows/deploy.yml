@@ -53,7 +53,7 @@ jobs:
           # 개선 사항 1: 새 파일을 복사하기 전에 기존 SNAPSHOT JAR 파일을 먼저 삭제합니다.
           before_script: |
             rm -f /home/ubuntu/Team15_BE/*SNAPSHOT.jar
-          source: "build/libs/*SNAPSHOT.jar"
+          source: "build/libs/app.jar"
           target: "/home/ubuntu/Team15_BE"
 
       # 7. EC2에 접속하여 배포 스크립트 실행
@@ -65,7 +65,7 @@ jobs:
           key: ${{ secrets.EC2_PEM_KEY }}
           script: |
             # 개선 사항 2: 단계적 종료(Graceful Shutdown)를 실행합니다.
-            PID=$(pgrep -f "java -jar")
+            PID=$(pgrep -f "app.jar")
             if [ -n "$PID" ]; then
               echo "Found running process with PID: $PID"
               echo "Attempting graceful shutdown with SIGTERM..."
@@ -89,7 +89,7 @@ jobs:
             fi
 
             # 개선 사항 3: 환경 변수를 주입하고 로그 파일을 지정하여 애플리케이션을 실행합니다.
-            JAR_PATH=$(ls -t /home/ubuntu/Team15_BE/*SNAPSHOT.jar | head -n 1)
+            JAR_PATH="/home/ubuntu/Team15_BE/app.jar"
             LOG_DIR="/home/ubuntu/Team15_BE/logs"
             
             # 로그를 저장할 디렉터리가 없으면 생성합니다.
