@@ -32,31 +32,60 @@ jobs:
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
         run: ./gradlew build -x test
 
-      # 5. 빌드된 .jar 파일을 EC2로 전송
-      - name: Deploy to EC2
+      # 5. 새 JAR 파일을 EC2에 전송 (전송 전 기존 파일 삭제)
+      - name: Copy JAR to EC2
         uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
+          username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_PEM_KEY }}
-          #  실행할 jar 파일만 명확하게 지정
+          # 개선 사항 1: 새 파일을 복사하기 전에 기존 SNAPSHOT JAR 파일을 먼저 삭제합니다.
+          before_script: |
+            rm -f /home/ubuntu/Team15_BE/*SNAPSHOT.jar
           source: "build/libs/*SNAPSHOT.jar"
           target: "/home/ubuntu/Team15_BE"
 
-      # 6. EC2에 접속하여 애플리케이션 실행
-      - name: Execute SSH commands
+      # 6. EC2에 접속하여 배포 스크립트 실행
+      - name: Execute deployment script on EC2
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
+          username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_PEM_KEY }}
           script: |
-            #  실행할 jar 파일만 명확하게 지정
-            JAR_PATH="/home/ubuntu/Team15_BE/*SNAPSHOT.jar"
-            
-            # 기존에 실행 중인 Java 프로세스 종료
-            pgrep -f $JAR_PATH | xargs -r kill -9
-            
-            # 새로 전송된 .jar 파일을 백그라운드에서 실행
-            nohup java -jar $JAR_PATH > /dev/null 2>&1 &
+            # 개선 사항 2: 단계적 종료(Graceful Shutdown)를 실행합니다.
+            PID=$(pgrep -f "java -jar")
+            if [ -n "$PID" ]; then
+              echo "Found running process with PID: $PID"
+              echo "Attempting graceful shutdown with SIGTERM..."
+              kill -15 $PID
+              # 10초간 프로세스가 종료되기를 기다립니다.
+              for i in {1..10}; do
+                if ! ps -p $PID > /dev/null; then
+                  echo "Process terminated gracefully."
+                  PID=""
+                  break
+                fi
+                sleep 1
+              done
+              # 만약 프로세스가 여전히 살아있다면 강제 종료합니다.
+              if [ -n "$PID" ]; then
+                echo "Process did not terminate. Forcing shutdown with SIGKILL..."
+                kill -9 $PID
+              fi
+            else
+              echo "No running Java process found."
+            fi
+
+            # 개선 사항 3: 환경 변수를 주입하고 로그 파일을 지정하여 애플리케이션을 실행합니다.
+            JAR_PATH=$(ls -t /home/ubuntu/Team15_BE/*SNAPSHOT.jar | head -n 1)
+            LOG_PATH="/home/ubuntu/Team15_BE/app.log"
+
+            echo "Executing JAR file: $JAR_PATH"
+            nohup java -jar \
+              -Dspring.datasource.url=${{ secrets.DB_URL }} \
+              -Dspring.datasource.username=${{ secrets.DB_USERNAME }} \
+              -Dspring.datasource.password=${{ secrets.DB_PASSWORD }} \
+              -Djwt.secret.key=${{ secrets.JWT_SECRET_KEY }} \
+              $JAR_PATH > $LOG_PATH 2>&1 &
 
