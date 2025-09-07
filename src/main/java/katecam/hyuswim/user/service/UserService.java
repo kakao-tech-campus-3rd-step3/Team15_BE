@@ -25,9 +25,8 @@ public class UserService {
     public void saveUser(SignupRequest signupRequest) {
 
         String encPassword = bCryptPasswordEncoder.encode(signupRequest.getPassword());
-        signupRequest.setPassword(encPassword);
 
-        userRepository.save(signupRequest.toEntity());
+        userRepository.save(new User(signupRequest.getUsername(), encPassword, signupRequest.getNickname()));
 
     }
 
