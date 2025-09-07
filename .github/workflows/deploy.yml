@@ -43,20 +43,27 @@ jobs:
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
         run: ./gradlew build -x test
 
-      # 6. 새 JAR 파일을 EC2에 전송 (전송 전 기존 파일 삭제)
-      - name: Copy JAR to EC2
+      # 6. EC2에 있는 기존 JAR 파일 삭제 (ssh-action 사용)
+      - name: Delete old JAR on EC2
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_PEM_KEY }}
+          script: |
+            rm -f /home/ubuntu/Team15_BE/app.jar
+
+      # 7. 새 JAR 파일을 EC2에 전송 (scp-action 사용)
+      - name: Copy new JAR to EC2
         uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_PEM_KEY }}
-          # 개선 사항 1: 새 파일을 복사하기 전에 기존 app JAR 파일을 먼저 삭제합니다.
-          before_script: |
-            rm -f /home/ubuntu/Team15_BE/app.jar
           source: "build/libs/app.jar"
           target: "/home/ubuntu/Team15_BE"
 
-      # 7. EC2에 접속하여 배포 스크립트 실행
+      # 8. EC2에 접속하여 배포 스크립트 실행
       - name: Execute deployment script on EC2
         uses: appleboy/ssh-action@master
         with:
