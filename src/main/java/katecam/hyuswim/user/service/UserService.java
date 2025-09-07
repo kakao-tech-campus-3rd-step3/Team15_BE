@@ -26,25 +26,25 @@ public class UserService {
 
         String encPassword = bCryptPasswordEncoder.encode(signupRequest.getPassword());
 
-        userRepository.save(new User(signupRequest.getUsername(), encPassword, signupRequest.getNickname()));
+        userRepository.save(new User(signupRequest.getEmail(), encPassword, signupRequest.getNickname()));
 
     }
 
     @Transactional
     public boolean existUser(LoginRequest loginRequest) {
-        Optional<User> userOptional = userRepository.findByUsername(loginRequest.getUsername());
+        Optional<User> userOptional = userRepository.findByEmail(loginRequest.getEmail());
 
         if (userOptional.isEmpty()) {
             return false;
         }
 
         User user = userOptional.get();
-        return bCryptPasswordEncoder.matches(loginRequest.getPassword(), user.getPassword());
+        return bCryptPasswordEncoder.matches(loginRequest.getEmail(), user.getPassword());
     }
 
     @Transactional
-    public User findUserByUsername(String username) throws UserNotFoundException {
-        Optional<User> userOptional = userRepository.findByUsername(username);
+    public User findUserByEmail(String email) throws UserNotFoundException {
+        Optional<User> userOptional = userRepository.findByEmail(email);
         if(userOptional.isEmpty()) {
             throw new UserNotFoundException("해당 유저는 존재하지 않습니다.");
         }

@@ -34,8 +34,8 @@ public class UserController {
             return ApiResponse.error("이메일 또는 비밀번호가 잘못되었습니다");
         }
         try {
-            User loginUser = userService.findUserByUsername(loginRequest.getUsername());
-            String token = jwtUtil.generateToken(new JwtTokenRequest(loginRequest.getUsername(), loginUser.getRole()));
+            User loginUser = userService.findUserByEmail(loginRequest.getEmail());
+            String token = jwtUtil.generateToken(new JwtTokenRequest(loginRequest.getEmail(), loginUser.getRole()));
             return ApiResponse.success(new JwtTokenResponse(token));
         } catch (UserNotFoundException e) {
             return ApiResponse.error("해당 유저를 찾을 수 없습니다");

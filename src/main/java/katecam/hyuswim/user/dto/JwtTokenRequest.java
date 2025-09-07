@@ -7,7 +7,7 @@ import lombok.*;
 @AllArgsConstructor
 public class JwtTokenRequest {
 
-    private String username;
+    private String email;
     private UserRole role;
 
 
