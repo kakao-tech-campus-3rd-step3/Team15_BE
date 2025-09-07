@@ -20,7 +20,7 @@ public class JwtUtil {
 
     private JwtParser jwtParser;
 
-    private final long oneHour = 60 * 60 * 1000;
+    private final long TOKEN_EXPIRATION_TIME_MS = 60 * 60 * 1000;
 
     @PostConstruct
     public void init() {
@@ -41,7 +41,7 @@ public class JwtUtil {
                 .setSubject(email)
                 .claim("role", role)
                 .setIssuedAt(new Date(currentTimeMillis))
-                .setExpiration(new Date(currentTimeMillis + oneHour))
+                .setExpiration(new Date(currentTimeMillis + TOKEN_EXPIRATION_TIME_MS))
                 .signWith(SignatureAlgorithm.HS256, secret)
                 .compact();
     }
