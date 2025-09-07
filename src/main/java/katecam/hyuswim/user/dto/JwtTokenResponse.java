@@ -6,5 +6,5 @@ import lombok.*;
 @AllArgsConstructor
 public class JwtTokenResponse {
 
-    private String token;
+  private String token;
 }

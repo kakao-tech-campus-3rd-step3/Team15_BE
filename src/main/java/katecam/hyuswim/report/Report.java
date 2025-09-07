@@ -1,39 +1,40 @@
 package katecam.hyuswim.report;
 
-import jakarta.persistence.*;
-import katecam.hyuswim.user.User;
+import java.time.LocalDateTime;
+
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import java.time.LocalDateTime;
+import jakarta.persistence.*;
+import katecam.hyuswim.user.User;
 
 @Entity
 @EntityListeners(AuditingEntityListener.class)
 public class Report {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    @Enumerated(EnumType.STRING)
-    private ReportType reportType;
+  @Enumerated(EnumType.STRING)
+  private ReportType reportType;
 
-    @ManyToOne
-    @JoinColumn(name = "from_user_id")
-    private User fromUser;
+  @ManyToOne
+  @JoinColumn(name = "from_user_id")
+  private User fromUser;
 
-    @ManyToOne
-    @JoinColumn(name = "to_user_id")
-    private User toUser;
+  @ManyToOne
+  @JoinColumn(name = "to_user_id")
+  private User toUser;
 
-    private String content;
+  private String content;
 
-    @Enumerated(EnumType.STRING)
-    private ReasonType reasonType;
+  @Enumerated(EnumType.STRING)
+  private ReasonType reasonType;
 
-    @CreatedDate
-    @Column(name = "reported_at", updatable = false)
-    private LocalDateTime reportedAt;  // 신고 시간
+  @CreatedDate
+  @Column(name = "reported_at", updatable = false)
+  private LocalDateTime reportedAt; // 신고 시간
 
-    private Boolean isProcessed;  // 처리 완료 여부
+  private Boolean isProcessed; // 처리 완료 여부
 }

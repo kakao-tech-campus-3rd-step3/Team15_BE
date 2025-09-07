@@ -10,23 +10,15 @@ import org.springframework.security.web.SecurityFilterChain;
 @Profile("local")
 public class LocalSecurityConfig {
 
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http
-                .csrf(csrf -> csrf
-                        .ignoringRequestMatchers("/h2-console/**")
-                        .disable()
-                )
-                .headers(headers -> headers
-                        .frameOptions(frame -> frame.sameOrigin())
-                )
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/h2-console/**").permitAll()
-                        .anyRequest().permitAll()
-                )
-                .formLogin(form -> form.disable())
-                .httpBasic(basic -> basic.disable());
+  @Bean
+  public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    http.csrf(csrf -> csrf.ignoringRequestMatchers("/h2-console/**").disable())
+        .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()))
+        .authorizeHttpRequests(
+            auth -> auth.requestMatchers("/h2-console/**").permitAll().anyRequest().permitAll())
+        .formLogin(form -> form.disable())
+        .httpBasic(basic -> basic.disable());
 
-        return http.build();
-    }
+    return http.build();
+  }
 }
