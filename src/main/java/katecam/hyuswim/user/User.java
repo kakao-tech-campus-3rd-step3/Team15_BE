@@ -26,7 +26,7 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String username;
+    private String email;
 
     private String password;
 
@@ -55,8 +55,8 @@ public class User {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    public User(String username, String password, String nickname) {
-        this.username = username;
+    public User(String email, String password, String nickname) {
+        this.email = email;
         this.password = password;
         this.nickname = nickname;
         this.role = UserRole.USER;
