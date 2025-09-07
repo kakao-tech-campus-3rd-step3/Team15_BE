@@ -21,7 +21,7 @@ jobs:
           java-version: '21'
           distribution: 'corretto'
 
-      #  3. Gradle 캐시 설정 (새로 추가된 부분)
+      #  3. Gradle 캐시 설정
       - name: Cache Gradle packages
         uses: actions/cache@v3
         with:
@@ -37,13 +37,12 @@ jobs:
         run: chmod +x ./gradlew
 
       # 5. Spring Boot 애플리케이션 빌드
-      #  application.yml에 맞춰 Secret 이름을 JWT_SECRET으로 수정
       - name: Build with Gradle
         env:
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
         run: ./gradlew build -x test
 
-      # 6. EC2에 있는 기존 JAR 파일 삭제 (ssh-action 사용)
+      # 6. EC2에 있는 기존 JAR 파일 삭제
       - name: Delete old JAR on EC2
         uses: appleboy/ssh-action@master
         with:
@@ -53,7 +52,7 @@ jobs:
           script: |
             rm -f /home/ubuntu/Team15_BE/app.jar
 
-      # 7. 새 JAR 파일을 EC2에 전송 (scp-action 사용)
+      # 7. 새 JAR 파일을 EC2에 전송
       - name: Copy new JAR to EC2
         uses: appleboy/scp-action@master
         with:
@@ -62,64 +61,71 @@ jobs:
           key: ${{ secrets.EC2_PEM_KEY }}
           source: "build/libs/app.jar"
           target: "/home/ubuntu/Team15_BE"
+          overwrite: true
 
-      # 8. EC2에 접속하여 배포 스크립트 실행
-      - name: Execute deployment script on EC2
+      # 8. EC2에 접속하여 애플리케이션 실행 및 검증
+      - name: Run application and verify on EC2
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_PEM_KEY }}
           script: |
-            # 개선 사항 2: 단계적 종료(Graceful Shutdown)를 실행합니다.
+            JAR_PATH="/home/ubuntu/Team15_BE/app.jar"
+            LOG_DIR="/home/ubuntu/Team15_BE/logs"
+            
+            mkdir -p $LOG_DIR
+            LOG_FILE_NAME="$(date +'%Y-%m-%d_%H-%M-%S').log"
+            LOG_FILE_PATH="$LOG_DIR/$LOG_FILE_NAME"
+
+            # --- 최종 개선된 단계적 종료 로직 ---
             PID=$(pgrep -f "app.jar")
             if [ -n "$PID" ]; then
-              echo "Found running process with PID: $PID"
-              echo "Attempting graceful shutdown with SIGTERM..."
+              echo "Found running process with PID: $PID. Attempting graceful shutdown..."
+            
+              set +e
               kill -15 $PID
-              # 10초간 프로세스가 종료되기를 기다립니다.
-              for i in {1..10}; do
-                if ! ps -p $PID > /dev/null; then
-                  echo "Process terminated gracefully."
-                  PID=""
-                  break
+              KILL_EXIT_CODE=$?
+              set -e
+
+              # 종료 코드 0(성공), 143(정상종료), 1(프로세스 없음)을 모두 성공으로 간주
+              if [ $KILL_EXIT_CODE -eq 0 ] || [ $KILL_EXIT_CODE -eq 143 ] || [ $KILL_EXIT_CODE -eq 1 ]; then
+                if [ $KILL_EXIT_CODE -eq 1 ]; then
+                  echo "Process was not found. It may have already terminated."
+                else
+                  echo "Process termination signal sent successfully (Exit Code: $KILL_EXIT_CODE)."
                 fi
-                sleep 1
-              done
-              # 만약 프로세스가 여전히 살아있다면 강제 종료합니다.
-              if [ -n "$PID" ]; then
-                echo "Process did not terminate. Forcing shutdown with SIGKILL..."
-                kill -9 $PID
+            
+                sleep 10
+                if ps -p $PID > /dev/null; then
+                  echo "Process did not terminate. Forcing shutdown with SIGKILL..."
+                  kill -9 $PID
+                else
+                  echo "Process terminated successfully."
+                fi
+              else
+                echo "ERROR: kill -15 command failed with unexpected exit code: $KILL_EXIT_CODE"
+                exit 1
               fi
             else
               echo "No running Java process found."
             fi
 
-            # 개선 사항 3: 환경 변수를 주입하고 로그 파일을 지정하여 애플리케이션을 실행합니다.
-            JAR_PATH="/home/ubuntu/Team15_BE/app.jar"
-            LOG_DIR="/home/ubuntu/Team15_BE/logs"
-            
-            # 로그를 저장할 디렉터리가 없으면 생성합니다.
-            mkdir -p $LOG_DIR
-            
-            # '년-월-일_시-분-초.log' 형식으로 로그 파일 이름을 만듭니다.
-            LOG_FILE_NAME="$(date +'%Y-%m-%d_%H-%M-%S').log"
-            LOG_FILE_PATH="$LOG_DIR/$LOG_FILE_NAME"
-
-            echo "Executing JAR file: $JAR_PATH"
+            echo "Starting new application... Logging to $LOG_FILE_PATH"
             nohup java -jar \
-              -Djwt.secret.key=${{ secrets.JWT_SECRET }} \
+              -D JWT_SECRET=${{ secrets.JWT_SECRET }} \
               $JAR_PATH > $LOG_FILE_PATH 2>&1 &
             
-            # --- 실행 후 검증 코드 추가 ---
+            # --- 실행 후 검증 코드 ---
             echo "Verifying application startup..."
-            sleep 15 # 애플리케이션이 시작될 시간을 줍니다.
-                    
+            sleep 15
+            
             if pgrep -f $JAR_PATH > /dev/null; then
               echo "Application started successfully."
+              exit 0
             else
               echo "ERROR: Application failed to start. Please check the logs."
-            # 로그 파일의 마지막 50줄을 출력하여 GitHub Actions에서 바로 확인
               tail -n 50 $LOG_FILE_PATH
-              exit 1 # 워크플로우를 실패 처리
+              exit 1
             fi
+
