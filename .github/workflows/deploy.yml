@@ -36,13 +36,17 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
 
-      # 5. Spring Boot 애플리케이션 빌드
+      # 5. 코드 스타일 체크
+      - name: Check code style with Spotless
+        run: ./gradlew spotlessCheck
+
+      # 6. Spring Boot 애플리케이션 빌드
       - name: Build with Gradle
         env:
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
         run: ./gradlew build -x test
 
-      # 6. EC2에 있는 기존 JAR 파일 삭제
+      # 7. EC2에 있는 기존 JAR 파일 삭제
       - name: Delete old JAR on EC2
         uses: appleboy/ssh-action@master
         with:
@@ -52,7 +56,7 @@ jobs:
           script: |
             rm -f /home/ubuntu/Team15_BE/app.jar
 
-      # 7. 새 JAR 파일을 EC2에 전송
+      # 8. 새 JAR 파일을 EC2에 전송
       - name: Copy new JAR to EC2
         uses: appleboy/scp-action@master
         with:
@@ -63,7 +67,7 @@ jobs:
           target: "/home/ubuntu/Team15_BE"
           overwrite: true
 
-      # 8. EC2에 접속하여 애플리케이션 실행 및 검증
+      # 9. EC2에 접속하여 애플리케이션 실행 및 검증
       - name: Run application and verify on EC2
         uses: appleboy/ssh-action@master
         with:
@@ -73,7 +77,7 @@ jobs:
           script: |
             JAR_PATH="/home/ubuntu/Team15_BE/app.jar"
             LOG_DIR="/home/ubuntu/Team15_BE/logs"
-            
+
             mkdir -p $LOG_DIR
             LOG_FILE_NAME="$(date +'%Y-%m-%d_%H-%M-%S').log"
             LOG_FILE_PATH="$LOG_DIR/$LOG_FILE_NAME"
@@ -82,7 +86,7 @@ jobs:
             PID=$(pgrep -f "app.jar")
             if [ -n "$PID" ]; then
               echo "Found running process with PID: $PID. Attempting graceful shutdown..."
-            
+
               set +e
               kill -15 $PID
               KILL_EXIT_CODE=$?
@@ -95,7 +99,7 @@ jobs:
                 else
                   echo "Process termination signal sent successfully (Exit Code: $KILL_EXIT_CODE)."
                 fi
-            
+
                 sleep 10
                 if ps -p $PID > /dev/null; then
                   echo "Process did not terminate. Forcing shutdown with SIGKILL..."
@@ -115,11 +119,11 @@ jobs:
             nohup java -jar \
               -D JWT_SECRET=${{ secrets.JWT_SECRET }} \
               $JAR_PATH > $LOG_FILE_PATH 2>&1 &
-            
+
             # --- 실행 후 검증 코드 ---
             echo "Verifying application startup..."
             sleep 15
-            
+
             if pgrep -f $JAR_PATH > /dev/null; then
               echo "Application started successfully."
               exit 0
