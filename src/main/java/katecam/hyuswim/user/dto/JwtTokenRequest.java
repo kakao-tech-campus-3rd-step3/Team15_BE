@@ -1,15 +1,10 @@
 package katecam.hyuswim.user.dto;
 
 import katecam.hyuswim.user.UserRole;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-@Data
+@Getter
 @AllArgsConstructor
-@NoArgsConstructor
-@Builder
 public class JwtTokenRequest {
 
     private String username;
