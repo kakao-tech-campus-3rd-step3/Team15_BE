@@ -1,0 +1,25 @@
+# EditorConfig helps maintain consistent coding styles between different editors and IDEs
+root = true
+
+# 기본 설정
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+indent_style = space
+indent_size = 4
+trim_trailing_whitespace = true
+
+# Java 파일 설정
+[*.java]
+indent_size = 4
+continuation_indent_size = 8
+max_line_length = 120
+
+# Gradle, YAML, JSON 등
+[*.{yml,yaml,json,gradle,xml}]
+indent_size = 2
+
+# Markdown 파일
+[*.md]
+trim_trailing_whitespace = false
