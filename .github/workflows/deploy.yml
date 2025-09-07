@@ -1,0 +1,125 @@
+name: Deploy to EC2 with GitHub Actions
+
+on:
+  push:
+    branches:
+      - develop  # develop 브랜치에 코드가 푸시되면 실행됩니다.
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest # 이 워크플로우는 우분투 가상 환경에서 실행됩니다.
+
+    steps:
+      # 1. 코드 체크아웃
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      # 2. JDK 21 설치
+      - name: Set up JDK 21
+        uses: actions/setup-java@v3
+        with:
+          java-version: '21'
+          distribution: 'corretto'
+
+      #  3. Gradle 캐시 설정 (새로 추가된 부분)
+      - name: Cache Gradle packages
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      # 4. Gradle 실행 권한 부여
+      - name: Grant execute permission for gradlew
+        run: chmod +x ./gradlew
+
+      # 5. Spring Boot 애플리케이션 빌드
+      #  application.yml에 맞춰 Secret 이름을 JWT_SECRET으로 수정
+      - name: Build with Gradle
+        env:
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+        run: ./gradlew build -x test
+
+      # 6. EC2에 있는 기존 JAR 파일 삭제 (ssh-action 사용)
+      - name: Delete old JAR on EC2
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_PEM_KEY }}
+          script: |
+            rm -f /home/ubuntu/Team15_BE/app.jar
+
+      # 7. 새 JAR 파일을 EC2에 전송 (scp-action 사용)
+      - name: Copy new JAR to EC2
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_PEM_KEY }}
+          source: "build/libs/app.jar"
+          target: "/home/ubuntu/Team15_BE"
+
+      # 8. EC2에 접속하여 배포 스크립트 실행
+      - name: Execute deployment script on EC2
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_PEM_KEY }}
+          script: |
+            # 개선 사항 2: 단계적 종료(Graceful Shutdown)를 실행합니다.
+            PID=$(pgrep -f "app.jar")
+            if [ -n "$PID" ]; then
+              echo "Found running process with PID: $PID"
+              echo "Attempting graceful shutdown with SIGTERM..."
+              kill -15 $PID
+              # 10초간 프로세스가 종료되기를 기다립니다.
+              for i in {1..10}; do
+                if ! ps -p $PID > /dev/null; then
+                  echo "Process terminated gracefully."
+                  PID=""
+                  break
+                fi
+                sleep 1
+              done
+              # 만약 프로세스가 여전히 살아있다면 강제 종료합니다.
+              if [ -n "$PID" ]; then
+                echo "Process did not terminate. Forcing shutdown with SIGKILL..."
+                kill -9 $PID
+              fi
+            else
+              echo "No running Java process found."
+            fi
+
+            # 개선 사항 3: 환경 변수를 주입하고 로그 파일을 지정하여 애플리케이션을 실행합니다.
+            JAR_PATH="/home/ubuntu/Team15_BE/app.jar"
+            LOG_DIR="/home/ubuntu/Team15_BE/logs"
+            
+            # 로그를 저장할 디렉터리가 없으면 생성합니다.
+            mkdir -p $LOG_DIR
+            
+            # '년-월-일_시-분-초.log' 형식으로 로그 파일 이름을 만듭니다.
+            LOG_FILE_NAME="$(date +'%Y-%m-%d_%H-%M-%S').log"
+            LOG_FILE_PATH="$LOG_DIR/$LOG_FILE_NAME"
+
+            echo "Executing JAR file: $JAR_PATH"
+            nohup java -jar \
+              -Djwt.secret.key=${{ secrets.JWT_SECRET }} \
+              $JAR_PATH > $LOG_FILE_PATH 2>&1 &
+            
+            # --- 실행 후 검증 코드 추가 ---
+            echo "Verifying application startup..."
+            sleep 15 # 애플리케이션이 시작될 시간을 줍니다.
+                    
+            if pgrep -f $JAR_PATH > /dev/null; then
+              echo "Application started successfully."
+            else
+              echo "ERROR: Application failed to start. Please check the logs."
+            # 로그 파일의 마지막 50줄을 출력하여 GitHub Actions에서 바로 확인
+              tail -n 50 $LOG_FILE_PATH
+              exit 1 # 워크플로우를 실패 처리
+            fi
