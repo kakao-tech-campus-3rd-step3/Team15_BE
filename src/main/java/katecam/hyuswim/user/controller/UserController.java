@@ -35,11 +35,9 @@ public class UserController {
         }
 
         try {
-            User loginUser = userService.findUserByUsername(loginRequest.getUsername());
-            String token = jwtUtil.generateToken(
-                    new JwtTokenRequest(loginRequest.getUsername(), loginUser.getRole())
-            );
-            return ResponseEntity.ok(new JwtTokenResponse(token));
+          User loginUser = userService.findUserByEmail(loginRequest.getEmail());
+          String token = jwtUtil.generateToken(new JwtTokenRequest(loginRequest.getEmail(), loginUser.getRole()));
+          return ResponseEntity.ok(new JwtTokenResponse(token));
         } catch (UserNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("해당 유저를 찾을 수 없습니다.");
         }

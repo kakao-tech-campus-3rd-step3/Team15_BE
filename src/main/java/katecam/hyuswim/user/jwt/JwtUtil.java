@@ -37,7 +37,7 @@ public class JwtUtil {
     public String generateToken(JwtTokenRequest jwtTokenRequest) {
         long currentTimeMillis = System.currentTimeMillis();
         return Jwts.builder()
-                .setSubject(jwtTokenRequest.getUsername())
+                .setSubject(jwtTokenRequest.getEmail())
                 .claim("role", jwtTokenRequest.getRole())
                 .setIssuedAt(new Date(currentTimeMillis))
                 .setExpiration(new Date(currentTimeMillis + oneHour))
