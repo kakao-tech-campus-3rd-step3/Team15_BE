@@ -1,24 +1,14 @@
 package katecam.hyuswim.user.dto;
 
 import katecam.hyuswim.user.User;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-@Data
+@Getter
 @AllArgsConstructor
-@NoArgsConstructor
-@Builder
 public class SignupRequest {
 
-    private String username;
+    private String email;
     private String password;
     private String nickname;
 
-
-
-    public User toEntity() {
-        return new User(username, password, nickname);
-    }
 }

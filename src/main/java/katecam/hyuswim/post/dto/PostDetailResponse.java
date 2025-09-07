@@ -32,7 +32,7 @@ public class PostDetailResponse {
                 .title(entity.getTitle())
                 .content(entity.getContent())
                 .postCategory(entity.getPostCategory().name())
-                .author(entity.getUser().getUsername())
+                .author(entity.getUser().getEmail())
                 .isAnonymous(entity.getIsAnonymous())
                 .isDeleted(entity.getIsDeleted())
                 .isLiked(false)

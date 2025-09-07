@@ -26,7 +26,7 @@ public class PostListResponse {
                 .id(entity.getId())
                 .title(entity.getTitle())
                 .content(entity.getContent())
-                .author(entity.getUser().getUsername())
+                .author(entity.getUser().getEmail())
                 .likeCount((long) entity.getLikes().size())
                 .viewCount(entity.getViewCount())
                 .createdAt(entity.getCreatedAt())
