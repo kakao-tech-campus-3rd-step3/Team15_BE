@@ -1,8 +1,11 @@
 package katecam.hyuswim.user.service;
 
+import katecam.hyuswim.jwt.JwtUtil;
+import katecam.hyuswim.jwt.dto.JwtTokenResponse;
 import katecam.hyuswim.user.User;
 import katecam.hyuswim.user.dto.LoginRequest;
 import katecam.hyuswim.user.dto.SignupRequest;
+import katecam.hyuswim.user.exception.LoginFalseException;
 import katecam.hyuswim.user.exception.UserNotFoundException;
 import katecam.hyuswim.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +20,7 @@ import java.util.Optional;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final JwtUtil jwtUtil;
     private final BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
 
 
@@ -31,24 +35,17 @@ public class UserService {
     }
 
     @Transactional
-    public boolean existUser(LoginRequest loginRequest) {
+    public String login(LoginRequest loginRequest) {
         Optional<User> userOptional = userRepository.findByEmail(loginRequest.getEmail());
-
-        if (userOptional.isEmpty()) {
-            return false;
-        }
-
-        User user = userOptional.get();
-        return bCryptPasswordEncoder.matches(loginRequest.getPassword(), user.getPassword());
-    }
-
-    @Transactional
-    public User findUserByEmail(String email) throws UserNotFoundException {
-        Optional<User> userOptional = userRepository.findByEmail(email);
         if(userOptional.isEmpty()) {
-            throw new UserNotFoundException("해당 유저는 존재하지 않습니다.");
+            throw new UserNotFoundException("해당 이메일을 가진 유저를 찾을 수 없습니다");
         }
-        return userOptional.get();
+        User user = userOptional.get();
+        if(!bCryptPasswordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
+            throw new LoginFalseException("비밀번호가 일치하지 않습니다.");
+        }
+        return jwtUtil.generateToken(user.getEmail(), user.getRole());
+
     }
 
 }

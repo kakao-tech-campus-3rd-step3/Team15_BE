@@ -6,6 +6,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import jakarta.annotation.PostConstruct;
 import katecam.hyuswim.jwt.dto.JwtTokenRequest;
+import katecam.hyuswim.user.UserRole;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -34,11 +35,11 @@ public class JwtUtil {
     }
 
 
-    public String generateToken(JwtTokenRequest jwtTokenRequest) {
+    public String generateToken(String email, UserRole role) {
         long currentTimeMillis = System.currentTimeMillis();
         return Jwts.builder()
-                .setSubject(jwtTokenRequest.getEmail())
-                .claim("role", jwtTokenRequest.getRole())
+                .setSubject(email)
+                .claim("role", role)
                 .setIssuedAt(new Date(currentTimeMillis))
                 .setExpiration(new Date(currentTimeMillis + oneHour))
                 .signWith(SignatureAlgorithm.HS256, secret)
