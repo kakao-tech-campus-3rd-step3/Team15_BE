@@ -1,5 +1,7 @@
 package katecam.hyuswim.post.service;
 
+import katecam.hyuswim.common.error.CustomException;
+import katecam.hyuswim.common.error.ErrorCode;
 import katecam.hyuswim.post.domain.Post;
 import katecam.hyuswim.post.domain.PostCategory;
 import katecam.hyuswim.post.dto.*;
@@ -24,7 +26,7 @@ public class PostService {
     @Transactional
     public PostDetailResponse createPost(PostRequest request, Long userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         Post post = new Post(
                 request.getTitle(),
@@ -54,7 +56,7 @@ public class PostService {
 
     public PostDetailResponse getPost(Long id) {
         Post post = postRepository.findByIdAndIsDeletedFalse(id)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시글입니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
         return PostDetailResponse.from(post);
     }
 
@@ -76,10 +78,10 @@ public class PostService {
     @Transactional
     public PostDetailResponse updatePost(Long id, PostRequest request, Long userId) {
         Post post = postRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시글입니다."));
+                .orElseThrow(() ->  new CustomException(ErrorCode.POST_NOT_FOUND));
 
         if (!post.getUser().getId().equals(userId)) {
-            throw new IllegalStateException("작성자만 게시글을 수정할 수 있습니다.");
+            throw new CustomException(ErrorCode.POST_ACCESS_DENIED);
         }
 
         post.update(
@@ -94,10 +96,10 @@ public class PostService {
     @Transactional
     public void deletePost(Long id, Long userId) {
         Post post = postRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 게시글입니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
         if (!post.getUser().getId().equals(userId)) {
-            throw new IllegalStateException("작성자만 게시글을 삭제할 수 있습니다.");
+            throw new CustomException(ErrorCode.POST_ACCESS_DENIED);
         }
 
         post.delete();
