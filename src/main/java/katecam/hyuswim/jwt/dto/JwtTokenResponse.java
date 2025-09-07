@@ -1,4 +1,4 @@
-package katecam.hyuswim.user.dto;
+package katecam.hyuswim.jwt.dto;
 
 import lombok.*;
 

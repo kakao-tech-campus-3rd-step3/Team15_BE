@@ -1,11 +1,11 @@
-package katecam.hyuswim.user.jwt;
+package katecam.hyuswim.jwt;
 
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import jakarta.annotation.PostConstruct;
-import katecam.hyuswim.user.dto.JwtTokenRequest;
+import katecam.hyuswim.jwt.dto.JwtTokenRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 

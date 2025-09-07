@@ -1,4 +1,4 @@
-package katecam.hyuswim.user.dto;
+package katecam.hyuswim.jwt.dto;
 
 import katecam.hyuswim.user.UserRole;
 import lombok.*;
