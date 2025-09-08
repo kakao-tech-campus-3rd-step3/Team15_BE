@@ -6,7 +6,7 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class CommentRequest {
-    private Long postId;
-    private String content;
-    private Boolean isAnonymous;
+  private Long postId;
+  private String content;
+  private Boolean isAnonymous;
 }
