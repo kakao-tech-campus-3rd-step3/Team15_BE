@@ -21,7 +21,15 @@
         </tr>
         </thead>
         <tbody>
-        <!-- 5단계에서 th:each로 실제 데이터 바인딩 예정 -->
+        <tbody>
+        <tr th:each="u : ${users}">
+            <td th:text="${u.id}">1</td>
+            <td th:text="${u.email}">user@example.com</td>
+            <td th:text="${u.role}">USER</td>
+            <td th:text="${u.status}">ACTIVE</td>
+        </tr>
+        </tbody>
+
         <tr>
             <td colspan="5">데이터 준비 중...</td>
         </tr>
