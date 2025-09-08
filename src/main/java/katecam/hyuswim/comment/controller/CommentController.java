@@ -42,4 +42,10 @@ public class CommentController {
         CommentDetailResponse response = commentService.getComment(id);
         return ResponseEntity.ok(response);
     }
+
+    @PatchMapping("/comments/{id}")
+    public ResponseEntity<CommentDetailResponse> updateComment(@PathVariable Long id, @RequestParam Long userId, @RequestBody CommentRequest request){
+        CommentDetailResponse response = commentService.updateComment(id, userId, request);
+        return ResponseEntity.ok(response);
+    }
 }

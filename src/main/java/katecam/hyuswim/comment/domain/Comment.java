@@ -48,11 +48,16 @@ public class Comment {
   @Column(name = "updated_at")
   private LocalDateTime updatedAt;
 
-    @Builder
+  @Builder
   public Comment(User user, Post post, String content, boolean isAnonymous){
       this.user = user;
       this.post = post;
       this.content = content;
       this.isAnonymous = isAnonymous;
   }
+
+  public void update(String content){
+      this.content = content;
+  }
+
 }

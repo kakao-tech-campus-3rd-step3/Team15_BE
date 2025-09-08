@@ -56,4 +56,14 @@ public class CommentService {
         return CommentDetailResponse.from(comment);
     }
 
+    @Transactional
+    public CommentDetailResponse updateComment(Long id, Long userId, CommentRequest request){
+        Comment comment = commentRespository
+                .findByIdAndIsDeletedFalse(id)
+                .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
+        comment.update(request.getContent());
+
+        return CommentDetailResponse.from(comment);
+    }
+
 }
