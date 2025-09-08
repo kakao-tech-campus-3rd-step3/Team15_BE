@@ -63,6 +63,10 @@ public class CommentService {
                 .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
         comment.update(request.getContent());
 
+        if (!comment.getUser().getId().equals(userId)) {
+            throw new CustomException(ErrorCode.COMMENT_ACCESS_DENIED);
+        }
+
         return CommentDetailResponse.from(comment);
     }
 
