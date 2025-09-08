@@ -2,7 +2,7 @@
 name: "Refactor"
 about: "코드 리팩토링 작업 이슈"
 title: "[Refactor] "
-labels: ["refactor"]
+type: Task
 assignees: ""
 ---
 
