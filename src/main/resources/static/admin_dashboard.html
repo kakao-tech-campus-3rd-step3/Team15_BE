@@ -10,6 +10,12 @@
     <p>여기에 사용자 목록이 표시됩니다.</p>
 </header>
 
+<!-- 리다이렉트 메시지 표시 (RedirectAttributes → ?msg=...) -->
+<div th:if="${param.msg}">
+    <div style="margin:8px 0; padding:8px; border:1px solid #cce;"
+         th:text="${param.msg[0]}">메시지</div>
+</div>
+
 <section>
     <table border="1" cellpadding="6" cellspacing="0">
         <thead>
@@ -28,7 +34,23 @@
             <td th:text="${u.email}">user@example.com</td>
             <td th:text="${u.role}">USER</td>
             <td th:text="${u.status}">ACTIVE</td>
-            <td><!-- 차단/해제 버튼은 다음 단계에서 추가 --></td>
+            <td>
+                <!-- ACTIVE → 차단 버튼 -->
+                <form th:if="${u.status.name() == 'ACTIVE'}"
+                      th:action="@{'/admin/users/' + ${u.id} + '/block'}"
+                      method="post" style="display:inline;">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                    <button type="submit">차단</button>
+                </form>
+
+                <!-- BLOCKED → 해제 버튼 -->
+                <form th:if="${u.status.name() == 'BLOCKED'}"
+                      th:action="@{'/admin/users/' + ${u.id} + '/unblock'}"
+                      method="post" style="display:inline;">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                    <button type="submit">해제</button>
+                </form>
+            </td>
         </tr>
 
         <!-- 목록이 비었을 때 -->
