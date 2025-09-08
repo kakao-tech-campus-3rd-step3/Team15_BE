@@ -6,7 +6,7 @@ import katecam.hyuswim.mission.Mission;
 import katecam.hyuswim.mission.progress.MissionProgress;
 import katecam.hyuswim.mission.repository.MissionRepository;
 import katecam.hyuswim.mission.repository.MissionProgressRepository;
-import katecam.hyuswim.user.UserRepository;
+import katecam.hyuswim.user.repository.UserRepository;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
