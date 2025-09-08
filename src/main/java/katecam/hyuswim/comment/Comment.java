@@ -20,12 +20,12 @@ public class Comment {
 
   private String content;
 
-  @ManyToOne // 여러개의 comment를 하나의 user가 씀
+  @ManyToOne
   @JoinColumn(name = "user_id")
   private User user;
 
   @ManyToOne
-  @JoinColumn(name = "board_id")
+  @JoinColumn(name = "post_id")
   private Post post;
 
   @CreatedDate
