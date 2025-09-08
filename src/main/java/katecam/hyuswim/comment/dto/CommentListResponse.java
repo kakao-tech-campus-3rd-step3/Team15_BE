@@ -19,8 +19,8 @@ public class CommentListResponse {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    public static CommentDetailResponse from(Comment entity){
-        return CommentDetailResponse.builder()
+    public static CommentListResponse from(Comment entity){
+        return CommentListResponse.builder()
                 .id(entity.getId())
                 .postId(entity.getPost().getId())
                 .author(entity.getUser().getNickname())

@@ -2,9 +2,14 @@ package katecam.hyuswim.comment.controller;
 
 
 import katecam.hyuswim.comment.dto.CommentDetailResponse;
+import katecam.hyuswim.comment.dto.CommentListResponse;
 import katecam.hyuswim.comment.dto.CommentRequest;
 import katecam.hyuswim.comment.service.CommentService;
+import katecam.hyuswim.post.dto.PageResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,5 +29,11 @@ public class CommentController {
             ){
         CommentDetailResponse response = commentService.createComment(request, userId, postId);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @GetMapping("/posts/{postId}/comments")
+    public ResponseEntity<PageResponse<CommentListResponse>> getComments(@PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC, size = 10
+    )Pageable pageable){
+        return ResponseEntity.ok(commentService.getComments(pageable));
     }
 }
