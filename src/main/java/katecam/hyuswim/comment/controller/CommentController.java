@@ -36,4 +36,10 @@ public class CommentController {
     )Pageable pageable){
         return ResponseEntity.ok(commentService.getComments(pageable));
     }
+
+    @GetMapping("/comments/{id}")
+    public ResponseEntity<CommentDetailResponse> getComment(@PathVariable Long id){
+        CommentDetailResponse response = commentService.getComment(id);
+        return ResponseEntity.ok(response);
+    }
 }

@@ -49,4 +49,11 @@ public class CommentService {
                 commentRespository.findAllByIsDeletedFalse(pageable).map(CommentListResponse::from));
     }
 
+    public CommentDetailResponse getComment(Long id){
+        Comment comment = commentRespository
+                .findByIdAndIsDeletedFalse(id)
+                .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
+        return CommentDetailResponse.from(comment);
+    }
+
 }
