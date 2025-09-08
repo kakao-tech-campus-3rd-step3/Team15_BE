@@ -40,11 +40,15 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
 
-      # 5) 빌드 (테스트 제외)
+      # 5) 코드 스타일 체크 (Spotless)
+      - name: Check code style with Spotless
+        run: ./gradlew spotlessCheck
+
+      # 6) 빌드 (테스트 제외)
       - name: Build with Gradle
         run: ./gradlew build -x test
 
-      # 6) 빌드 산출물(SNAPSHOT) 파일명 추출 (단일 파일 보장)
+      # 7) 빌드 산출물(SNAPSHOT) 파일명 추출 (단일 파일 보장)
       - name: Find and export JAR file name
         id: find_jar
         shell: bash
@@ -64,7 +68,7 @@ jobs:
       - name: Debug - list local build/libs
         run: ls -al build/libs
 
-      # 7) 원격 타겟 디렉터리 보장
+      # 8) 원격 타겟 디렉터리 보장
       - name: Ensure target dir on EC2
         uses: appleboy/ssh-action@master
         with:
@@ -75,7 +79,7 @@ jobs:
             set -e
             mkdir -p /home/${USER}/Team15_BE
 
-      # 8) 정확히 단일 파일만 전송 + 경로 납작화(strip_components: 2)
+      # 9) 정확히 단일 파일만 전송 + 경로 납작화(strip_components: 2)
       - name: Copy JAR to EC2 (flatten path)
         uses: appleboy/scp-action@master
         with:
@@ -87,7 +91,7 @@ jobs:
           overwrite: true
           strip_components: 2
 
-      # 9) EC2에서 파일 존재 확인(루트에 존재해야 함)
+      # 10) EC2에서 파일 존재 확인(루트에 존재해야 함)
       - name: Verify file transfer on EC2
         uses: appleboy/ssh-action@master
         with:
@@ -102,7 +106,7 @@ jobs:
             echo "--- Verifying specific file ---"
             ls -l "${APP_DIR}/${{ steps.find_jar.outputs.JAR_NAME }}"
 
-      # 10) 배포 & 실행 (심볼릭 링크 + 안전한 중지)
+      # 11) 배포 & 실행 (심볼릭 링크 + 안전한 중지)
       - name: Deploy and Run on EC2
         uses: appleboy/ssh-action@master
         with:

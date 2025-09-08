@@ -1,11 +1,11 @@
 package katecam.hyuswim.mission.progress;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
 import jakarta.persistence.*;
 import katecam.hyuswim.mission.Mission;
 import katecam.hyuswim.user.User;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Entity
 @Table(

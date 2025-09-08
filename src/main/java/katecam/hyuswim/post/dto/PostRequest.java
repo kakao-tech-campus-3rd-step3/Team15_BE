@@ -7,8 +7,8 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 public class PostRequest {
-    private String title;
-    private String content;
-    private Boolean isAnonymous;
-    private PostCategory postCategory;
+  private String title;
+  private String content;
+  private Boolean isAnonymous;
+  private PostCategory postCategory;
 }
