@@ -6,11 +6,32 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 @Profile("local")
 public class LocalSecurityConfig {
+
+
+  @Bean
+  public PasswordEncoder passwordEncoder() {
+    return new BCryptPasswordEncoder();
+  }
+
+  // ↓↓↓ 추가: 인메모리 ADMIN 계정 (로컬 전용)
+  @Bean
+  public UserDetailsService localUsers(PasswordEncoder encoder) {
+    var admin = User.withUsername("admin")
+            .password(encoder.encode("admin123!"))
+            .roles("ADMIN") // → ROLE_ADMIN 권한 부여
+            .build();
+    return new InMemoryUserDetailsManager(admin);
+  }
 
   // 1) H2 콘솔만 담당하는 보안 체인 (우선순위 높음)
   @Bean
