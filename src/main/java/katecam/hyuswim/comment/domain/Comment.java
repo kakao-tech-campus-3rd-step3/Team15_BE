@@ -2,10 +2,6 @@ package katecam.hyuswim.comment.domain;
 
 import java.time.LocalDateTime;
 
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -13,6 +9,10 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import jakarta.persistence.*;
 import katecam.hyuswim.post.domain.Post;
 import katecam.hyuswim.user.User;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
 @EntityListeners(AuditingEntityListener.class)
@@ -49,19 +49,18 @@ public class Comment {
   private LocalDateTime updatedAt;
 
   @Builder
-  public Comment(User user, Post post, String content, boolean isAnonymous){
-      this.user = user;
-      this.post = post;
-      this.content = content;
-      this.isAnonymous = isAnonymous;
+  public Comment(User user, Post post, String content, boolean isAnonymous) {
+    this.user = user;
+    this.post = post;
+    this.content = content;
+    this.isAnonymous = isAnonymous;
   }
 
-  public void update(String content){
-      this.content = content;
+  public void update(String content) {
+    this.content = content;
   }
 
-  public void delete(){
-      this.isDeleted = true;
+  public void delete() {
+    this.isDeleted = true;
   }
-
 }
