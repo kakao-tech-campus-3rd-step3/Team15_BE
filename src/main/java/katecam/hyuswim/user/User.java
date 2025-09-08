@@ -21,63 +21,63 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class User {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    private String email;
+  private String email;
 
-    private String password;
+  private String password;
 
-    private String nickname;
+  private String nickname;
 
-    @OneToMany(mappedBy = "user")
-    private List<Badge> badges;
+  @OneToMany(mappedBy = "user")
+  private List<Badge> badges;
 
-    @OneToMany(mappedBy = "user")
-    private List<Post> posts;
+  @OneToMany(mappedBy = "user")
+  private List<Post> posts;
 
-    @OneToMany(mappedBy = "user")
-    private List<Comment> comments;
+  @OneToMany(mappedBy = "user")
+  private List<Comment> comments;
 
-    @OneToMany(mappedBy = "user")
-    private List<MissionProgress> missionProgresses;
+  @OneToMany(mappedBy = "user")
+  private List<MissionProgress> missionProgresses;
 
-    @Enumerated(EnumType.STRING)
-    private UserRole role;
+  @Enumerated(EnumType.STRING)
+  private UserRole role;
 
-    //추가: 사용자 상태 (기본 ACTIVE)
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
-    private UserStatus status = UserStatus.ACTIVE;
+  // 추가: 사용자 상태 (기본 ACTIVE)
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = false, length = 20)
+  private UserStatus status = UserStatus.ACTIVE;
 
-    @CreatedDate
-    @Column(name = "created_at", updatable = false)
-    private LocalDateTime createdAt;
+  @CreatedDate
+  @Column(name = "created_at", updatable = false)
+  private LocalDateTime createdAt;
 
-    @LastModifiedDate
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
+  @LastModifiedDate
+  @Column(name = "updated_at")
+  private LocalDateTime updatedAt;
 
-    public User(String email, String password, String nickname) {
-        this.email = email;
-        this.password = password;
-        this.nickname = nickname;
-        this.role = UserRole.USER;
-    }
+  public User(String email, String password, String nickname) {
+    this.email = email;
+    this.password = password;
+    this.nickname = nickname;
+    this.role = UserRole.USER;
+  }
 
-    // 추가: 상태 전이 메서드
-    public boolean isBlocked() {
-        return this.status == UserStatus.BLOCKED;
-    }
+  // 추가: 상태 전이 메서드
+  public boolean isBlocked() {
+    return this.status == UserStatus.BLOCKED;
+  }
 
-    public void block() {
-        if (isBlocked()) return;
-        this.status = UserStatus.BLOCKED;
-    }
+  public void block() {
+    if (isBlocked()) return;
+    this.status = UserStatus.BLOCKED;
+  }
 
-    public void unblock() {
-        if (!isBlocked()) return;
-        this.status = UserStatus.ACTIVE;
-    }
+  public void unblock() {
+    if (!isBlocked()) return;
+    this.status = UserStatus.ACTIVE;
+  }
 }
