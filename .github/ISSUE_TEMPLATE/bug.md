@@ -2,7 +2,7 @@
 name: "Bug"
 about: "버그 리포트 이슈"
 title: "[Bug] "
-labels: ["bug"]
+type: Bug
 assignees: ""
 ---
 
