@@ -9,7 +9,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import jakarta.persistence.*;
 import katecam.hyuswim.badge.Badge;
-import katecam.hyuswim.comment.Comment;
+import katecam.hyuswim.comment.domain.Comment;
 import katecam.hyuswim.mission.progress.MissionProgress;
 import katecam.hyuswim.post.domain.Post;
 import lombok.Getter;

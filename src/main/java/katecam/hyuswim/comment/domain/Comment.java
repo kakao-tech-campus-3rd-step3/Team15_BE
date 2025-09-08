@@ -1,7 +1,11 @@
-package katecam.hyuswim.comment;
+package katecam.hyuswim.comment.domain;
 
 import java.time.LocalDateTime;
 
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -12,6 +16,8 @@ import katecam.hyuswim.user.User;
 
 @Entity
 @EntityListeners(AuditingEntityListener.class)
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Comment {
 
   @Id
@@ -41,4 +47,12 @@ public class Comment {
   @LastModifiedDate
   @Column(name = "updated_at")
   private LocalDateTime updatedAt;
+
+    @Builder
+  public Comment(User user, Post post, String content, boolean isAnonymous){
+      this.user = user;
+      this.post = post;
+      this.content = content;
+      this.isAnonymous = isAnonymous;
+  }
 }
