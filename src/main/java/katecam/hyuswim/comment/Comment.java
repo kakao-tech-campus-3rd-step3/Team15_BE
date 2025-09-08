@@ -28,6 +28,12 @@ public class Comment {
   @JoinColumn(name = "post_id")
   private Post post;
 
+  @Column(name = "is_anonymous")
+  private Boolean isAnonymous = false;
+
+  @Column(name = "is_deleted")
+  private Boolean isDeleted = false;
+
   @CreatedDate
   @Column(name = "created_at", updatable = false)
   private LocalDateTime createdAt;
