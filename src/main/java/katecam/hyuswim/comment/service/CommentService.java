@@ -3,16 +3,20 @@ package katecam.hyuswim.comment.service;
 import jakarta.transaction.Transactional;
 import katecam.hyuswim.comment.domain.Comment;
 import katecam.hyuswim.comment.dto.CommentDetailResponse;
+import katecam.hyuswim.comment.dto.CommentListResponse;
 import katecam.hyuswim.comment.dto.CommentRequest;
 import katecam.hyuswim.comment.repository.CommentRespository;
 import katecam.hyuswim.common.error.CustomException;
 import katecam.hyuswim.common.error.ErrorCode;
 import katecam.hyuswim.post.domain.Post;
+import katecam.hyuswim.post.dto.PageResponse;
 import katecam.hyuswim.post.repository.PostRepository;
 import katecam.hyuswim.user.User;
 import katecam.hyuswim.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import org.springframework.data.domain.Pageable;
 
 @Service
 @RequiredArgsConstructor
@@ -38,6 +42,11 @@ public class CommentService {
         Comment saved = commentRespository.save(comment);
 
         return CommentDetailResponse.from(saved);
+    }
+
+    public PageResponse<CommentListResponse> getComments(Pageable pageable){
+        return new PageResponse<>(
+                commentRespository.findAllByIsDeletedFalse(pageable).map(CommentListResponse::from));
     }
 
 }
