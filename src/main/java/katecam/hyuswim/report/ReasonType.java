@@ -1,5 +1,5 @@
 package katecam.hyuswim.report;
 
 public enum ReasonType {
-    TEMP
+  TEMP
 }
