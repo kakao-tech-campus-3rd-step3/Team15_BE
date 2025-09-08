@@ -9,6 +9,7 @@
     <h1>관리자 페이지</h1>
     <p>여기에 사용자 목록이 표시됩니다.</p>
 </header>
+
 <section>
     <table border="1" cellpadding="6" cellspacing="0">
         <thead>
@@ -21,17 +22,18 @@
         </tr>
         </thead>
         <tbody>
-        <tbody>
+        <!-- 사용자 목록 렌더링 -->
         <tr th:each="u : ${users}">
             <td th:text="${u.id}">1</td>
             <td th:text="${u.email}">user@example.com</td>
             <td th:text="${u.role}">USER</td>
             <td th:text="${u.status}">ACTIVE</td>
+            <td><!-- 차단/해제 버튼은 다음 단계에서 추가 --></td>
         </tr>
-        </tbody>
 
-        <tr>
-            <td colspan="5">데이터 준비 중...</td>
+        <!-- 목록이 비었을 때 -->
+        <tr th:if="${#lists.isEmpty(users)}">
+            <td colspan="5">사용자가 없습니다.</td>
         </tr>
         </tbody>
     </table>
