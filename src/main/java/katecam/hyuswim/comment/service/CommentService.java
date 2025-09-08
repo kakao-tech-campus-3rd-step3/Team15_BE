@@ -66,4 +66,17 @@ public class CommentService {
         return CommentDetailResponse.from(comment);
     }
 
+    @Transactional
+    public void deleteComment(Long id, Long userId){
+        Comment comment = commentRespository
+                .findById(id)
+                .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
+
+        if (!comment.getUser().getId().equals(userId)) {
+            throw new CustomException(ErrorCode.COMMENT_ACCESS_DENIED);
+        }
+
+        comment.delete();
+    }
+
 }
