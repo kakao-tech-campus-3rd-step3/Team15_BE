@@ -2,6 +2,7 @@ package katecam.hyuswim.common.jwt;
 
 import java.util.Date;
 
+import katecam.hyuswim.user.UserRole;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -30,11 +31,11 @@ public class JwtUtil {
     return jwtParser.parseClaimsJws(token).getBody().getSubject();
   }
 
-  public String generateToken(JwtTokenRequest jwtTokenRequest) {
+  public String generateToken(String email, UserRole role) {
     long currentTimeMillis = System.currentTimeMillis();
     return Jwts.builder()
-        .setSubject(jwtTokenRequest.getEmail())
-        .claim("role", jwtTokenRequest.getRole())
+        .setSubject(email)
+        .claim("role", role)
         .setIssuedAt(new Date(currentTimeMillis))
         .setExpiration(new Date(currentTimeMillis + oneHour))
         .signWith(SignatureAlgorithm.HS256, secret)
