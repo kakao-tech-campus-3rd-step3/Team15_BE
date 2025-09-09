@@ -1,4 +1,4 @@
-package katecam.hyuswim.user.jwt;
+package katecam.hyuswim.common.jwt;
 
 import java.util.Date;
 
@@ -10,7 +10,6 @@ import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import jakarta.annotation.PostConstruct;
-import katecam.hyuswim.user.dto.JwtTokenRequest;
 
 @Component
 public class JwtUtil {
