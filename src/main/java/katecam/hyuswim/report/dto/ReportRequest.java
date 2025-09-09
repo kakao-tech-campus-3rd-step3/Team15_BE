@@ -10,8 +10,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ReportRequest {
-    private ReportType reportType;
-    private Long targetId;
-    private ReasonType reasonType;
-    private String content;
+  private ReportType reportType;
+  private Long targetId;
+  private ReasonType reasonType;
+  private String content;
 }
