@@ -1,8 +1,8 @@
 package katecam.hyuswim.post.repository;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -38,5 +38,5 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
   long countByIsDeletedFalseAndCreatedAtBetween(LocalDateTime start, LocalDateTime end);
 
-    List<Post> findAllByUser_IdAndIsDeletedFalse(Long userId);
+  List<Post> findAllByUser_IdAndIsDeletedFalse(Long userId);
 }

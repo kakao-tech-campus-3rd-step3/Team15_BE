@@ -50,9 +50,9 @@ public class User {
   @Column(nullable = false, length = 20)
   private UserStatus status = UserStatus.ACTIVE;
 
-    private LocalDateTime blockedUntil;
+  private LocalDateTime blockedUntil;
 
-    private String blockReason;
+  private String blockReason;
 
   @CreatedDate
   @Column(name = "created_at", updatable = false)
@@ -69,35 +69,35 @@ public class User {
     this.role = UserRole.USER;
   }
 
-    public boolean isBlocked() {
-        return this.status == UserStatus.BLOCKED;
-    }
+  public boolean isBlocked() {
+    return this.status == UserStatus.BLOCKED;
+  }
 
-    public boolean isBanned() {
-        return this.status == UserStatus.BANNED;
-    }
+  public boolean isBanned() {
+    return this.status == UserStatus.BANNED;
+  }
 
-    public void blockUntil(LocalDateTime until, String reason) {
-        this.status = UserStatus.BLOCKED;
-        this.blockedUntil = until;
-        this.blockReason = reason;
-    }
+  public void blockUntil(LocalDateTime until, String reason) {
+    this.status = UserStatus.BLOCKED;
+    this.blockedUntil = until;
+    this.blockReason = reason;
+  }
 
-    public void blockPermanently(String reason) {
-        this.status = UserStatus.BLOCKED;
-        this.blockedUntil = null;
-        this.blockReason = reason;
-    }
+  public void blockPermanently(String reason) {
+    this.status = UserStatus.BLOCKED;
+    this.blockedUntil = null;
+    this.blockReason = reason;
+  }
 
-    public void unblock() {
-        this.status = UserStatus.ACTIVE;
-        this.blockedUntil = null;
-        this.blockReason = null;
-    }
+  public void unblock() {
+    this.status = UserStatus.ACTIVE;
+    this.blockedUntil = null;
+    this.blockReason = null;
+  }
 
-    public void ban(String reason) {
-        this.status = UserStatus.BANNED;
-        this.blockedUntil = null;
-        this.blockReason = reason;
-    }
+  public void ban(String reason) {
+    this.status = UserStatus.BANNED;
+    this.blockedUntil = null;
+    this.blockReason = reason;
+  }
 }
