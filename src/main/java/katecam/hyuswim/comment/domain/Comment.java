@@ -1,4 +1,4 @@
-package katecam.hyuswim.comment;
+package katecam.hyuswim.comment.domain;
 
 import java.time.LocalDateTime;
 
@@ -9,9 +9,15 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import jakarta.persistence.*;
 import katecam.hyuswim.post.domain.Post;
 import katecam.hyuswim.user.User;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
 @EntityListeners(AuditingEntityListener.class)
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Comment {
 
   @Id
@@ -20,13 +26,19 @@ public class Comment {
 
   private String content;
 
-  @ManyToOne // 여러개의 comment를 하나의 user가 씀
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "user_id")
   private User user;
 
-  @ManyToOne
-  @JoinColumn(name = "board_id")
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "post_id")
   private Post post;
+
+  @Column(name = "is_anonymous")
+  private Boolean isAnonymous = false;
+
+  @Column(name = "is_deleted")
+  private Boolean isDeleted = false;
 
   @CreatedDate
   @Column(name = "created_at", updatable = false)
@@ -35,4 +47,20 @@ public class Comment {
   @LastModifiedDate
   @Column(name = "updated_at")
   private LocalDateTime updatedAt;
+
+  @Builder
+  public Comment(User user, Post post, String content, boolean isAnonymous) {
+    this.user = user;
+    this.post = post;
+    this.content = content;
+    this.isAnonymous = isAnonymous;
+  }
+
+  public void update(String content) {
+    this.content = content;
+  }
+
+  public void delete() {
+    this.isDeleted = true;
+  }
 }
