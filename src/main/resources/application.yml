@@ -1,0 +1,6 @@
+spring:
+  profiles:
+    active: local
+
+jwt:
+  secret: ${JWT_SECRET}
