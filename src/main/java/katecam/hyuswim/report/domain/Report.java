@@ -2,15 +2,15 @@ package katecam.hyuswim.report.domain;
 
 import java.time.LocalDateTime;
 
-import katecam.hyuswim.common.error.CustomException;
-import katecam.hyuswim.common.error.ErrorCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import jakarta.persistence.*;
+import katecam.hyuswim.common.error.CustomException;
+import katecam.hyuswim.common.error.ErrorCode;
 import katecam.hyuswim.user.User;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
 @EntityListeners(AuditingEntityListener.class)
@@ -50,24 +50,33 @@ public class Report {
   @Column(name = "reported_at", updatable = false)
   private LocalDateTime reportedAt;
 
-  private Report(User reporter, User reportedUser, ReportType reportType, Long targetId, ReasonType reasonType, String content) {
-        this.reporter = reporter;
-        this.reportedUser = reportedUser;
-        this.reportType = reportType;
-        this.targetId = targetId;
-        this.reasonType = reasonType;
-        this.content = content;
+  private Report(
+      User reporter,
+      User reportedUser,
+      ReportType reportType,
+      Long targetId,
+      ReasonType reasonType,
+      String content) {
+    this.reporter = reporter;
+    this.reportedUser = reportedUser;
+    this.reportType = reportType;
+    this.targetId = targetId;
+    this.reasonType = reasonType;
+    this.content = content;
+  }
+
+  public static Report create(
+      User reporter,
+      User reportedUser,
+      ReportType reportType,
+      Long targetId,
+      ReasonType reasonType,
+      String content) {
+
+    if (reasonType == ReasonType.OTHER && (content == null || content.isBlank())) {
+      throw new CustomException(ErrorCode.REPORT_REASON_REQUIRED);
     }
 
-    public static Report create(User reporter, User reportedUser,
-                                ReportType reportType, Long targetId,
-                                ReasonType reasonType, String content) {
-
-        if (reasonType == ReasonType.OTHER && (content == null || content.isBlank())) {
-            throw new CustomException(ErrorCode.REPORT_REASON_REQUIRED);
-        }
-
-        return new Report(reporter, reportedUser, reportType, targetId, reasonType, content);
-    }
-
+    return new Report(reporter, reportedUser, reportType, targetId, reasonType, content);
+  }
 }
