@@ -34,7 +34,7 @@ public class Report {
 
   @CreatedDate
   @Column(name = "reported_at", updatable = false)
-  private LocalDateTime reportedAt; // 신고 시간
+  private LocalDateTime reportedAt;
 
-  private Boolean isProcessed; // 처리 완료 여부
+  private Boolean isProcessed;
 }
