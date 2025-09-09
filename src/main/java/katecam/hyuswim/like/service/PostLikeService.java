@@ -38,4 +38,14 @@ public class PostLikeService {
 
     postLikeRepository.save(new PostLike(post, user));
   }
+
+  @Transactional
+  public void deleteLike(Long postId, Long userId) {
+    PostLike postLike =
+        postLikeRepository
+            .findByPostIdAndUserId(postId, userId)
+            .orElseThrow(() -> new CustomException(ErrorCode.LIKE_NOT_FOUND));
+
+    postLikeRepository.delete(postLike);
+  }
 }
