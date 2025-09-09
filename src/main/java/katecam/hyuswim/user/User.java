@@ -46,6 +46,10 @@ public class User {
   @Enumerated(EnumType.STRING)
   private UserRole role;
 
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = false, length = 20)
+  private UserStatus status = UserStatus.ACTIVE;
+
   @CreatedDate
   @Column(name = "created_at", updatable = false)
   private LocalDateTime createdAt;
@@ -59,5 +63,19 @@ public class User {
     this.password = password;
     this.nickname = nickname;
     this.role = UserRole.USER;
+  }
+
+  public boolean isBlocked() {
+    return this.status == UserStatus.BLOCKED;
+  }
+
+  public void block() {
+    if (isBlocked()) return;
+    this.status = UserStatus.BLOCKED;
+  }
+
+  public void unblock() {
+    if (!isBlocked()) return;
+    this.status = UserStatus.ACTIVE;
   }
 }
