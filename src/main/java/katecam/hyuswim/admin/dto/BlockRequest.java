@@ -4,7 +4,7 @@ import java.time.LocalDateTime;
 
 public class BlockRequest {
 
-    private final String type;          
+    private final String type;
     private final LocalDateTime until;
     private final String reason;
 
