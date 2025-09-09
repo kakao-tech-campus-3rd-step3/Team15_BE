@@ -8,7 +8,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import jakarta.persistence.*;
-import katecam.hyuswim.comment.Comment;
+import katecam.hyuswim.comment.domain.Comment;
 import katecam.hyuswim.like.Like;
 import katecam.hyuswim.user.User;
 import lombok.Getter;
