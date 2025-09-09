@@ -8,7 +8,7 @@ import katecam.hyuswim.comment.domain.Comment;
 import katecam.hyuswim.comment.dto.CommentDetailResponse;
 import katecam.hyuswim.comment.dto.CommentListResponse;
 import katecam.hyuswim.comment.dto.CommentRequest;
-import katecam.hyuswim.comment.repository.CommentRespository;
+import katecam.hyuswim.comment.repository.CommentRepository;
 import katecam.hyuswim.common.error.CustomException;
 import katecam.hyuswim.common.error.ErrorCode;
 import katecam.hyuswim.post.domain.Post;
@@ -22,7 +22,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class CommentService {
 
-  private CommentRespository commentRespository;
+  private CommentRepository commentRespository;
   private UserRepository userRepository;
   private PostRepository postRepository;
 
