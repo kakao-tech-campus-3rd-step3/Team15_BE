@@ -2,13 +2,13 @@ package katecam.hyuswim.user.service;
 
 import java.util.Optional;
 
-import katecam.hyuswim.common.error.CustomException;
-import katecam.hyuswim.common.error.ErrorCode;
-import katecam.hyuswim.auth.jwt.JwtUtil;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import katecam.hyuswim.auth.jwt.JwtUtil;
+import katecam.hyuswim.common.error.CustomException;
+import katecam.hyuswim.common.error.ErrorCode;
 import katecam.hyuswim.user.User;
 import katecam.hyuswim.user.dto.LoginRequest;
 import katecam.hyuswim.user.dto.SignupRequest;
@@ -23,7 +23,6 @@ public class UserService {
   private final BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
   private final JwtUtil jwtUtil;
 
-
   @Transactional
   public void saveUser(SignupRequest signupRequest) {
 
@@ -37,16 +36,14 @@ public class UserService {
   public String login(LoginRequest loginRequest) {
     Optional<User> userOptional = userRepository.findByEmail(loginRequest.getEmail());
 
-    if(userOptional.isEmpty()) {
+    if (userOptional.isEmpty()) {
       throw new CustomException(ErrorCode.LOGIN_FALSE);
     }
     User user = userOptional.get();
-    if(!bCryptPasswordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
+    if (!bCryptPasswordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
       throw new CustomException(ErrorCode.LOGIN_FALSE);
     }
 
     return jwtUtil.generateToken(user.getEmail(), user.getRole());
-
   }
-
 }

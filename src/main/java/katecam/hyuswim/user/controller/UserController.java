@@ -7,9 +7,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import katecam.hyuswim.auth.jwt.JwtTokenResponse;
+import katecam.hyuswim.auth.jwt.JwtUtil;
 import katecam.hyuswim.user.dto.LoginRequest;
 import katecam.hyuswim.user.dto.SignupRequest;
-import katecam.hyuswim.auth.jwt.JwtUtil;
 import katecam.hyuswim.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 
