@@ -1,4 +1,4 @@
-package katecam.hyuswim.common.jwt;
+package katecam.hyuswim.auth.jwt;
 
 import java.util.Date;
 

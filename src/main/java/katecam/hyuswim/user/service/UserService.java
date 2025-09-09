@@ -4,8 +4,7 @@ import java.util.Optional;
 
 import katecam.hyuswim.common.error.CustomException;
 import katecam.hyuswim.common.error.ErrorCode;
-import katecam.hyuswim.common.jwt.JwtUtil;
-import org.apache.catalina.webresources.ExtractingRoot;
+import katecam.hyuswim.auth.jwt.JwtUtil;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,7 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 import katecam.hyuswim.user.User;
 import katecam.hyuswim.user.dto.LoginRequest;
 import katecam.hyuswim.user.dto.SignupRequest;
-import katecam.hyuswim.user.exception.UserNotFoundException;
 import katecam.hyuswim.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 

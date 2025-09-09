@@ -6,13 +6,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import katecam.hyuswim.user.User;
-import katecam.hyuswim.common.jwt.JwtTokenRequest;
-import katecam.hyuswim.common.jwt.JwtTokenResponse;
+import katecam.hyuswim.auth.jwt.JwtTokenResponse;
 import katecam.hyuswim.user.dto.LoginRequest;
 import katecam.hyuswim.user.dto.SignupRequest;
-import katecam.hyuswim.user.exception.UserNotFoundException;
-import katecam.hyuswim.common.jwt.JwtUtil;
+import katecam.hyuswim.auth.jwt.JwtUtil;
 import katecam.hyuswim.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 
