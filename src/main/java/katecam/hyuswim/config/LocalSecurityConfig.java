@@ -23,7 +23,6 @@ public class LocalSecurityConfig {
     return new BCryptPasswordEncoder();
   }
 
-  // ↓↓↓ 추가: 인메모리 ADMIN 계정 (로컬 전용)
   @Bean
   public UserDetailsService localUsers(PasswordEncoder encoder) {
     var admin = User.withUsername("admin")
@@ -33,7 +32,6 @@ public class LocalSecurityConfig {
     return new InMemoryUserDetailsManager(admin);
   }
 
-  // 1) H2 콘솔만 담당하는 보안 체인 (우선순위 높음)
   @Bean
   @Order(1)
   public SecurityFilterChain h2ConsoleChain(HttpSecurity http) throws Exception {
@@ -44,7 +42,6 @@ public class LocalSecurityConfig {
     return http.build();
   }
 
-  // 2) 애플리케이션 기본 체인 (그 다음 평가)
   @Bean
   @Order(2)
   public SecurityFilterChain appChain(HttpSecurity http) throws Exception {

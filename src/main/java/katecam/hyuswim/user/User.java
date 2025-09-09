@@ -46,7 +46,6 @@ public class User {
   @Enumerated(EnumType.STRING)
   private UserRole role;
 
-  // 추가: 사용자 상태 (기본 ACTIVE)
   @Enumerated(EnumType.STRING)
   @Column(nullable = false, length = 20)
   private UserStatus status = UserStatus.ACTIVE;
@@ -66,7 +65,6 @@ public class User {
     this.role = UserRole.USER;
   }
 
-  // 추가: 상태 전이 메서드
   public boolean isBlocked() {
     return this.status == UserStatus.BLOCKED;
   }

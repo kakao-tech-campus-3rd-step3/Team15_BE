@@ -22,7 +22,7 @@ public class AdminController {
 
   @GetMapping
   public String dashboard(Model model) {
-    model.addAttribute("users", adminUserService.findAll()); // ← 여기만 추가
+    model.addAttribute("users", adminUserService.findAll());
     return "admin/admin_dashboard";
   }
 
