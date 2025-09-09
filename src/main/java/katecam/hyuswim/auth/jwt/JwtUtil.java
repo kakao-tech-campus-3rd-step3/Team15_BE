@@ -2,7 +2,6 @@ package katecam.hyuswim.auth.jwt;
 
 import java.util.Date;
 
-import katecam.hyuswim.user.UserRole;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -11,6 +10,7 @@ import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import jakarta.annotation.PostConstruct;
+import katecam.hyuswim.user.UserRole;
 
 @Component
 public class JwtUtil {
@@ -20,7 +20,7 @@ public class JwtUtil {
 
   private JwtParser jwtParser;
 
-    private final long TOKEN_EXPIRATION_TIME_MS = 60 * 60 * 1000;
+  private final long TOKEN_EXPIRATION_TIME_MS = 60 * 60 * 1000;
 
   @PostConstruct
   public void init() {
