@@ -38,7 +38,7 @@ public class UserService {
     }
 
     User user = userOptional.get();
-    return bCryptPasswordEncoder.matches(loginRequest.getEmail(), user.getPassword());
+    return bCryptPasswordEncoder.matches(loginRequest.getPassword(), user.getPassword());
   }
 
   @Transactional
