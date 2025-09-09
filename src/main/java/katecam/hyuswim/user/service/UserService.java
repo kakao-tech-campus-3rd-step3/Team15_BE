@@ -2,6 +2,10 @@ package katecam.hyuswim.user.service;
 
 import java.util.Optional;
 
+import katecam.hyuswim.common.error.CustomException;
+import katecam.hyuswim.common.error.ErrorCode;
+import katecam.hyuswim.common.jwt.JwtUtil;
+import org.apache.catalina.webresources.ExtractingRoot;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +23,8 @@ public class UserService {
 
   private final UserRepository userRepository;
   private final BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
+  private final JwtUtil jwtUtil;
+
 
   @Transactional
   public void saveUser(SignupRequest signupRequest) {
@@ -30,23 +36,19 @@ public class UserService {
   }
 
   @Transactional
-  public boolean existUser(LoginRequest loginRequest) {
+  public String login(LoginRequest loginRequest) {
     Optional<User> userOptional = userRepository.findByEmail(loginRequest.getEmail());
 
-    if (userOptional.isEmpty()) {
-      return false;
+    if(userOptional.isEmpty()) {
+      throw new CustomException(ErrorCode.LOGIN_FALSE);
     }
-
     User user = userOptional.get();
-    return bCryptPasswordEncoder.matches(loginRequest.getPassword(), user.getPassword());
+    if(!bCryptPasswordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
+      throw new CustomException(ErrorCode.LOGIN_FALSE);
+    }
+
+    return jwtUtil.generateToken(user.getEmail(), user.getRole());
+
   }
 
-  @Transactional
-  public User findUserByEmail(String email) throws UserNotFoundException {
-    Optional<User> userOptional = userRepository.findByEmail(email);
-    if (userOptional.isEmpty()) {
-      throw new UserNotFoundException("해당 유저는 존재하지 않습니다.");
-    }
-    return userOptional.get();
-  }
 }
