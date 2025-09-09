@@ -6,6 +6,7 @@ import katecam.hyuswim.admin.dto.UserResponse;
 import katecam.hyuswim.admin.service.AdminUserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @RestController
 @RequestMapping("/api/admin/users")
@@ -22,11 +23,13 @@ public class AdminUserController {
         return ResponseEntity.ok(adminUserService.getUserWithActivities(userId));
     }
 
-    @PostMapping("/{userId}:block")
-    public ResponseEntity<BlockResponse> blockUser(
-            @PathVariable Long userId,
-            @RequestBody BlockRequest request) {
-        return ResponseEntity.ok(adminUserService.blockUser(userId, request));
+    @PostMapping("/users/{userId}/block")
+    public String block(@PathVariable Long userId,
+                        @ModelAttribute BlockRequest request,
+                        RedirectAttributes ra) {
+        adminUserService.blockUser(userId, request);
+        ra.addAttribute("msg", "사용자 차단 완료: " + userId);
+        return "redirect:/admin";
     }
 
     @PostMapping("/{userId}:unblock")
