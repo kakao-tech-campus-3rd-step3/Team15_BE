@@ -27,7 +27,7 @@ public class LocalSecurityConfig {
   public UserDetailsService localUsers(PasswordEncoder encoder) {
     var admin = User.withUsername("admin")
             .password(encoder.encode("admin123!"))
-            .roles("ADMIN") // → ROLE_ADMIN 권한 부여
+            .roles("ADMIN") 
             .build();
     return new InMemoryUserDetailsManager(admin);
   }
@@ -37,7 +37,7 @@ public class LocalSecurityConfig {
   public SecurityFilterChain h2ConsoleChain(HttpSecurity http) throws Exception {
     http.securityMatcher("/h2-console/**")
         .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
-        .csrf(csrf -> csrf.disable()) // H2 폼/프레임 이슈 회피
+        .csrf(csrf -> csrf.disable())
         .headers(headers -> headers.frameOptions(fo -> fo.sameOrigin()));
     return http.build();
   }
@@ -50,7 +50,7 @@ public class LocalSecurityConfig {
                 auth.requestMatchers("/css/**", "/js/**", "/images/**", "/webjars/**")
                     .permitAll()
                     .requestMatchers("/admin/**")
-                    .hasRole("ADMIN") // ★ ADMIN만 접근
+                    .hasRole("ADMIN")
                     .anyRequest()
                     .authenticated())
         .formLogin(Customizer.withDefaults())
