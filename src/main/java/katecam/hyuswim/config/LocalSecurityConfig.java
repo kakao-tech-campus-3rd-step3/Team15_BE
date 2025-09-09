@@ -17,7 +17,6 @@ import org.springframework.security.web.SecurityFilterChain;
 @Profile("local")
 public class LocalSecurityConfig {
 
-
   @Bean
   public PasswordEncoder passwordEncoder() {
     return new BCryptPasswordEncoder();
@@ -25,10 +24,8 @@ public class LocalSecurityConfig {
 
   @Bean
   public UserDetailsService localUsers(PasswordEncoder encoder) {
-    var admin = User.withUsername("admin")
-            .password(encoder.encode("admin123!"))
-            .roles("ADMIN") 
-            .build();
+    var admin =
+        User.withUsername("admin").password(encoder.encode("admin123!")).roles("ADMIN").build();
     return new InMemoryUserDetailsManager(admin);
   }
 
