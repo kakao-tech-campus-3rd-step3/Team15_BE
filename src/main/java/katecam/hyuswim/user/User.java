@@ -76,7 +76,7 @@ public class User {
     public boolean isBanned() {
         return this.status == UserStatus.BANNED;
     }
-    
+
     public void blockUntil(LocalDateTime until, String reason) {
         this.status = UserStatus.BLOCKED;
         this.blockedUntil = until;
