@@ -12,6 +12,7 @@ import katecam.hyuswim.comment.repository.CommentRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
@@ -30,9 +31,7 @@ public class AdminUserService {
         this.commentRepository = commentRepository;
     }
 
-    /**
-     * 특정 유저 + 활동 조회 (게시글 + 댓글)
-     */
+
     public UserResponse getUserWithActivities(Long userId) {
         User u = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found: " + userId));
@@ -57,15 +56,12 @@ public class AdminUserService {
                 u.getId(),
                 u.getEmail(),
                 u.getStatus(),
-                u.getLastLoginAt(),
                 posts,
                 comments
         );
     }
 
-    /**
-     * 사용자 차단 (일시/영구)
-     */
+
     @Transactional
     public BlockResponse blockUser(Long userId, BlockRequest request) {
         User u = userRepository.findById(userId)
@@ -94,9 +90,7 @@ public class AdminUserService {
         }
     }
 
-    /**
-     * 사용자 차단 해제
-     */
+
     @Transactional
     public BlockResponse unblockUser(Long userId) {
         User u = userRepository.findById(userId)
@@ -113,9 +107,7 @@ public class AdminUserService {
         );
     }
 
-    /**
-     * 사용자 영구 차단 (ban)
-     */
+
     @Transactional
     public BlockResponse banUser(Long userId) {
         User u = userRepository.findById(userId)
@@ -131,4 +123,9 @@ public class AdminUserService {
                 "사용자 " + userId + "번을 영구 차단(ban)했습니다."
         );
     }
+
+    public List<User> findAll() {
+        return userRepository.findAll();
+    }
+
 }
