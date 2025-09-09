@@ -1,4 +1,4 @@
-package katecam.hyuswim.report;
+package katecam.hyuswim.report.domain;
 
 public enum ReasonType {
     AD("광고"),
