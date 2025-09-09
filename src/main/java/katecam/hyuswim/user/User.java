@@ -50,6 +50,10 @@ public class User {
   @Column(nullable = false, length = 20)
   private UserStatus status = UserStatus.ACTIVE;
 
+  private LocalDateTime blockedUntil;
+
+  private String blockReason;
+
   @CreatedDate
   @Column(name = "created_at", updatable = false)
   private LocalDateTime createdAt;
@@ -69,13 +73,31 @@ public class User {
     return this.status == UserStatus.BLOCKED;
   }
 
-  public void block() {
-    if (isBlocked()) return;
+  public boolean isBanned() {
+    return this.status == UserStatus.BANNED;
+  }
+
+  public void blockUntil(LocalDateTime until, String reason) {
     this.status = UserStatus.BLOCKED;
+    this.blockedUntil = until;
+    this.blockReason = reason;
+  }
+
+  public void blockPermanently(String reason) {
+    this.status = UserStatus.BLOCKED;
+    this.blockedUntil = null;
+    this.blockReason = reason;
   }
 
   public void unblock() {
-    if (!isBlocked()) return;
     this.status = UserStatus.ACTIVE;
+    this.blockedUntil = null;
+    this.blockReason = null;
+  }
+
+  public void ban(String reason) {
+    this.status = UserStatus.BANNED;
+    this.blockedUntil = null;
+    this.blockReason = reason;
   }
 }

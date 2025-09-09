@@ -4,7 +4,7 @@ import org.springframework.stereotype.Service;
 
 import jakarta.transaction.Transactional;
 import katecam.hyuswim.comment.domain.Comment;
-import katecam.hyuswim.comment.repository.CommentRespository;
+import katecam.hyuswim.comment.repository.CommentRepository;
 import katecam.hyuswim.common.error.CustomException;
 import katecam.hyuswim.common.error.ErrorCode;
 import katecam.hyuswim.post.domain.Post;
@@ -23,7 +23,7 @@ public class ReportService {
   private ReportRepository reportRepository;
   private UserRepository userRepository;
   private PostRepository postRepository;
-  private CommentRespository commentRespository;
+  private CommentRepository commentRespository;
 
   @Transactional
   public void report(Long userId, ReportRequest request) {
