@@ -1,7 +1,8 @@
-package katecam.hyuswim.user.jwt;
+package katecam.hyuswim.auth.jwt;
 
 import java.util.Date;
 
+import katecam.hyuswim.user.UserRole;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -10,7 +11,6 @@ import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import jakarta.annotation.PostConstruct;
-import katecam.hyuswim.user.dto.JwtTokenRequest;
 
 @Component
 public class JwtUtil {
@@ -20,7 +20,7 @@ public class JwtUtil {
 
   private JwtParser jwtParser;
 
-  private final long oneHour = 60 * 60 * 1000;
+    private final long TOKEN_EXPIRATION_TIME_MS = 60 * 60 * 1000;
 
   @PostConstruct
   public void init() {
@@ -31,13 +31,13 @@ public class JwtUtil {
     return jwtParser.parseClaimsJws(token).getBody().getSubject();
   }
 
-  public String generateToken(JwtTokenRequest jwtTokenRequest) {
+  public String generateToken(String email, UserRole role) {
     long currentTimeMillis = System.currentTimeMillis();
     return Jwts.builder()
-        .setSubject(jwtTokenRequest.getEmail())
-        .claim("role", jwtTokenRequest.getRole())
+        .setSubject(email)
+        .claim("role", role)
         .setIssuedAt(new Date(currentTimeMillis))
-        .setExpiration(new Date(currentTimeMillis + oneHour))
+        .setExpiration(new Date(currentTimeMillis + TOKEN_EXPIRATION_TIME_MS))
         .signWith(SignatureAlgorithm.HS256, secret)
         .compact();
   }
