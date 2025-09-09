@@ -18,4 +18,10 @@ public class PostLikeController {
     postLikeService.addLike(postId, userId);
     return ResponseEntity.ok().build();
   }
+
+  @DeleteMapping("/posts/{postId}/likes")
+  public ResponseEntity<Void> deleteLike(@PathVariable Long postId, @RequestParam Long userId) {
+    postLikeService.deleteLike(postId, userId);
+    return ResponseEntity.noContent().build();
+  }
 }
