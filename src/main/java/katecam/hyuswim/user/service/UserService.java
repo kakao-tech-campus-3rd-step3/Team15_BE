@@ -37,11 +37,11 @@ public class UserService {
     Optional<User> userOptional = userRepository.findByEmail(loginRequest.getEmail());
 
     if (userOptional.isEmpty()) {
-      throw new CustomException(ErrorCode.LOGIN_FALSE);
+      throw new CustomException(ErrorCode.LOGIN_FAILED);
     }
     User user = userOptional.get();
     if (!bCryptPasswordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
-      throw new CustomException(ErrorCode.LOGIN_FALSE);
+      throw new CustomException(ErrorCode.LOGIN_FAILED);
     }
 
     return jwtUtil.generateToken(user.getEmail(), user.getRole());
