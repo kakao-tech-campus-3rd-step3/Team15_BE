@@ -49,33 +49,36 @@ public class LocalSecurityConfig {
   @Bean
   @Order(2)
   public SecurityFilterChain apiChain(HttpSecurity http) throws Exception {
-      http.securityMatcher("/api/**")
-              .authorizeHttpRequests(auth -> auth
-                      .requestMatchers("/api/user/signup", "/api/auth/login").permitAll()
-                      .requestMatchers(HttpMethod.GET,
-                              "/api/posts",
-                              "/api/posts/",
-                              "/api/posts/category/**",
-                              "/api/posts/search",
-                              "/api/posts/stats"
-                      ).permitAll()
-                      .anyRequest().authenticated()
-              )
-              .csrf(csrf -> csrf.disable())
-              .formLogin(form -> form.disable())
-              .httpBasic(Customizer.withDefaults())
-              .exceptionHandling(ex ->
-                      ex.authenticationEntryPoint((request, response, authException) -> {
-                          response.setContentType("application/json");
-                          response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                          response.getWriter().write("{\"error\":\"Unauthorized\"}");
-                      })
-              );
-      return http.build();
+    http.securityMatcher("/api/**")
+        .authorizeHttpRequests(
+            auth ->
+                auth.requestMatchers("/api/user/signup", "/api/auth/login")
+                    .permitAll()
+                    .requestMatchers(
+                        HttpMethod.GET,
+                        "/api/posts",
+                        "/api/posts/",
+                        "/api/posts/category/**",
+                        "/api/posts/search",
+                        "/api/posts/stats")
+                    .permitAll()
+                    .anyRequest()
+                    .authenticated())
+        .csrf(csrf -> csrf.disable())
+        .formLogin(form -> form.disable())
+        .httpBasic(Customizer.withDefaults())
+        .exceptionHandling(
+            ex ->
+                ex.authenticationEntryPoint(
+                    (request, response, authException) -> {
+                      response.setContentType("application/json");
+                      response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                      response.getWriter().write("{\"error\":\"Unauthorized\"}");
+                    }));
+    return http.build();
   }
 
-
-    // Admin 전용
+  // Admin 전용
   @Bean
   @Order(3)
   public SecurityFilterChain adminChain(HttpSecurity http) throws Exception {
