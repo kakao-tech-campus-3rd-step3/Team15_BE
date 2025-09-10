@@ -2,7 +2,7 @@
 package katecam.hyuswim.mission.dto;
 
 public enum TodayState {
-    NOT_STARTED,
-    IN_PROGRESS,
-    COMPLETED
+  NOT_STARTED,
+  IN_PROGRESS,
+  COMPLETED
 }

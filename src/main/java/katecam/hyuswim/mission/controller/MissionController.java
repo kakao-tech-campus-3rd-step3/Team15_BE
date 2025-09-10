@@ -1,13 +1,15 @@
 package katecam.hyuswim.mission.controller;
 
-import katecam.hyuswim.mission.dto.MissionStatsResponse;
-import katecam.hyuswim.mission.dto.MissionTodayResponse;
+import java.util.List;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import katecam.hyuswim.auth.login.LoginUser;
+import katecam.hyuswim.mission.dto.MissionStatsResponse;
+import katecam.hyuswim.mission.dto.MissionTodayResponse;
 import katecam.hyuswim.mission.service.MissionService;
-
-import java.util.List;
+import katecam.hyuswim.user.User;
 
 @RestController
 @RequestMapping("/api/missions")
@@ -19,15 +21,15 @@ public class MissionController {
     this.missionService = missionService;
   }
 
-    @GetMapping("/today")
-    public ResponseEntity<List<MissionTodayResponse>> getToday(@LoginUser User loginUser) {
-        return ResponseEntity.ok(missionService.getTodayMissionsWithState(loginUser.getId()));
-    }
+  @GetMapping("/today")
+  public ResponseEntity<List<MissionTodayResponse>> getToday(@LoginUser User loginUser) {
+    return ResponseEntity.ok(missionService.getTodayMissionsWithState(loginUser.getId()));
+  }
 
   // 미션 시작
   @PostMapping("/{missionId}/start")
   public ResponseEntity<Void> startMission(
-          @LoginUser User loginUser, @PathVariable Long missionId) {
+      @LoginUser User loginUser, @PathVariable Long missionId) {
     missionService.startMission(loginUser.getId(), missionId);
     return ResponseEntity.ok().build();
   }
@@ -35,7 +37,7 @@ public class MissionController {
   // 미션 완료
   @PostMapping("/{missionId}/complete")
   public ResponseEntity<Void> completeMission(
-          @LoginUser User loginUser, @PathVariable Long missionId) {
+      @LoginUser User loginUser, @PathVariable Long missionId) {
     missionService.completeMission(loginUser.getId(), missionId);
     return ResponseEntity.ok().build();
   }
