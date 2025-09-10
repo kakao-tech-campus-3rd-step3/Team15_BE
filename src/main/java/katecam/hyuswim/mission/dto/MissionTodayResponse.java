@@ -21,15 +21,15 @@ public class MissionTodayResponse {
     // 사용자 상태
     private TodayState state;
 
-  public static MissionTodayResponse of(Mission m) {
+  public static MissionTodayResponse of(Mission mission) {
     MissionTodayResponse d = new MissionTodayResponse();
-    d.id = m.getId();
-    d.title = m.getTitle();
-    d.content = m.getContent();
-    d.point = m.getPoint();
-    d.category = m.getCategory();
-    d.level = m.getLevel();
-    d.active = m.isActive();
+    d.id = mission.getId();
+    d.title = mission.getTitle();
+    d.content = mission.getContent();
+    d.point = mission.getPoint();
+    d.category = mission.getCategory();
+    d.level = mission.getLevel();
+    d.active = mission.isActive();
     d.state = TodayState.NOT_STARTED;
     return d;
   }
