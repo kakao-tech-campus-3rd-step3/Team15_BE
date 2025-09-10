@@ -1,13 +1,10 @@
 // src/main/java/katecam/hyuswim/mission/controller/MissionViewController.java
 package katecam.hyuswim.mission.controller;
 
-import java.util.List;
-
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import katecam.hyuswim.mission.dto.MissionTodayResponse;
 import katecam.hyuswim.mission.dto.TodayState;
 import katecam.hyuswim.mission.service.MissionService;
 
@@ -15,35 +12,40 @@ import katecam.hyuswim.mission.service.MissionService;
 @RequestMapping("/missions")
 public class MissionViewController {
 
-    private final MissionService missionService;
+  private final MissionService missionService;
 
-    public MissionViewController(MissionService missionService) {
-        this.missionService = missionService;
-    }
+  public MissionViewController(MissionService missionService) {
+    this.missionService = missionService;
+  }
 
-    private Long currentUserId() { return 1L; }
+  private Long currentUserId() {
+    return 1L;
+  }
 
-    @GetMapping
-    public String list(Model model) {
-        var list = missionService.getTodayMissionsWithState(currentUserId());
+  @GetMapping
+  public String list(Model model) {
+    var list = missionService.getTodayMissionsWithState(currentUserId());
 
-        boolean hasPickedToday = list.stream()
-                .anyMatch(m -> m.getState() == TodayState.IN_PROGRESS || m.getState() == TodayState.COMPLETED);
+    boolean hasPickedToday =
+        list.stream()
+            .anyMatch(
+                m ->
+                    m.getState() == TodayState.IN_PROGRESS || m.getState() == TodayState.COMPLETED);
 
-        model.addAttribute("missions", list);
-        model.addAttribute("hasPickedToday", hasPickedToday);
-        return "missions/list";
-    }
+    model.addAttribute("missions", list);
+    model.addAttribute("hasPickedToday", hasPickedToday);
+    return "missions/list";
+  }
 
-    @PostMapping("/{missionId}/start")
-    public String start(@PathVariable Long missionId) {
-        missionService.startMission(currentUserId(), missionId);
-        return "redirect:/missions";
-    }
+  @PostMapping("/{missionId}/start")
+  public String start(@PathVariable Long missionId) {
+    missionService.startMission(currentUserId(), missionId);
+    return "redirect:/missions";
+  }
 
-    @PostMapping("/{missionId}/complete")
-    public String complete(@PathVariable Long missionId) {
-        missionService.completeMission(currentUserId(), missionId);
-        return "redirect:/missions";
-    }
+  @PostMapping("/{missionId}/complete")
+  public String complete(@PathVariable Long missionId) {
+    missionService.completeMission(currentUserId(), missionId);
+    return "redirect:/missions";
+  }
 }

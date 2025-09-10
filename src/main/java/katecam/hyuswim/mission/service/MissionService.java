@@ -22,93 +22,104 @@ import katecam.hyuswim.user.repository.UserRepository;
 @Transactional
 public class MissionService {
 
-    private final MissionRepository missionRepository;
-    private final MissionProgressRepository missionProgressRepository;
-    private final UserRepository userRepository;
+  private final MissionRepository missionRepository;
+  private final MissionProgressRepository missionProgressRepository;
+  private final UserRepository userRepository;
 
-    public MissionService(MissionRepository missionRepository,
-                          MissionProgressRepository missionProgressRepository,
-                          UserRepository userRepository) {
-        this.missionRepository = missionRepository;
-        this.missionProgressRepository = missionProgressRepository;
-        this.userRepository = userRepository;
+  public MissionService(
+      MissionRepository missionRepository,
+      MissionProgressRepository missionProgressRepository,
+      UserRepository userRepository) {
+    this.missionRepository = missionRepository;
+    this.missionProgressRepository = missionProgressRepository;
+    this.userRepository = userRepository;
+  }
+
+  // ===== Commands =====
+  public void startMission(Long userId, Long missionId) {
+    var user = userRepository.findById(userId).orElseThrow();
+    var mission = missionRepository.findById(missionId).orElseThrow();
+
+    if (!mission.isActive()) throw new IllegalStateException("비활성 미션");
+
+    LocalDate today = LocalDate.now();
+    long exists = missionProgressRepository.countByUser_IdAndProgressDate(userId, today);
+    if (exists > 0) throw new IllegalStateException("하루 1회 제한");
+
+    MissionProgress p = new MissionProgress();
+    p.setUser(user);
+    p.setMission(mission);
+    p.setProgressDate(today);
+    p.setStartedAt(LocalDateTime.now());
+    p.setIsCompleted(false);
+
+    try {
+      missionProgressRepository.save(p);
+    } catch (DataIntegrityViolationException e) {
+      throw new IllegalStateException("하루 1회 제한(동시 요청)", e);
+    }
+  }
+
+  public void completeMission(Long userId, Long missionId) {
+    LocalDate today = LocalDate.now();
+    MissionProgress progress =
+        missionProgressRepository
+            .findFirstByUser_IdAndMission_IdAndProgressDate(userId, missionId, today)
+            .orElseThrow(() -> new IllegalStateException("오늘 시작 기록 없음"));
+
+    if (Boolean.TRUE.equals(progress.getIsCompleted())) {
+      throw new IllegalStateException("이미 완료");
     }
 
-    // ===== Commands =====
-    public void startMission(Long userId, Long missionId) {
-        var user = userRepository.findById(userId).orElseThrow();
-        var mission = missionRepository.findById(missionId).orElseThrow();
+    progress.setIsCompleted(true);
+    progress.setCompletedAt(LocalDateTime.now());
+  }
 
-        if (!mission.isActive()) throw new IllegalStateException("비활성 미션");
+  // ===== Queries =====
+  @Transactional(readOnly = true)
+  public MissionStatsResponse getTodayStats(Long missionId) {
+    LocalDate today = LocalDate.now();
+    long started = missionProgressRepository.countByMission_IdAndProgressDate(missionId, today);
+    long completed =
+        missionProgressRepository.countByMission_IdAndProgressDateAndIsCompletedTrue(
+            missionId, today);
+    return new MissionStatsResponse(started, completed);
+  }
 
-        LocalDate today = LocalDate.now();
-        long exists = missionProgressRepository.countByUser_IdAndProgressDate(userId, today);
-        if (exists > 0) throw new IllegalStateException("하루 1회 제한");
+  @Transactional(readOnly = true)
+  public List<MissionTodayResponse> getTodayMissionsWithState(Long userId) {
+    LocalDate today = LocalDate.now();
+    var missions = missionRepository.findAll();
 
-        MissionProgress p = new MissionProgress();
-        p.setUser(user);
-        p.setMission(mission);
-        p.setProgressDate(today);
-        p.setStartedAt(LocalDateTime.now());
-        p.setIsCompleted(false);
+    var todayProgressForUser =
+        missionProgressRepository.findFirstByUser_IdAndProgressDate(userId, today).orElse(null);
 
-        try {
-            missionProgressRepository.save(p);
-        } catch (DataIntegrityViolationException e) {
-            throw new IllegalStateException("하루 1회 제한(동시 요청)", e);
-        }
-    }
+    return missions.stream()
+        .map(
+            m -> {
+              var dto = MissionTodayResponse.of(m);
 
-    public void completeMission(Long userId, Long missionId) {
-        LocalDate today = LocalDate.now();
-        MissionProgress progress = missionProgressRepository
-                .findFirstByUser_IdAndMission_IdAndProgressDate(userId, missionId, today)
-                .orElseThrow(() -> new IllegalStateException("오늘 시작 기록 없음"));
+              long started =
+                  missionProgressRepository.countByMission_IdAndProgressDate(m.getId(), today);
+              long completed =
+                  missionProgressRepository.countByMission_IdAndProgressDateAndIsCompletedTrue(
+                      m.getId(), today);
 
-        if (Boolean.TRUE.equals(progress.getIsCompleted())) {
-            throw new IllegalStateException("이미 완료");
-        }
+              dto.setTodayStartedCount(started)
+                  .setTodayCompletedCount(completed)
+                  .setState(resolveState(todayProgressForUser, m));
 
-        progress.setIsCompleted(true);
-        progress.setCompletedAt(LocalDateTime.now());
-    }
+              return dto;
+            })
+        .toList();
+  }
 
-    // ===== Queries =====
-    @Transactional(readOnly = true)
-    public MissionStatsResponse getTodayStats(Long missionId) {
-        LocalDate today = LocalDate.now();
-        long started = missionProgressRepository.countByMission_IdAndProgressDate(missionId, today);
-        long completed = missionProgressRepository.countByMission_IdAndProgressDateAndIsCompletedTrue(missionId, today);
-        return new MissionStatsResponse(started, completed);
-    }
-
-    @Transactional(readOnly = true)
-    public List<MissionTodayResponse> getTodayMissionsWithState(Long userId) {
-        LocalDate today = LocalDate.now();
-        var missions = missionRepository.findAll();
-
-        var todayProgressForUser =
-                missionProgressRepository.findFirstByUser_IdAndProgressDate(userId, today).orElse(null);
-
-        return missions.stream().map(m -> {
-            var dto = MissionTodayResponse.of(m);
-
-            long started = missionProgressRepository.countByMission_IdAndProgressDate(m.getId(), today);
-            long completed = missionProgressRepository.countByMission_IdAndProgressDateAndIsCompletedTrue(m.getId(), today);
-
-            dto.setTodayStartedCount(started)
-                    .setTodayCompletedCount(completed)
-                    .setState(resolveState(todayProgressForUser, m));
-
-            return dto;
-        }).toList();
-    }
-
-    private TodayState resolveState(MissionProgress todayProgressForUser, Mission m) {
-        if (todayProgressForUser == null) return TodayState.NOT_STARTED;
-        boolean sameMission = todayProgressForUser.getMission().getId().equals(m.getId());
-        if (sameMission && Boolean.TRUE.equals(todayProgressForUser.getIsCompleted())) return TodayState.COMPLETED;
-        if (sameMission) return TodayState.IN_PROGRESS;
-        return TodayState.NOT_STARTED; // 다른 미션을 이미 진행 중/완료한 경우
-    }
+  private TodayState resolveState(MissionProgress todayProgressForUser, Mission m) {
+    if (todayProgressForUser == null) return TodayState.NOT_STARTED;
+    boolean sameMission = todayProgressForUser.getMission().getId().equals(m.getId());
+    if (sameMission && Boolean.TRUE.equals(todayProgressForUser.getIsCompleted()))
+      return TodayState.COMPLETED;
+    if (sameMission) return TodayState.IN_PROGRESS;
+    return TodayState.NOT_STARTED; // 다른 미션을 이미 진행 중/완료한 경우
+  }
 }
