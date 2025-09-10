@@ -41,7 +41,7 @@ public class LocalSecurityConfig {
     return http.build();
   }
 
-  // API 전용 (JSON만 반환, HTML 리다이렉트 X)
+  // API 전용
   @Bean
   @Order(2)
   public SecurityFilterChain apiChain(HttpSecurity http) throws Exception {
@@ -66,7 +66,7 @@ public class LocalSecurityConfig {
     return http.build();
   }
 
-  // Admin 전용 (여기는 HTML 로그인 페이지 허용)
+  // Admin 전용 
   @Bean
   @Order(3)
   public SecurityFilterChain adminChain(HttpSecurity http) throws Exception {
