@@ -1,6 +1,5 @@
 package katecam.hyuswim.auth.config;
 
-import katecam.hyuswim.auth.jwt.JwtFilter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,7 +16,7 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import katecam.hyuswim.auth.jwt.JwtFilter;
 
 @Configuration
 @Profile("local")
@@ -51,33 +50,38 @@ public class LocalSecurityConfig {
   @Bean
   @Order(2)
   public SecurityFilterChain apiChain(HttpSecurity http, JwtFilter jwtFilter) throws Exception {
-      http.securityMatcher("/api/**")
-              .authorizeHttpRequests(
-                      auth -> auth
-                              .requestMatchers("/api/user/signup", "/api/auth/login").permitAll()
-                              .requestMatchers(
-                                      HttpMethod.GET,
-                                      "/api/posts",
-                                      "/api/posts/",
-                                      "/api/posts/category/**",
-                                      "/api/posts/search",
-                                      "/api/posts/stats"
-                              ).permitAll()
-                              .anyRequest().authenticated()
-              )
-              .csrf(csrf -> csrf.disable())
-              .formLogin(form -> form.disable())
-              .httpBasic(Customizer.withDefaults())
-              .exceptionHandling(
-                      ex -> ex.authenticationEntryPoint((request, response, authException) -> {
-                          response.setContentType("application/json");
-                          response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                          response.getWriter().write("{\"error\":\"Unauthorized\"}");
-                      })
-              )
-              .addFilterBefore(jwtFilter, org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class);
+    http.securityMatcher("/api/**")
+        .authorizeHttpRequests(
+            auth ->
+                auth.requestMatchers("/api/user/signup", "/api/auth/login")
+                    .permitAll()
+                    .requestMatchers(
+                        HttpMethod.GET,
+                        "/api/posts",
+                        "/api/posts/",
+                        "/api/posts/category/**",
+                        "/api/posts/search",
+                        "/api/posts/stats")
+                    .permitAll()
+                    .anyRequest()
+                    .authenticated())
+        .csrf(csrf -> csrf.disable())
+        .formLogin(form -> form.disable())
+        .httpBasic(Customizer.withDefaults())
+        .exceptionHandling(
+            ex ->
+                ex.authenticationEntryPoint(
+                    (request, response, authException) -> {
+                      response.setContentType("application/json");
+                      response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                      response.getWriter().write("{\"error\":\"Unauthorized\"}");
+                    }))
+        .addFilterBefore(
+            jwtFilter,
+            org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
+                .class);
 
-      return http.build();
+    return http.build();
   }
 
   // Admin 전용

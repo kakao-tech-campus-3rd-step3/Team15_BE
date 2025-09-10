@@ -4,8 +4,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -14,6 +12,8 @@ import jakarta.persistence.*;
 import katecam.hyuswim.comment.domain.Comment;
 import katecam.hyuswim.like.domain.PostLike;
 import katecam.hyuswim.user.User;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -47,8 +47,7 @@ public class Post {
   private String title;
   private String content;
 
-  @Builder.Default
-  private Long viewCount = 0L;
+  @Builder.Default private Long viewCount = 0L;
 
   @Builder.Default
   @Column(name = "is_anonymous")
@@ -66,19 +65,18 @@ public class Post {
   @Column(name = "updated_at")
   private LocalDateTime updatedAt;
 
-    public Post(
-            String title, String content, PostCategory postCategory, User user, Boolean isAnonymous) {
-        this.title = title;
-        this.content = content;
-        this.postCategory = postCategory;
-        this.user = user;
-        this.isAnonymous = isAnonymous;
-        this.postLikes = new ArrayList<>();
-        this.comments = new ArrayList<>();
-    }
+  public Post(
+      String title, String content, PostCategory postCategory, User user, Boolean isAnonymous) {
+    this.title = title;
+    this.content = content;
+    this.postCategory = postCategory;
+    this.user = user;
+    this.isAnonymous = isAnonymous;
+    this.postLikes = new ArrayList<>();
+    this.comments = new ArrayList<>();
+  }
 
-
-    public void update(String title, String content, PostCategory postCategory) {
+  public void update(String title, String content, PostCategory postCategory) {
     if (title != null) this.title = title;
     if (content != null) this.content = content;
     if (postCategory != null) this.postCategory = postCategory;
