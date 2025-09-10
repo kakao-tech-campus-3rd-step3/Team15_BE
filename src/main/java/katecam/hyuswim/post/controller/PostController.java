@@ -7,9 +7,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import katecam.hyuswim.auth.login.LoginUser;
 import katecam.hyuswim.post.domain.PostCategory;
 import katecam.hyuswim.post.dto.*;
 import katecam.hyuswim.post.service.PostService;
+import katecam.hyuswim.user.User;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -21,8 +23,8 @@ public class PostController {
 
   @PostMapping
   public ResponseEntity<PostDetailResponse> createPost(
-      @RequestBody PostRequest request, @RequestParam Long userId) {
-    PostDetailResponse response = postService.createPost(request, userId);
+      @RequestBody PostRequest request, @LoginUser User user) {
+    PostDetailResponse response = postService.createPost(request, user);
     return ResponseEntity.status(HttpStatus.CREATED).body(response);
   }
 
@@ -57,14 +59,14 @@ public class PostController {
 
   @PatchMapping("/{id}")
   public ResponseEntity<PostDetailResponse> updatePost(
-      @PathVariable Long id, @RequestBody PostRequest request, @RequestParam Long userId) {
-    PostDetailResponse response = postService.updatePost(id, request, userId);
+      @PathVariable Long id, @RequestBody PostRequest request, @LoginUser User user) {
+    PostDetailResponse response = postService.updatePost(id, request, user);
     return ResponseEntity.ok(response);
   }
 
   @DeleteMapping("/{id}")
-  public ResponseEntity<Void> deletePost(@PathVariable Long id, @RequestParam Long userId) {
-    postService.deletePost(id, userId);
+  public ResponseEntity<Void> deletePost(@PathVariable Long id, @LoginUser User user) {
+    postService.deletePost(id, user);
     return ResponseEntity.noContent().build();
   }
 }

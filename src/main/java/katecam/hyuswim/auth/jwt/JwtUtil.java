@@ -27,24 +27,24 @@ public class JwtUtil {
     jwtParser = Jwts.parser().setSigningKey(secret).build();
   }
 
-  public String extractEmail(String token) {
-    return jwtParser.parseClaimsJws(token).getBody().getSubject();
+  public Long extractUserId(String token) {
+    return Long.valueOf(jwtParser.parseClaimsJws(token).getBody().getSubject());
   }
 
-  public String generateToken(String email, UserRole role) {
-    long currentTimeMillis = System.currentTimeMillis();
+  public String generateToken(Long userId, UserRole role) {
+    long now = System.currentTimeMillis();
     return Jwts.builder()
-        .setSubject(email)
-        .claim("role", role)
-        .setIssuedAt(new Date(currentTimeMillis))
-        .setExpiration(new Date(currentTimeMillis + TOKEN_EXPIRATION_TIME_MS))
+        .setSubject(String.valueOf(userId))
+        .claim("role", role.name())
+        .setIssuedAt(new Date(now))
+        .setExpiration(new Date(now + TOKEN_EXPIRATION_TIME_MS))
         .signWith(SignatureAlgorithm.HS256, secret)
         .compact();
   }
 
   public Boolean validateToken(String token) {
     try {
-      jwtParser.parseClaimsJws(token); // 서명 검증
+      jwtParser.parseClaimsJws(token);
       return !isTokenExpired(token);
     } catch (JwtException e) {
       return false;
