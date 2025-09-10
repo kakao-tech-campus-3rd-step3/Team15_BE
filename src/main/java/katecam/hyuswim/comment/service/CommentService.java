@@ -15,81 +15,74 @@ import katecam.hyuswim.post.domain.Post;
 import katecam.hyuswim.post.dto.PageResponse;
 import katecam.hyuswim.post.repository.PostRepository;
 import katecam.hyuswim.user.User;
-import katecam.hyuswim.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
 public class CommentService {
 
-  private CommentRepository commentRespository;
-  private UserRepository userRepository;
-  private PostRepository postRepository;
+    private final CommentRepository commentRepository;
+    private final PostRepository postRepository;
 
-  @Transactional
-  public CommentDetailResponse createComment(CommentRequest request, Long userId, Long postId) {
-    User user =
-        userRepository
-            .findById(userId)
-            .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+    @Transactional
+    public CommentDetailResponse createComment(CommentRequest request, User user, Long postId) {
+        Post post =
+                postRepository
+                        .findById(postId)
+                        .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
-    Post post =
-        postRepository
-            .findById(postId)
-            .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
+        Comment comment =
+                Comment.builder()
+                        .user(user)
+                        .post(post)
+                        .content(request.getContent())
+                        .isAnonymous(request.getIsAnonymous())
+                        .build();
 
-    Comment comment =
-        Comment.builder()
-            .user(user)
-            .post(post)
-            .content(request.getContent())
-            .isAnonymous(request.getIsAnonymous())
-            .build();
+        Comment saved = commentRepository.save(comment);
 
-    Comment saved = commentRespository.save(comment);
-
-    return CommentDetailResponse.from(saved);
-  }
-
-  public PageResponse<CommentListResponse> getComments(Pageable pageable) {
-    return new PageResponse<>(
-        commentRespository.findAllByIsDeletedFalse(pageable).map(CommentListResponse::from));
-  }
-
-  public CommentDetailResponse getComment(Long id) {
-    Comment comment =
-        commentRespository
-            .findByIdAndIsDeletedFalse(id)
-            .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
-    return CommentDetailResponse.from(comment);
-  }
-
-  @Transactional
-  public CommentDetailResponse updateComment(Long id, Long userId, CommentRequest request) {
-    Comment comment =
-        commentRespository
-            .findByIdAndIsDeletedFalse(id)
-            .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
-    comment.update(request.getContent());
-
-    if (!comment.getUser().getId().equals(userId)) {
-      throw new CustomException(ErrorCode.COMMENT_ACCESS_DENIED);
+        return CommentDetailResponse.from(saved);
     }
 
-    return CommentDetailResponse.from(comment);
-  }
-
-  @Transactional
-  public void deleteComment(Long id, Long userId) {
-    Comment comment =
-        commentRespository
-            .findById(id)
-            .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
-
-    if (!comment.getUser().getId().equals(userId)) {
-      throw new CustomException(ErrorCode.COMMENT_ACCESS_DENIED);
+    public PageResponse<CommentListResponse> getComments(Pageable pageable) {
+        return new PageResponse<>(
+                commentRepository.findAllByIsDeletedFalse(pageable).map(CommentListResponse::from));
     }
 
-    comment.delete();
-  }
+    public CommentDetailResponse getComment(Long id) {
+        Comment comment =
+                commentRepository
+                        .findByIdAndIsDeletedFalse(id)
+                        .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
+        return CommentDetailResponse.from(comment);
+    }
+
+    @Transactional
+    public CommentDetailResponse updateComment(Long id, User user, CommentRequest request) {
+        Comment comment =
+                commentRepository
+                        .findByIdAndIsDeletedFalse(id)
+                        .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
+
+        if (!comment.getUser().getId().equals(user.getId())) {
+            throw new CustomException(ErrorCode.COMMENT_ACCESS_DENIED);
+        }
+
+        comment.update(request.getContent());
+        return CommentDetailResponse.from(comment);
+    }
+
+    @Transactional
+    public void deleteComment(Long id, User user) {
+        Comment comment =
+                commentRepository
+                        .findById(id)
+                        .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
+
+        if (!comment.getUser().getId().equals(user.getId())) {
+            throw new CustomException(ErrorCode.COMMENT_ACCESS_DENIED);
+        }
+
+        comment.delete();
+    }
 }
