@@ -13,7 +13,6 @@ import katecam.hyuswim.post.domain.PostCategory;
 import katecam.hyuswim.post.dto.*;
 import katecam.hyuswim.post.repository.PostRepository;
 import katecam.hyuswim.user.User;
-import katecam.hyuswim.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -22,15 +21,9 @@ import lombok.RequiredArgsConstructor;
 public class PostService {
 
   private final PostRepository postRepository;
-  private final UserRepository userRepository;
 
   @Transactional
-  public PostDetailResponse createPost(PostRequest request, Long userId) {
-    User user =
-        userRepository
-            .findById(userId)
-            .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
-
+  public PostDetailResponse createPost(PostRequest request, User user) {
     Post post =
         new Post(
             request.getTitle(),
@@ -80,13 +73,13 @@ public class PostService {
   }
 
   @Transactional
-  public PostDetailResponse updatePost(Long id, PostRequest request, Long userId) {
+  public PostDetailResponse updatePost(Long id, PostRequest request, User user) {
     Post post =
         postRepository
             .findById(id)
             .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
-    if (!post.getUser().getId().equals(userId)) {
+    if (!post.getUser().getId().equals(user.getId())) {
       throw new CustomException(ErrorCode.POST_ACCESS_DENIED);
     }
 
@@ -96,13 +89,13 @@ public class PostService {
   }
 
   @Transactional
-  public void deletePost(Long id, Long userId) {
+  public void deletePost(Long id, User user) {
     Post post =
         postRepository
             .findById(id)
             .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
-    if (!post.getUser().getId().equals(userId)) {
+    if (!post.getUser().getId().equals(user.getId())) {
       throw new CustomException(ErrorCode.POST_ACCESS_DENIED);
     }
 

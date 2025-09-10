@@ -46,10 +46,11 @@ public class LoginUserArgumentResolver implements HandlerMethodArgumentResolver 
     if (!jwtUtil.validateToken(token)) {
       throw new CustomException(ErrorCode.INVALID_TOKEN);
     }
-    String email = jwtUtil.extractEmail(token);
+
+    Long userId = jwtUtil.extractUserId(token);
 
     return userRepository
-        .findByEmail(email)
+        .findById(userId)
         .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
   }
 }
