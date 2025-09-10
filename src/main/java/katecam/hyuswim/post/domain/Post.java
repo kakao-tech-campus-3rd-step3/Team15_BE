@@ -9,7 +9,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import jakarta.persistence.*;
 import katecam.hyuswim.comment.domain.Comment;
-import katecam.hyuswim.like.Like;
+import katecam.hyuswim.like.domain.PostLike;
 import katecam.hyuswim.user.User;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -29,7 +29,7 @@ public class Post {
   private User user;
 
   @OneToMany(mappedBy = "post")
-  private List<Like> likes;
+  private List<PostLike> postLikes;
 
   @OneToMany(mappedBy = "post")
   private List<Comment> comments;
