@@ -22,15 +22,15 @@ public class MissionTodayResponse {
   private TodayState state;
 
   public static MissionTodayResponse of(Mission mission) {
-      return new MissionTodayResponse()
-              .setId(mission.getId())
-              .setTitle(mission.getTitle())
-              .setContent(mission.getContent())
-              .setPoint(mission.getPoint())
-              .setCategory(mission.getCategory())
-              .setLevel(mission.getLevel())
-              .setActive(mission.isActive())
-              .setState(TodayState.NOT_STARTED);
+    return new MissionTodayResponse()
+        .setId(mission.getId())
+        .setTitle(mission.getTitle())
+        .setContent(mission.getContent())
+        .setPoint(mission.getPoint())
+        .setCategory(mission.getCategory())
+        .setLevel(mission.getLevel())
+        .setActive(mission.isActive())
+        .setState(TodayState.NOT_STARTED);
   }
 
   public Long getId() {
