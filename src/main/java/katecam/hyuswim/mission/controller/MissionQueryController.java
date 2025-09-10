@@ -13,15 +13,15 @@ import katecam.hyuswim.mission.service.MissionQueryService;
 @RequestMapping("/api/missions")
 public class MissionQueryController {
 
-    private final MissionQueryService missionQueryService;
+  private final MissionQueryService missionQueryService;
 
-    public MissionQueryController(MissionQueryService missionQueryService) {
-        this.missionQueryService = missionQueryService;
-    }
+  public MissionQueryController(MissionQueryService missionQueryService) {
+    this.missionQueryService = missionQueryService;
+  }
 
-    // 오늘용 목록 + 사용자 상태 + 통계
-    @GetMapping("/today")
-    public ResponseEntity<List<MissionTodayDto>> getToday(@RequestParam Long userId) {
-        return ResponseEntity.ok(missionQueryService.getTodayMissionsWithState(userId));
-    }
+  // 오늘용 목록 + 사용자 상태 + 통계
+  @GetMapping("/today")
+  public ResponseEntity<List<MissionTodayDto>> getToday(@RequestParam Long userId) {
+    return ResponseEntity.ok(missionQueryService.getTodayMissionsWithState(userId));
+  }
 }
