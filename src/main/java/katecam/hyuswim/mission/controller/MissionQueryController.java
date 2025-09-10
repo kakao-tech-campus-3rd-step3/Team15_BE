@@ -1,4 +1,3 @@
-// package katecam.hyuswim.mission.controller;
 package katecam.hyuswim.mission.controller;
 
 import java.util.List;
@@ -6,7 +5,7 @@ import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import katecam.hyuswim.mission.dto.MissionTodayDto;
+import katecam.hyuswim.mission.dto.MissionTodayResponse;
 import katecam.hyuswim.mission.service.MissionQueryService;
 
 @RestController
@@ -21,7 +20,7 @@ public class MissionQueryController {
 
   // 오늘용 목록 + 사용자 상태 + 통계
   @GetMapping("/today")
-  public ResponseEntity<List<MissionTodayDto>> getToday(@RequestParam Long userId) {
+  public ResponseEntity<List<MissionTodayResponse>> getToday(@RequestParam Long userId) {
     return ResponseEntity.ok(missionQueryService.getTodayMissionsWithState(userId));
   }
 }
