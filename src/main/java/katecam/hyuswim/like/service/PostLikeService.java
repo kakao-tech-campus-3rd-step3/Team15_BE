@@ -23,9 +23,6 @@ public class PostLikeService {
 
   @Transactional
   public void addLike(Long postId, Long userId) {
-    if (postLikeRepository.existsByPostIdAndUserId(postId, userId)) {
-      throw new CustomException(ErrorCode.ALREADY_LIKED_POST);
-    }
 
     Post post =
         postRepository
