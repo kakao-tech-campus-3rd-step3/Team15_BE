@@ -27,7 +27,7 @@ public class MissionController {
   }
 
   // 미션 시작
-  @PostMapping("/{missionId}/start")
+  @PutMapping("/{missionId}/start")
   public ResponseEntity<Void> startMission(
       @LoginUser User loginUser, @PathVariable Long missionId) {
     missionService.startMission(loginUser.getId(), missionId);
@@ -35,7 +35,7 @@ public class MissionController {
   }
 
   // 미션 완료
-  @PostMapping("/{missionId}/complete")
+  @PatchMapping("/{missionId}/complete")
   public ResponseEntity<Void> completeMission(
       @LoginUser User loginUser, @PathVariable Long missionId) {
     missionService.completeMission(loginUser.getId(), missionId);
