@@ -1,14 +1,18 @@
+// src/main/java/katecam/hyuswim/mission/service/MissionService.java
 package katecam.hyuswim.mission.service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
+import katecam.hyuswim.mission.Mission;
+import katecam.hyuswim.mission.dto.MissionStatsResponse;
+import katecam.hyuswim.mission.dto.MissionTodayResponse;
+import katecam.hyuswim.mission.dto.TodayState;
 import katecam.hyuswim.mission.progress.MissionProgress;
 import katecam.hyuswim.mission.repository.MissionProgressRepository;
 import katecam.hyuswim.mission.repository.MissionRepository;
@@ -18,109 +22,93 @@ import katecam.hyuswim.user.repository.UserRepository;
 @Transactional
 public class MissionService {
 
-  private final MissionRepository missionRepo;
-  private final MissionProgressRepository progressRepo;
-  private final UserRepository userRepo;
+    private final MissionRepository missionRepository;
+    private final MissionProgressRepository missionProgressRepository;
+    private final UserRepository userRepository;
 
-  @PersistenceContext private EntityManager em;
-
-  public MissionService(
-      MissionRepository missionRepo,
-      MissionProgressRepository progressRepo,
-      UserRepository userRepo) {
-    this.missionRepo = missionRepo;
-    this.progressRepo = progressRepo;
-    this.userRepo = userRepo;
-  }
-
-  public void startMission(Long userId, Long missionId) {
-    var user = userRepo.findById(userId).orElseThrow();
-    var mission = missionRepo.findById(missionId).orElseThrow();
-
-    if (!mission.isActive()) {
-      throw new IllegalStateException("비활성 미션");
+    public MissionService(MissionRepository missionRepository,
+                          MissionProgressRepository missionProgressRepository,
+                          UserRepository userRepository) {
+        this.missionRepository = missionRepository;
+        this.missionProgressRepository = missionProgressRepository;
+        this.userRepository = userRepository;
     }
 
-    LocalDate today = LocalDate.now();
+    // ===== Commands =====
+    public void startMission(Long userId, Long missionId) {
+        var user = userRepository.findById(userId).orElseThrow();
+        var mission = missionRepository.findById(missionId).orElseThrow();
 
-    // 하루 1회 제한: JPQL로 중복 시작 여부 확인
-    Long existsCnt =
-        em.createQuery(
-                "select count(p) from MissionProgress p "
-                    + "where p.user.id = :uid and p.progressDate = :d",
-                Long.class)
-            .setParameter("uid", userId)
-            .setParameter("d", today)
-            .getSingleResult();
+        if (!mission.isActive()) throw new IllegalStateException("비활성 미션");
 
-    if (existsCnt > 0) {
-      throw new IllegalStateException("하루 1회 제한");
+        LocalDate today = LocalDate.now();
+        long exists = missionProgressRepository.countByUser_IdAndProgressDate(userId, today);
+        if (exists > 0) throw new IllegalStateException("하루 1회 제한");
+
+        MissionProgress p = new MissionProgress();
+        p.setUser(user);
+        p.setMission(mission);
+        p.setProgressDate(today);
+        p.setStartedAt(LocalDateTime.now());
+        p.setIsCompleted(false);
+
+        try {
+            missionProgressRepository.save(p);
+        } catch (DataIntegrityViolationException e) {
+            throw new IllegalStateException("하루 1회 제한(동시 요청)", e);
+        }
     }
 
-    // 진행 생성 & 저장
-    MissionProgress p = new MissionProgress();
-    p.setUser(user);
-    p.setMission(mission);
-    p.setProgressDate(today);
-    p.setStartedAt(LocalDateTime.now());
-    p.setIsCompleted(false);
+    public void completeMission(Long userId, Long missionId) {
+        LocalDate today = LocalDate.now();
+        MissionProgress progress = missionProgressRepository
+                .findFirstByUser_IdAndMission_IdAndProgressDate(userId, missionId, today)
+                .orElseThrow(() -> new IllegalStateException("오늘 시작 기록 없음"));
 
-    try {
-      progressRepo.save(p);
-    } catch (DataIntegrityViolationException e) {
-      // 유니크 제약(uk_progress_user_date)과 race condition 대비
-      throw new IllegalStateException("하루 1회 제한(동시 요청)", e);
-    }
-  }
+        if (Boolean.TRUE.equals(progress.getIsCompleted())) {
+            throw new IllegalStateException("이미 완료");
+        }
 
-  public void completeMission(Long userId, Long missionId) {
-    LocalDate today = LocalDate.now();
-
-    // 오늘 시작한 해당 미션 진행 레코드 조회 (JPQL)
-    MissionProgress prog =
-        em.createQuery(
-                "select p from MissionProgress p "
-                    + "where p.user.id = :uid and p.mission.id = :mid and p.progressDate = :d",
-                MissionProgress.class)
-            .setParameter("uid", userId)
-            .setParameter("mid", missionId)
-            .setParameter("d", today)
-            .getResultStream()
-            .findFirst()
-            .orElseThrow(() -> new IllegalStateException("오늘 시작 기록 없음"));
-
-    if (Boolean.TRUE.equals(prog.getIsCompleted())) {
-      throw new IllegalStateException("이미 완료");
+        progress.setIsCompleted(true);
+        progress.setCompletedAt(LocalDateTime.now());
     }
 
-    prog.setIsCompleted(true);
-    prog.setCompletedAt(LocalDateTime.now());
-  }
+    // ===== Queries =====
+    @Transactional(readOnly = true)
+    public MissionStatsResponse getTodayStats(Long missionId) {
+        LocalDate today = LocalDate.now();
+        long started = missionProgressRepository.countByMission_IdAndProgressDate(missionId, today);
+        long completed = missionProgressRepository.countByMission_IdAndProgressDateAndIsCompletedTrue(missionId, today);
+        return new MissionStatsResponse(started, completed);
+    }
 
-  // 집계 API용 헬퍼: 오늘 참여/완료 수
-  public record MissionStats(long startedCount, long completedCount) {}
+    @Transactional(readOnly = true)
+    public List<MissionTodayResponse> getTodayMissionsWithState(Long userId) {
+        LocalDate today = LocalDate.now();
+        var missions = missionRepository.findAll();
 
-  public MissionStats getTodayStats(Long missionId) {
-    LocalDate today = LocalDate.now();
+        var todayProgressForUser =
+                missionProgressRepository.findFirstByUser_IdAndProgressDate(userId, today).orElse(null);
 
-    Long started =
-        em.createQuery(
-                "select count(p) from MissionProgress p "
-                    + "where p.mission.id = :mid and p.progressDate = :d",
-                Long.class)
-            .setParameter("mid", missionId)
-            .setParameter("d", today)
-            .getSingleResult();
+        return missions.stream().map(m -> {
+            var dto = MissionTodayResponse.of(m);
 
-    Long completed =
-        em.createQuery(
-                "select count(p) from MissionProgress p "
-                    + "where p.mission.id = :mid and p.progressDate = :d and p.isCompleted = true",
-                Long.class)
-            .setParameter("mid", missionId)
-            .setParameter("d", today)
-            .getSingleResult();
+            long started = missionProgressRepository.countByMission_IdAndProgressDate(m.getId(), today);
+            long completed = missionProgressRepository.countByMission_IdAndProgressDateAndIsCompletedTrue(m.getId(), today);
 
-    return new MissionStats(started, completed);
-  }
+            dto.setTodayStartedCount(started)
+                    .setTodayCompletedCount(completed)
+                    .setState(resolveState(todayProgressForUser, m));
+
+            return dto;
+        }).toList();
+    }
+
+    private TodayState resolveState(MissionProgress todayProgressForUser, Mission m) {
+        if (todayProgressForUser == null) return TodayState.NOT_STARTED;
+        boolean sameMission = todayProgressForUser.getMission().getId().equals(m.getId());
+        if (sameMission && Boolean.TRUE.equals(todayProgressForUser.getIsCompleted())) return TodayState.COMPLETED;
+        if (sameMission) return TodayState.IN_PROGRESS;
+        return TodayState.NOT_STARTED; // 다른 미션을 이미 진행 중/완료한 경우
+    }
 }

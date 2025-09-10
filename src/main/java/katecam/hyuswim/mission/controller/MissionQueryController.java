@@ -6,7 +6,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import katecam.hyuswim.mission.dto.MissionTodayResponse;
-import katecam.hyuswim.mission.service.MissionQueryService;
 
 @RestController
 @RequestMapping("/api/missions")

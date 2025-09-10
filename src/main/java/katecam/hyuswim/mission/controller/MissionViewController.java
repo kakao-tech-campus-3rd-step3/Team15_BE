@@ -9,34 +9,26 @@ import org.springframework.web.bind.annotation.*;
 
 import katecam.hyuswim.mission.dto.MissionTodayResponse;
 import katecam.hyuswim.mission.dto.TodayState;
-import katecam.hyuswim.mission.service.MissionQueryService;
 import katecam.hyuswim.mission.service.MissionService;
 
 @Controller
 @RequestMapping("/missions")
 public class MissionViewController {
 
-    private final MissionQueryService missionQueryService;
     private final MissionService missionService;
 
-    public MissionViewController(
-            MissionQueryService missionQueryService, MissionService missionService) {
-        this.missionQueryService = missionQueryService;
+    public MissionViewController(MissionService missionService) {
         this.missionService = missionService;
     }
 
-    private Long currentUserId() {
-        return 1L;
-    }
+    private Long currentUserId() { return 1L; }
 
     @GetMapping
     public String list(Model model) {
-        Long userId = currentUserId();
-        List<MissionTodayResponse> list = missionQueryService.getTodayMissionsWithState(userId);
+        var list = missionService.getTodayMissionsWithState(currentUserId());
 
-        boolean hasPickedToday =
-                list.stream()
-                        .anyMatch(m -> m.getState() == TodayState.IN_PROGRESS || m.getState() == TodayState.COMPLETED);
+        boolean hasPickedToday = list.stream()
+                .anyMatch(m -> m.getState() == TodayState.IN_PROGRESS || m.getState() == TodayState.COMPLETED);
 
         model.addAttribute("missions", list);
         model.addAttribute("hasPickedToday", hasPickedToday);
