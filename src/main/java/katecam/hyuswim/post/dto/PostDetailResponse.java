@@ -37,7 +37,7 @@ public class PostDetailResponse {
         .isDeleted(entity.getIsDeleted())
         .isLiked(false)
         .viewCount(entity.getViewCount())
-        .likeCount((long) entity.getLikes().size())
+        .likeCount((long) entity.getPostLikes().size())
         .createdAt(entity.getCreatedAt())
         .updatedAt(entity.getUpdatedAt())
         .build();
