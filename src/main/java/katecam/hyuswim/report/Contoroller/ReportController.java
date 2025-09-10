@@ -14,14 +14,11 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ReportController {
 
-    private final ReportService reportService;
+  private final ReportService reportService;
 
-    @PostMapping("/reports")
-    public ResponseEntity<Void> report(
-            @LoginUser User user, @RequestBody ReportRequest request) {
-        reportService.report(user, request);
-        return ResponseEntity.ok().build();
-    }
+  @PostMapping("/reports")
+  public ResponseEntity<Void> report(@LoginUser User user, @RequestBody ReportRequest request) {
+    reportService.report(user, request);
+    return ResponseEntity.ok().build();
+  }
 }
-
-

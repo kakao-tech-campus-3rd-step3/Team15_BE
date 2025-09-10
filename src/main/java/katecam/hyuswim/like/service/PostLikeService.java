@@ -1,6 +1,7 @@
 package katecam.hyuswim.like.service;
 
 import org.springframework.stereotype.Service;
+
 import jakarta.transaction.Transactional;
 import katecam.hyuswim.common.error.CustomException;
 import katecam.hyuswim.common.error.ErrorCode;
@@ -15,27 +16,26 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class PostLikeService {
 
-    private final PostLikeRepository postLikeRepository;
-    private final PostRepository postRepository;
+  private final PostLikeRepository postLikeRepository;
+  private final PostRepository postRepository;
 
-    @Transactional
-    public void addLike(Long postId, User user) {
-        Post post =
-                postRepository
-                        .findById(postId)
-                        .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
+  @Transactional
+  public void addLike(Long postId, User user) {
+    Post post =
+        postRepository
+            .findById(postId)
+            .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
-        postLikeRepository.save(new PostLike(post, user));
-    }
+    postLikeRepository.save(new PostLike(post, user));
+  }
 
-    @Transactional
-    public void deleteLike(Long postId, User user) {
-        PostLike postLike =
-                postLikeRepository
-                        .findByPostIdAndUserId(postId, user.getId())
-                        .orElseThrow(() -> new CustomException(ErrorCode.LIKE_NOT_FOUND));
+  @Transactional
+  public void deleteLike(Long postId, User user) {
+    PostLike postLike =
+        postLikeRepository
+            .findByPostIdAndUserId(postId, user.getId())
+            .orElseThrow(() -> new CustomException(ErrorCode.LIKE_NOT_FOUND));
 
-        postLikeRepository.delete(postLike);
-    }
+    postLikeRepository.delete(postLike);
+  }
 }
-
