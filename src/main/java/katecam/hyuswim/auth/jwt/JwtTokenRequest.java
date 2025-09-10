@@ -7,6 +7,6 @@ import lombok.*;
 @AllArgsConstructor
 public class JwtTokenRequest {
 
-    private Long userId;
-    private UserRole role;
+  private Long userId;
+  private UserRole role;
 }
