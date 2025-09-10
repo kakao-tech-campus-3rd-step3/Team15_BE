@@ -15,7 +15,9 @@ public enum ErrorCode {
   COMMENT_ACCESS_DENIED(HttpStatus.FORBIDDEN, "작성자만 댓글을 수정/삭제할 수 있습니다."),
   LIKE_NOT_FOUND(HttpStatus.NOT_FOUND, "좋아요가 존재하지 않습니다."),
   REPORT_REASON_REQUIRED(HttpStatus.BAD_REQUEST, "기타 사유 선택 시 내용은 필수입니다."),
-  INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "예상치 못한 오류가 발생했습니다.");
+  INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "예상치 못한 오류가 발생했습니다."),
+  MISSING_JWT_TOKEN(HttpStatus.UNAUTHORIZED, "JWT토큰이 없거나 유효하지 않습니다");
+
 
   private final HttpStatus status;
   private final String message;
