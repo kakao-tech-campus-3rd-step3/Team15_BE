@@ -25,7 +25,6 @@ public class MissionViewController {
         this.missionService = missionService;
     }
 
-    // TODO: 실제 로그인 정보를 쓰면 @LoginMember 같은 리졸버나 SecurityContext에서 userId를 꺼내세요.
     private Long currentUserId() {
         return 1L;
     }
