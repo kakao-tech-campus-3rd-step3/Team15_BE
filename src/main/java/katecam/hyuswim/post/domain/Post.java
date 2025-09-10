@@ -1,8 +1,11 @@
 package katecam.hyuswim.post.domain;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -14,10 +17,12 @@ import katecam.hyuswim.user.User;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Getter
-@NoArgsConstructor
 @Entity
 @EntityListeners(AuditingEntityListener.class)
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Post {
 
   @Id
@@ -28,11 +33,13 @@ public class Post {
   @JoinColumn(name = "user_id")
   private User user;
 
+  @Builder.Default
   @OneToMany(mappedBy = "post")
-  private List<PostLike> postLikes;
+  private List<PostLike> postLikes = new ArrayList<>();
 
+  @Builder.Default
   @OneToMany(mappedBy = "post")
-  private List<Comment> comments;
+  private List<Comment> comments = new ArrayList<>();
 
   @Enumerated(EnumType.STRING)
   private PostCategory postCategory;
@@ -40,11 +47,14 @@ public class Post {
   private String title;
   private String content;
 
+  @Builder.Default
   private Long viewCount = 0L;
 
+  @Builder.Default
   @Column(name = "is_anonymous")
   private Boolean isAnonymous = false;
 
+  @Builder.Default
   @Column(name = "is_deleted")
   private Boolean isDeleted = false;
 
@@ -56,16 +66,19 @@ public class Post {
   @Column(name = "updated_at")
   private LocalDateTime updatedAt;
 
-  public Post(
-      String title, String content, PostCategory postCategory, User user, Boolean isAnonymous) {
-    this.title = title;
-    this.content = content;
-    this.postCategory = postCategory;
-    this.user = user;
-    this.isAnonymous = isAnonymous;
-  }
+    public Post(
+            String title, String content, PostCategory postCategory, User user, Boolean isAnonymous) {
+        this.title = title;
+        this.content = content;
+        this.postCategory = postCategory;
+        this.user = user;
+        this.isAnonymous = isAnonymous;
+        this.postLikes = new ArrayList<>();
+        this.comments = new ArrayList<>();
+    }
 
-  public void update(String title, String content, PostCategory postCategory) {
+
+    public void update(String title, String content, PostCategory postCategory) {
     if (title != null) this.title = title;
     if (content != null) this.content = content;
     if (postCategory != null) this.postCategory = postCategory;
