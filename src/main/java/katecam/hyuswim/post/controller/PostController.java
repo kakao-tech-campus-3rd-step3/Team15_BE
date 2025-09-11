@@ -14,6 +14,8 @@ import katecam.hyuswim.post.service.PostService;
 import katecam.hyuswim.user.User;
 import lombok.RequiredArgsConstructor;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/posts")
 @RequiredArgsConstructor
@@ -33,14 +35,6 @@ public class PostController {
       @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC, size = 10)
           Pageable pageable) {
     return ResponseEntity.ok(postService.getPosts(pageable));
-  }
-
-  @GetMapping("/category/{category}")
-  public ResponseEntity<PageResponse<PostListResponse>> getPostsByCategory(
-      @PathVariable PostCategory category,
-      @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC, size = 10)
-          Pageable pageable) {
-    return ResponseEntity.ok(postService.getPostsByCategory(category, pageable));
   }
 
   @GetMapping("/{id}")
@@ -69,4 +63,17 @@ public class PostController {
     postService.deletePost(id, user);
     return ResponseEntity.noContent().build();
   }
+
+  @GetMapping("/categories")
+  public ResponseEntity<List<PostCategoryResponse>> getCategories() {
+      return ResponseEntity.ok(postService.getCategories());
+  }
+
+  @GetMapping("/category/{category}")
+  public ResponseEntity<PageResponse<PostListResponse>> getPostsByCategory(
+          @PathVariable PostCategory category,
+          @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC, size = 10)
+          Pageable pageable) {
+      return ResponseEntity.ok(postService.getPostsByCategory(category, pageable));
+    }
 }

@@ -14,9 +14,10 @@ import lombok.NoArgsConstructor;
 @Builder
 public class PostDetailResponse {
   private Long id;
+  private String postCategory;
+  private String postCategoryName;
   private String title;
   private String content;
-  private String postCategory;
   private String author;
   private Boolean isAnonymous;
   private Boolean isDeleted;
@@ -30,9 +31,10 @@ public class PostDetailResponse {
   public static PostDetailResponse from(Post entity) {
     return PostDetailResponse.builder()
         .id(entity.getId())
+        .postCategory(entity.getPostCategory().name())
+        .postCategoryName(entity.getPostCategory().getDisplayName())
         .title(entity.getTitle())
         .content(entity.getContent())
-        .postCategory(entity.getPostCategory().name())
         .author(entity.getUser().getEmail())
         .isAnonymous(entity.getIsAnonymous())
         .isDeleted(entity.getIsDeleted())

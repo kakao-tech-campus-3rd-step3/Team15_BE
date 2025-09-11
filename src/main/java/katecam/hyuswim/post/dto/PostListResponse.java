@@ -14,6 +14,8 @@ import lombok.NoArgsConstructor;
 @Builder
 public class PostListResponse {
   private Long id;
+  private String postCategory;
+  private String postCategoryName;
   private String title;
   private String content;
   private String author;
@@ -25,7 +27,8 @@ public class PostListResponse {
   public static PostListResponse from(Post entity) {
     return PostListResponse.builder()
         .id(entity.getId())
-        .title(entity.getTitle())
+        .title(entity.getTitle()).postCategory(entity.getPostCategory().name())
+         .postCategoryName(entity.getPostCategory().getDisplayName())
         .content(entity.getContent())
         .author(entity.getUser().getEmail())
         .likeCount((long) entity.getPostLikes().size())
