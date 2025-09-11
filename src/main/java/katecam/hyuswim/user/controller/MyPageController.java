@@ -3,11 +3,14 @@ package katecam.hyuswim.user.controller;
 import katecam.hyuswim.auth.login.LoginUser;
 import katecam.hyuswim.user.User;
 import katecam.hyuswim.user.dto.MyOverviewResponse;
+import katecam.hyuswim.user.dto.MyPostListReponse;
 import katecam.hyuswim.user.service.MyPageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -19,5 +22,10 @@ public class MyPageController {
     @GetMapping("/api/users/overview")
     public ResponseEntity<MyOverviewResponse> myOverview(@LoginUser User loginUser) {
         return ResponseEntity.ok(myPageService.selectMyOverview(loginUser));
+    }
+
+    @GetMapping("/api/users/me/posts")
+    public ResponseEntity<List<MyPostListReponse>> myPostList(@LoginUser User loginUser) {
+        return ResponseEntity.ok(myPageService.selectMyPostList(loginUser));
     }
 }
