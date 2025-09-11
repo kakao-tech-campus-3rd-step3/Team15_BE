@@ -61,7 +61,8 @@ public class LocalSecurityConfig {
                         "/api/posts/**", "/api/posts/categories",
                         "/api/posts/category/**",
                         "/api/posts/search",
-                        "/api/posts/stats"
+                        "/api/posts/stats",
+                            "/api/comments/**"
                             )
                     .permitAll()
                     .anyRequest()
