@@ -23,6 +23,7 @@ public class PostDetailResponse {
   private Boolean isLiked;
   private Long viewCount;
   private Long likeCount;
+  private Long commentCount;
   private LocalDateTime createdAt;
   private LocalDateTime updatedAt;
 
@@ -38,6 +39,7 @@ public class PostDetailResponse {
         .isLiked(false)
         .viewCount(entity.getViewCount())
         .likeCount((long) entity.getPostLikes().size())
+        .commentCount((long) entity.getComments().size())
         .createdAt(entity.getCreatedAt())
         .updatedAt(entity.getUpdatedAt())
         .build();

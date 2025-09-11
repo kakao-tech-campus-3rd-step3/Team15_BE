@@ -19,6 +19,7 @@ public class PostListResponse {
   private String author;
   private Long likeCount;
   private Long viewCount;
+  private Long commentCount;
   private LocalDateTime createdAt;
 
   public static PostListResponse from(Post entity) {
@@ -28,6 +29,7 @@ public class PostListResponse {
         .content(entity.getContent())
         .author(entity.getUser().getEmail())
         .likeCount((long) entity.getPostLikes().size())
+        .commentCount((long) entity.getComments().size())
         .viewCount(entity.getViewCount())
         .createdAt(entity.getCreatedAt())
         .build();

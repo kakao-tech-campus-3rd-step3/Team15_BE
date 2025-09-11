@@ -25,7 +25,7 @@ public class PostService {
   @Transactional
   public PostDetailResponse createPost(PostRequest request, User user) {
     Post post =
-        new Post(
+        Post.create(
             request.getTitle(),
             request.getContent(),
             request.getPostCategory(),
