@@ -1,11 +1,12 @@
-// package katecam.hyuswim.mission.dto;
 package katecam.hyuswim.mission.dto;
 
 import katecam.hyuswim.mission.Mission;
 import katecam.hyuswim.mission.MissionCategory;
 import katecam.hyuswim.mission.MissionLevel;
 import katecam.hyuswim.mission.TodayState;
+import lombok.Getter;
 
+@Getter
 public class MissionTodayResponse {
   private Long id;
   private String title;
@@ -22,105 +23,27 @@ public class MissionTodayResponse {
   // 사용자 상태
   private TodayState state;
 
-  public static MissionTodayResponse of(Mission mission) {
-    return new MissionTodayResponse()
-        .setId(mission.getId())
-        .setTitle(mission.getTitle())
-        .setContent(mission.getContent())
-        .setPoint(mission.getPoint())
-        .setCategory(mission.getCategory())
-        .setLevel(mission.getLevel())
-        .setActive(mission.isActive())
-        .setState(TodayState.NOT_STARTED);
-  }
+    private MissionTodayResponse(
+            Long id, String title, String content, Long point,
+            MissionCategory category, MissionLevel level, boolean active,
+            long todayStartedCount, long todayCompletedCount, TodayState state) {
+        this.id = id;
+        this.title = title;
+        this.content = content;
+        this.point = point;
+        this.category = category;
+        this.level = level;
+        this.active = active;
+        this.todayStartedCount = todayStartedCount;
+        this.todayCompletedCount = todayCompletedCount;
+        this.state = state;
+    }
 
-  public Long getId() {
-    return id;
-  }
-
-  public String getTitle() {
-    return title;
-  }
-
-  public String getContent() {
-    return content;
-  }
-
-  public Long getPoint() {
-    return point;
-  }
-
-  public MissionCategory getCategory() {
-    return category;
-  }
-
-  public MissionLevel getLevel() {
-    return level;
-  }
-
-  public boolean isActive() {
-    return active;
-  }
-
-  public long getStartedCount() {
-    return todayStartedCount;
-  }
-
-  public long getCompletedCount() {
-    return todayCompletedCount;
-  }
-
-  public TodayState getState() {
-    return state;
-  }
-
-  public MissionTodayResponse setId(Long id) {
-    this.id = id;
-    return this;
-  }
-
-  public MissionTodayResponse setTitle(String title) {
-    this.title = title;
-    return this;
-  }
-
-  public MissionTodayResponse setContent(String content) {
-    this.content = content;
-    return this;
-  }
-
-  public MissionTodayResponse setPoint(Long point) {
-    this.point = point;
-    return this;
-  }
-
-  public MissionTodayResponse setCategory(MissionCategory category) {
-    this.category = category;
-    return this;
-  }
-
-  public MissionTodayResponse setLevel(MissionLevel level) {
-    this.level = level;
-    return this;
-  }
-
-  public MissionTodayResponse setActive(boolean active) {
-    this.active = active;
-    return this;
-  }
-
-  public MissionTodayResponse setTodayStartedCount(long v) {
-    this.todayStartedCount = v;
-    return this;
-  }
-
-  public MissionTodayResponse setTodayCompletedCount(long v) {
-    this.todayCompletedCount = v;
-    return this;
-  }
-
-  public MissionTodayResponse setState(TodayState state) {
-    this.state = state;
-    return this;
+    public static MissionTodayResponse of(Mission m, long started, long completed, TodayState state) {
+        return new MissionTodayResponse(
+                m.getId(), m.getTitle(), m.getContent(), m.getPoint(),
+                m.getCategory(), m.getLevel(), m.isActive(),
+                started, completed, state
+        );
   }
 }

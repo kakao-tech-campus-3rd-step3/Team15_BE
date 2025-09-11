@@ -8,14 +8,14 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import katecam.hyuswim.mission.progress.MissionProgress;
 
 public interface MissionProgressRepository extends JpaRepository<MissionProgress, Long> {
-  long countByUser_IdAndProgressDate(Long userId, LocalDate date);
+  long countByUserIdAndProgressDate(Long userId, LocalDate date);
 
-  Optional<MissionProgress> findFirstByUser_IdAndProgressDate(Long userId, LocalDate date);
+  Optional<MissionProgress> findFirstByUserIdAndProgressDate(Long userId, LocalDate date);
 
-  Optional<MissionProgress> findFirstByUser_IdAndMission_IdAndProgressDate(
+  Optional<MissionProgress> findFirstByUserIdAndMissionIdAndProgressDate(
       Long userId, Long missionId, LocalDate date);
 
-  long countByMission_IdAndProgressDate(Long missionId, LocalDate date);
+  long countByMissionIdAndProgressDate(Long missionId, LocalDate date);
 
-  long countByMission_IdAndProgressDateAndIsCompletedTrue(Long missionId, LocalDate date);
+  long countByMissionIdAndProgressDateAndIsCompletedTrue(Long missionId, LocalDate date);
 }
