@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import katecam.hyuswim.auth.login.LoginUser;
@@ -17,26 +18,27 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/api/users")
 public class MyPageController {
 
   private final MyPageService myPageService;
 
-  @GetMapping("/api/users/overview")
+  @GetMapping("/overview")
   public ResponseEntity<MyOverviewResponse> myOverview(@LoginUser User loginUser) {
     return ResponseEntity.ok(myPageService.selectMyOverview(loginUser));
   }
 
-  @GetMapping("/api/users/me/posts")
+  @GetMapping("/me/posts")
   public ResponseEntity<List<MyPostListReponse>> myPostList(@LoginUser User loginUser) {
     return ResponseEntity.ok(myPageService.selectMyPostList(loginUser));
   }
 
-  @GetMapping("/api/users/me/comments")
+  @GetMapping("/me/comments")
   public ResponseEntity<List<MyCommentResponse>> myCommentList(@LoginUser User loginUser) {
     return ResponseEntity.ok(myPageService.selectMyCommentList(loginUser));
   }
 
-  @GetMapping("/api/users/me/liked-posts")
+  @GetMapping("/me/liked-posts")
   public ResponseEntity<List<MyLikedPostResponse>> myLikedPostList(@LoginUser User loginUser) {
     return ResponseEntity.ok(myPageService.selectMyLikedPostList(loginUser));
   }
