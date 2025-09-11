@@ -43,7 +43,7 @@ public class MissionService {
     if (!mission.isActive()) throw new IllegalStateException("비활성 미션");
 
     LocalDate today = LocalDate.now();
-    long exists = missionProgressRepository.countByUser_IdAndProgressDate(userId, today);
+    long exists = missionProgressRepository.countByUserIdAndProgressDate(userId, today);
     if (exists > 0) throw new IllegalStateException("하루 1회 제한");
 
     MissionProgress p = new MissionProgress();
@@ -64,7 +64,7 @@ public class MissionService {
     LocalDate today = LocalDate.now();
     MissionProgress progress =
         missionProgressRepository
-            .findFirstByUser_IdAndMission_IdAndProgressDate(userId, missionId, today)
+            .findFirstByUserIdAndMissionIdAndProgressDate(userId, missionId, today)
             .orElseThrow(() -> new IllegalStateException("오늘 시작 기록 없음"));
 
     if (Boolean.TRUE.equals(progress.getIsCompleted())) {
@@ -79,9 +79,9 @@ public class MissionService {
   @Transactional(readOnly = true)
   public MissionStatsResponse getTodayStats(Long missionId) {
     LocalDate today = LocalDate.now();
-    long started = missionProgressRepository.countByMission_IdAndProgressDate(missionId, today);
+    long started = missionProgressRepository.countByMissionIdAndProgressDate(missionId, today);
     long completed =
-        missionProgressRepository.countByMission_IdAndProgressDateAndIsCompletedTrue(
+        missionProgressRepository.countByMissionIdAndProgressDateAndIsCompletedTrue(
             missionId, today);
     return new MissionStatsResponse(started, completed);
   }
@@ -92,26 +92,14 @@ public class MissionService {
     var missions = missionRepository.findAll();
 
     var todayProgressForUser =
-        missionProgressRepository.findFirstByUser_IdAndProgressDate(userId, today).orElse(null);
+        missionProgressRepository.findFirstByUserIdAndProgressDate(userId, today).orElse(null);
 
-    return missions.stream()
-        .map(
-            m -> {
-              var dto = MissionTodayResponse.of(m);
-
-              long started =
-                  missionProgressRepository.countByMission_IdAndProgressDate(m.getId(), today);
-              long completed =
-                  missionProgressRepository.countByMission_IdAndProgressDateAndIsCompletedTrue(
-                      m.getId(), today);
-
-              dto.setTodayStartedCount(started)
-                  .setTodayCompletedCount(completed)
-                  .setState(resolveState(todayProgressForUser, m));
-
-              return dto;
-            })
-        .toList();
+      return missions.stream().map(m -> {
+          long started = missionProgressRepository.countByMissionIdAndProgressDate(m.getId(), today);
+          long completed = missionProgressRepository.countByMissionIdAndProgressDateAndIsCompletedTrue(m.getId(), today);
+          TodayState state = resolveState(todayProgressForUser, m);
+          return MissionTodayResponse.of(m, started, completed, state);
+      }).toList();
   }
 
   private TodayState resolveState(MissionProgress todayProgressForUser, Mission m) {
