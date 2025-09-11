@@ -58,7 +58,7 @@ public class LocalSecurityConfig {
                     .requestMatchers(
                         HttpMethod.GET,
                         "/api/posts",
-                        "/api/posts/",
+                        "/api/posts/**",
                         "/api/posts/category/**",
                         "/api/posts/search",
                         "/api/posts/stats")
