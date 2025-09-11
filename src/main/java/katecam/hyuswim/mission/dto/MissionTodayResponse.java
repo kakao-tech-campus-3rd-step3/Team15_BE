@@ -4,6 +4,7 @@ package katecam.hyuswim.mission.dto;
 import katecam.hyuswim.mission.Mission;
 import katecam.hyuswim.mission.MissionCategory;
 import katecam.hyuswim.mission.MissionLevel;
+import katecam.hyuswim.mission.TodayState;
 
 public class MissionTodayResponse {
   private Long id;
