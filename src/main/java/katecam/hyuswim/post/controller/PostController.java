@@ -1,5 +1,7 @@
 package katecam.hyuswim.post.controller;
 
+import java.util.List;
+
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -13,8 +15,6 @@ import katecam.hyuswim.post.dto.*;
 import katecam.hyuswim.post.service.PostService;
 import katecam.hyuswim.user.User;
 import lombok.RequiredArgsConstructor;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/posts")
@@ -66,14 +66,14 @@ public class PostController {
 
   @GetMapping("/categories")
   public ResponseEntity<List<PostCategoryResponse>> getCategories() {
-      return ResponseEntity.ok(postService.getCategories());
+    return ResponseEntity.ok(postService.getCategories());
   }
 
   @GetMapping("/category/{category}")
   public ResponseEntity<PageResponse<PostListResponse>> getPostsByCategory(
-          @PathVariable PostCategory category,
-          @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC, size = 10)
+      @PathVariable PostCategory category,
+      @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC, size = 10)
           Pageable pageable) {
-      return ResponseEntity.ok(postService.getPostsByCategory(category, pageable));
-    }
+    return ResponseEntity.ok(postService.getPostsByCategory(category, pageable));
+  }
 }
