@@ -1,11 +1,9 @@
-package katecam.hyuswim.user.dto;
+package katecam.hyuswim.user.dto.mypage;
 
 import katecam.hyuswim.comment.domain.Comment;
-import katecam.hyuswim.comment.dto.CommentListResponse;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
 
 import java.time.LocalDateTime;
 

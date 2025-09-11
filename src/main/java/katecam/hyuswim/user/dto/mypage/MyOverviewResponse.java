@@ -1,4 +1,4 @@
-package katecam.hyuswim.user.dto;
+package katecam.hyuswim.user.dto.mypage;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

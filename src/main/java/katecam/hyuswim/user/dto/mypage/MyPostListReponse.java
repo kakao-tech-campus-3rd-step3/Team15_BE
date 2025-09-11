@@ -1,7 +1,6 @@
-package katecam.hyuswim.user.dto;
+package katecam.hyuswim.user.dto.mypage;
 
 import katecam.hyuswim.post.domain.Post;
-import katecam.hyuswim.post.dto.PostListResponse;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
