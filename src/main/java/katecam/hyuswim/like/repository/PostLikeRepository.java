@@ -1,5 +1,6 @@
 package katecam.hyuswim.like.repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -12,4 +13,7 @@ public interface PostLikeRepository extends JpaRepository<PostLike, Long> {
   boolean existsByPostIdAndUserId(Long postId, Long uesrId);
 
   int countByUserEmail(String email);
+
+  List<PostLike> findByUserEmail(String email);
+
 }
