@@ -1,10 +1,12 @@
 package katecam.hyuswim.user.service;
 
 import katecam.hyuswim.comment.domain.Comment;
+import katecam.hyuswim.like.domain.PostLike;
 import katecam.hyuswim.like.repository.PostLikeRepository;
 import katecam.hyuswim.post.domain.Post;
 import katecam.hyuswim.user.User;
 import katecam.hyuswim.user.dto.MyCommentResponse;
+import katecam.hyuswim.user.dto.MyLikedPostResponse;
 import katecam.hyuswim.user.dto.MyOverviewResponse;
 import katecam.hyuswim.user.dto.MyPostListReponse;
 import katecam.hyuswim.user.repository.UserRepository;
@@ -50,6 +52,18 @@ public class MyPageService {
             myCommentResponseList.add(MyCommentResponse.from(comment));
         }
         return myCommentResponseList;
+    }
+
+    @Transactional
+    public List<MyLikedPostResponse> selectMyLikedPostList(User loginUser) {
+        List<PostLike> postLikes = postLikeRepository.findByUserEmail(loginUser.getEmail());
+        List<MyLikedPostResponse> myLikedPostResponseList = new ArrayList<>();
+        for (PostLike postLike : postLikes) {
+            Post post = postLike.getPost();
+            myLikedPostResponseList.add(new MyLikedPostResponse(postLike.getId(),post.getId(),
+                    post.getTitle(),post.getContent(),post.getPostLikes().size(), post.getViewCount(),post.getCreatedAt()));
+        }
+        return myLikedPostResponseList;
     }
 
     @Transactional
