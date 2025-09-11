@@ -2,10 +2,10 @@ package katecam.hyuswim.user.controller;
 
 import katecam.hyuswim.auth.login.LoginUser;
 import katecam.hyuswim.user.User;
-import katecam.hyuswim.user.dto.MyCommentResponse;
-import katecam.hyuswim.user.dto.MyLikedPostResponse;
-import katecam.hyuswim.user.dto.MyOverviewResponse;
-import katecam.hyuswim.user.dto.MyPostListReponse;
+import katecam.hyuswim.user.dto.mypage.MyCommentResponse;
+import katecam.hyuswim.user.dto.mypage.MyLikedPostResponse;
+import katecam.hyuswim.user.dto.mypage.MyOverviewResponse;
+import katecam.hyuswim.user.dto.mypage.MyPostListReponse;
 import katecam.hyuswim.user.service.MyPageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
