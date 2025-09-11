@@ -7,10 +7,10 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class PostCategoryResponse {
-    private String code;
-    private String displayName;
+  private String code;
+  private String displayName;
 
-    public static PostCategoryResponse from(PostCategory category){
-        return new PostCategoryResponse(category.name(), category.getDisplayName());
-    }
+  public static PostCategoryResponse from(PostCategory category) {
+    return new PostCategoryResponse(category.name(), category.getDisplayName());
+  }
 }

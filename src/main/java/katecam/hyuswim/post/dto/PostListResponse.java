@@ -27,8 +27,9 @@ public class PostListResponse {
   public static PostListResponse from(Post entity) {
     return PostListResponse.builder()
         .id(entity.getId())
-        .title(entity.getTitle()).postCategory(entity.getPostCategory().name())
-         .postCategoryName(entity.getPostCategory().getDisplayName())
+        .title(entity.getTitle())
+        .postCategory(entity.getPostCategory().name())
+        .postCategoryName(entity.getPostCategory().getDisplayName())
         .content(entity.getContent())
         .author(entity.getUser().getEmail())
         .likeCount((long) entity.getPostLikes().size())

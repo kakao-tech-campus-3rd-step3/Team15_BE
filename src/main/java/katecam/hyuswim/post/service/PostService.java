@@ -96,17 +96,15 @@ public class PostService {
     post.delete();
   }
 
-    public List<PostCategoryResponse> getCategories() {
-        return Arrays.stream(PostCategory.values())
-                .map(PostCategoryResponse::from)
-                .toList();
-    }
+  public List<PostCategoryResponse> getCategories() {
+    return Arrays.stream(PostCategory.values()).map(PostCategoryResponse::from).toList();
+  }
 
-    public PageResponse<PostListResponse> getPostsByCategory(
-            PostCategory category, Pageable pageable) {
-        return new PageResponse<>(
-                postRepository
-                        .findByPostCategoryAndIsDeletedFalse(category, pageable)
-                        .map(PostListResponse::from));
-    }
+  public PageResponse<PostListResponse> getPostsByCategory(
+      PostCategory category, Pageable pageable) {
+    return new PageResponse<>(
+        postRepository
+            .findByPostCategoryAndIsDeletedFalse(category, pageable)
+            .map(PostListResponse::from));
+  }
 }
