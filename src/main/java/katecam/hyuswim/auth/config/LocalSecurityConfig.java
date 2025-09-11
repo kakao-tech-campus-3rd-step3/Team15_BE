@@ -58,10 +58,11 @@ public class LocalSecurityConfig {
                     .requestMatchers(
                         HttpMethod.GET,
                         "/api/posts",
-                        "/api/posts/**",
+                        "/api/posts/**", "/api/posts/categories",
                         "/api/posts/category/**",
                         "/api/posts/search",
-                        "/api/posts/stats")
+                        "/api/posts/stats"
+                            )
                     .permitAll()
                     .anyRequest()
                     .authenticated())
