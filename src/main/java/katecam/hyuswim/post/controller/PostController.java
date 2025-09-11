@@ -1,5 +1,7 @@
 package katecam.hyuswim.post.controller;
 
+import java.util.List;
+
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -35,14 +37,6 @@ public class PostController {
     return ResponseEntity.ok(postService.getPosts(pageable));
   }
 
-  @GetMapping("/category/{category}")
-  public ResponseEntity<PageResponse<PostListResponse>> getPostsByCategory(
-      @PathVariable PostCategory category,
-      @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC, size = 10)
-          Pageable pageable) {
-    return ResponseEntity.ok(postService.getPostsByCategory(category, pageable));
-  }
-
   @GetMapping("/{id}")
   public ResponseEntity<PostDetailResponse> getPost(@PathVariable Long id) {
     PostDetailResponse response = postService.getPost(id);
@@ -68,5 +62,18 @@ public class PostController {
   public ResponseEntity<Void> deletePost(@PathVariable Long id, @LoginUser User user) {
     postService.deletePost(id, user);
     return ResponseEntity.noContent().build();
+  }
+
+  @GetMapping("/categories")
+  public ResponseEntity<List<PostCategoryResponse>> getCategories() {
+    return ResponseEntity.ok(postService.getCategories());
+  }
+
+  @GetMapping("/category/{category}")
+  public ResponseEntity<PageResponse<PostListResponse>> getPostsByCategory(
+      @PathVariable PostCategory category,
+      @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC, size = 10)
+          Pageable pageable) {
+    return ResponseEntity.ok(postService.getPostsByCategory(category, pageable));
   }
 }
