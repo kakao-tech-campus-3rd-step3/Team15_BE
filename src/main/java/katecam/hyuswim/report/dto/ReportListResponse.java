@@ -2,8 +2,8 @@ package katecam.hyuswim.report.dto;
 
 import java.time.LocalDateTime;
 
-import katecam.hyuswim.report.domain.ReportReasonType;
 import katecam.hyuswim.report.domain.Report;
+import katecam.hyuswim.report.domain.ReportReasonType;
 import katecam.hyuswim.report.domain.ReportStatus;
 import katecam.hyuswim.report.domain.ReportType;
 import lombok.AllArgsConstructor;
