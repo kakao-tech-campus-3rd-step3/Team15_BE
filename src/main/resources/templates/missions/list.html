@@ -35,7 +35,10 @@
 
                 <div th:text="${m.content}">설명</div>
                 <div class="muted">포인트: <span th:text="${m.point != null ? m.point : 0}">0</span></div>
-                <div class="muted">오늘 참여 <span th:text="${m.startedCount}">0</span> · 완료 <span th:text="${m.completedCount}">0</span></div>
+                <div class="muted">
+                    오늘 참여 <span th:text="${m.todayStartedCount}">0</span> ·
+                    완료 <span th:text="${m.todayCompletedCount}">0</span>
+                </div>
 
                 <div style="margin-top:8px;">
                     <!-- 상태별 버튼 -->
@@ -73,7 +76,10 @@
 
                 <div th:text="${m.content}">설명</div>
                 <div class="muted">포인트: <span th:text="${m.point != null ? m.point : 0}">0</span></div>
-                <div class="muted">오늘 참여 <span th:text="${m.startedCount}">0</span> · 완료 <span th:text="${m.completedCount}">0</span></div>
+                <div class="muted">
+                    오늘 참여 <span th:text="${m.todayStartedCount}">0</span> ·
+                    완료 <span th:text="${m.todayCompletedCount}">0</span>
+                </div>
 
                 <div style="margin-top:8px;">
                     <form th:if="${m.state.name() == 'NOT_STARTED'}"
@@ -110,7 +116,10 @@
 
                 <div th:text="${m.content}">설명</div>
                 <div class="muted">포인트: <span th:text="${m.point != null ? m.point : 0}">0</span></div>
-                <div class="muted">오늘 참여 <span th:text="${m.startedCount}">0</span> · 완료 <span th:text="${m.completedCount}">0</span></div>
+                <div class="muted">
+                    오늘 참여 <span th:text="${m.todayStartedCount}">0</span> ·
+                    완료 <span th:text="${m.todayCompletedCount}">0</span>
+                </div>
 
                 <div style="margin-top:8px;">
                     <form th:if="${m.state.name() == 'NOT_STARTED'}"
