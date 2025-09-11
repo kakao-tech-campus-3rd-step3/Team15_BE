@@ -1,8 +1,10 @@
 package katecam.hyuswim.user.service;
 
+import katecam.hyuswim.comment.domain.Comment;
 import katecam.hyuswim.like.repository.PostLikeRepository;
 import katecam.hyuswim.post.domain.Post;
 import katecam.hyuswim.user.User;
+import katecam.hyuswim.user.dto.MyCommentResponse;
 import katecam.hyuswim.user.dto.MyOverviewResponse;
 import katecam.hyuswim.user.dto.MyPostListReponse;
 import katecam.hyuswim.user.repository.UserRepository;
@@ -38,6 +40,16 @@ public class MyPageService {
             myPostListReponseList.add(MyPostListReponse.from(post));
         }
         return myPostListReponseList;
+    }
+
+    @Transactional
+    public List<MyCommentResponse> selectMyCommentList(User loginUser) {
+        List<Comment> comments = loginUser.getComments();
+        List<MyCommentResponse> myCommentResponseList = new ArrayList<>();
+        for (Comment comment : comments) {
+            myCommentResponseList.add(MyCommentResponse.from(comment));
+        }
+        return myCommentResponseList;
     }
 
     @Transactional
