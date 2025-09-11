@@ -15,5 +15,4 @@ public interface PostLikeRepository extends JpaRepository<PostLike, Long> {
   int countByUserEmail(String email);
 
   List<PostLike> findByUserEmail(String email);
-
 }
