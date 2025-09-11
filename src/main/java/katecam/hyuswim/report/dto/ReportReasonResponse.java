@@ -7,10 +7,10 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class ReportReasonResponse {
-    private String reportReasonType;
-    private String displayName;
+  private String reportReasonType;
+  private String displayName;
 
-    public static ReportReasonResponse from(ReportReasonType type) {
-        return new ReportReasonResponse(type.name(), type.getDisplayName());
-    }
+  public static ReportReasonResponse from(ReportReasonType type) {
+    return new ReportReasonResponse(type.name(), type.getDisplayName());
+  }
 }

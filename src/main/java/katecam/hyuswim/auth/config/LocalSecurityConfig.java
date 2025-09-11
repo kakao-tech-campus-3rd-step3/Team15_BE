@@ -64,7 +64,7 @@ public class LocalSecurityConfig {
                         "/api/posts/search",
                         "/api/posts/stats",
                         "/api/comments/**",
-                            "/api/reports/**")
+                        "/api/reports/**")
                     .permitAll()
                     .anyRequest()
                     .authenticated())
