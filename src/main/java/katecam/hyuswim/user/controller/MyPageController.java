@@ -1,0 +1,23 @@
+package katecam.hyuswim.user.controller;
+
+import katecam.hyuswim.auth.login.LoginUser;
+import katecam.hyuswim.user.User;
+import katecam.hyuswim.user.dto.MyOverviewResponse;
+import katecam.hyuswim.user.service.MyPageService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequiredArgsConstructor
+public class MyPageController {
+
+    private final MyPageService myPageService;
+
+
+    @GetMapping("/api/users/overview")
+    public ResponseEntity<MyOverviewResponse> myOverview(@LoginUser User loginUser) {
+        return ResponseEntity.ok(myPageService.selectMyOverview(loginUser));
+    }
+}
