@@ -10,9 +10,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import katecam.hyuswim.mission.Mission;
+import katecam.hyuswim.mission.TodayState;
 import katecam.hyuswim.mission.dto.MissionStatsResponse;
 import katecam.hyuswim.mission.dto.MissionTodayResponse;
-import katecam.hyuswim.mission.TodayState;
 import katecam.hyuswim.mission.progress.MissionProgress;
 import katecam.hyuswim.mission.repository.MissionProgressRepository;
 import katecam.hyuswim.mission.repository.MissionRepository;
@@ -94,12 +94,18 @@ public class MissionService {
     var todayProgressForUser =
         missionProgressRepository.findFirstByUserIdAndProgressDate(userId, today).orElse(null);
 
-      return missions.stream().map(m -> {
-          long started = missionProgressRepository.countByMissionIdAndProgressDate(m.getId(), today);
-          long completed = missionProgressRepository.countByMissionIdAndProgressDateAndIsCompletedTrue(m.getId(), today);
-          TodayState state = resolveState(todayProgressForUser, m);
-          return MissionTodayResponse.of(m, started, completed, state);
-      }).toList();
+    return missions.stream()
+        .map(
+            m -> {
+              long started =
+                  missionProgressRepository.countByMissionIdAndProgressDate(m.getId(), today);
+              long completed =
+                  missionProgressRepository.countByMissionIdAndProgressDateAndIsCompletedTrue(
+                      m.getId(), today);
+              TodayState state = resolveState(todayProgressForUser, m);
+              return MissionTodayResponse.of(m, started, completed, state);
+            })
+        .toList();
   }
 
   private TodayState resolveState(MissionProgress todayProgressForUser, Mission m) {
