@@ -1,6 +1,8 @@
 package katecam.hyuswim.post.service;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -39,14 +41,6 @@ public class PostService {
   public PageResponse<PostListResponse> getPosts(Pageable pageable) {
     return new PageResponse<>(
         postRepository.findAllByIsDeletedFalse(pageable).map(PostListResponse::from));
-  }
-
-  public PageResponse<PostListResponse> getPostsByCategory(
-      PostCategory category, Pageable pageable) {
-    return new PageResponse<>(
-        postRepository
-            .findByPostCategoryAndIsDeletedFalse(category, pageable)
-            .map(PostListResponse::from));
   }
 
   public PostDetailResponse getPost(Long id) {
@@ -100,5 +94,17 @@ public class PostService {
     }
 
     post.delete();
+  }
+
+  public List<PostCategoryResponse> getCategories() {
+    return Arrays.stream(PostCategory.values()).map(PostCategoryResponse::from).toList();
+  }
+
+  public PageResponse<PostListResponse> getPostsByCategory(
+      PostCategory category, Pageable pageable) {
+    return new PageResponse<>(
+        postRepository
+            .findByPostCategoryAndIsDeletedFalse(category, pageable)
+            .map(PostListResponse::from));
   }
 }
