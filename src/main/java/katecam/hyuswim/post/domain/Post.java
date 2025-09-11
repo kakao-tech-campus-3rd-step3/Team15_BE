@@ -66,21 +66,17 @@ public class Post {
   @Column(name = "updated_at")
   private LocalDateTime updatedAt;
 
-    public static Post create(
-            String title,
-            String content,
-            PostCategory postCategory,
-            User user,
-            Boolean isAnonymous) {
+  public static Post create(
+      String title, String content, PostCategory postCategory, User user, Boolean isAnonymous) {
 
-        return Post.builder()
-                .title(title)
-                .content(content)
-                .postCategory(postCategory)
-                .user(user)
-                .isAnonymous(isAnonymous)
-                .build();
-    }
+    return Post.builder()
+        .title(title)
+        .content(content)
+        .postCategory(postCategory)
+        .user(user)
+        .isAnonymous(isAnonymous)
+        .build();
+  }
 
   public void update(String title, String content, PostCategory postCategory) {
     if (title != null) this.title = title;
