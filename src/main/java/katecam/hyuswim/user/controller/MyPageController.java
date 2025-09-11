@@ -3,6 +3,7 @@ package katecam.hyuswim.user.controller;
 import katecam.hyuswim.auth.login.LoginUser;
 import katecam.hyuswim.user.User;
 import katecam.hyuswim.user.dto.MyCommentResponse;
+import katecam.hyuswim.user.dto.MyLikedPostResponse;
 import katecam.hyuswim.user.dto.MyOverviewResponse;
 import katecam.hyuswim.user.dto.MyPostListReponse;
 import katecam.hyuswim.user.service.MyPageService;
@@ -33,5 +34,10 @@ public class MyPageController {
     @GetMapping("/api/users/me/comments")
     public ResponseEntity<List<MyCommentResponse>> myCommentList(@LoginUser User loginUser) {
         return ResponseEntity.ok(myPageService.selectMyCommentList(loginUser));
+    }
+
+    @GetMapping("/api/users/me/liked-posts")
+    public ResponseEntity<List<MyLikedPostResponse>> myLikedPostList(@LoginUser User loginUser) {
+        return ResponseEntity.ok(myPageService.selectMyLikedPostList(loginUser));
     }
 }
