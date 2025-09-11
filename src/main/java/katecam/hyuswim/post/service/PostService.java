@@ -25,12 +25,12 @@ public class PostService {
   @Transactional
   public PostDetailResponse createPost(PostRequest request, User user) {
     Post post =
-        new Post(
-            request.getTitle(),
-            request.getContent(),
-            request.getPostCategory(),
-            user,
-            request.getIsAnonymous());
+            Post.create(
+                    request.getTitle(),
+                    request.getContent(),
+                    request.getPostCategory(),
+                    user,
+                    request.getIsAnonymous());
 
     Post saved = postRepository.save(post);
     return PostDetailResponse.from(saved);

@@ -33,21 +33,12 @@ public class Post {
   @JoinColumn(name = "user_id")
   private User user;
 
-  @Builder.Default
-  @OneToMany(mappedBy = "post")
-  private List<PostLike> postLikes = new ArrayList<>();
-
-  @Builder.Default
-  @OneToMany(mappedBy = "post")
-  private List<Comment> comments = new ArrayList<>();
-
   @Enumerated(EnumType.STRING)
   private PostCategory postCategory;
 
   private String title;
-  private String content;
 
-  @Builder.Default private Long viewCount = 0L;
+  private String content;
 
   @Builder.Default
   @Column(name = "is_anonymous")
@@ -57,6 +48,16 @@ public class Post {
   @Column(name = "is_deleted")
   private Boolean isDeleted = false;
 
+  @Builder.Default private Long viewCount = 0L;
+
+  @Builder.Default
+  @OneToMany(mappedBy = "post")
+  private List<PostLike> postLikes = new ArrayList<>();
+
+  @Builder.Default
+  @OneToMany(mappedBy = "post")
+  private List<Comment> comments = new ArrayList<>();
+
   @CreatedDate
   @Column(name = "created_at", updatable = false)
   private LocalDateTime createdAt;
@@ -65,16 +66,21 @@ public class Post {
   @Column(name = "updated_at")
   private LocalDateTime updatedAt;
 
-  public Post(
-      String title, String content, PostCategory postCategory, User user, Boolean isAnonymous) {
-    this.title = title;
-    this.content = content;
-    this.postCategory = postCategory;
-    this.user = user;
-    this.isAnonymous = isAnonymous;
-    this.postLikes = new ArrayList<>();
-    this.comments = new ArrayList<>();
-  }
+    public static Post create(
+            String title,
+            String content,
+            PostCategory postCategory,
+            User user,
+            Boolean isAnonymous) {
+
+        return Post.builder()
+                .title(title)
+                .content(content)
+                .postCategory(postCategory)
+                .user(user)
+                .isAnonymous(isAnonymous)
+                .build();
+    }
 
   public void update(String title, String content, PostCategory postCategory) {
     if (title != null) this.title = title;
