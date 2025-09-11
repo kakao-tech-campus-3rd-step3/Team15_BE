@@ -5,7 +5,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import katecam.hyuswim.mission.dto.TodayState;
+import katecam.hyuswim.mission.TodayState;
 import katecam.hyuswim.mission.service.MissionService;
 
 @Controller

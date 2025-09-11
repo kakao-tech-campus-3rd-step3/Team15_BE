@@ -12,7 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import katecam.hyuswim.mission.Mission;
 import katecam.hyuswim.mission.dto.MissionStatsResponse;
 import katecam.hyuswim.mission.dto.MissionTodayResponse;
-import katecam.hyuswim.mission.dto.TodayState;
+import katecam.hyuswim.mission.TodayState;
 import katecam.hyuswim.mission.progress.MissionProgress;
 import katecam.hyuswim.mission.repository.MissionProgressRepository;
 import katecam.hyuswim.mission.repository.MissionRepository;
