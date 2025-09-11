@@ -37,7 +37,7 @@ public class Report {
   private User reportedUser;
 
   @Enumerated(EnumType.STRING)
-  private ReasonType reasonType;
+  private ReportReasonType reportReasonType;
 
   @Column(length = 500)
   private String content;
@@ -55,13 +55,13 @@ public class Report {
       User reportedUser,
       ReportType reportType,
       Long targetId,
-      ReasonType reasonType,
+      ReportReasonType reportReasonType,
       String content) {
     this.reporter = reporter;
     this.reportedUser = reportedUser;
     this.reportType = reportType;
     this.targetId = targetId;
-    this.reasonType = reasonType;
+    this.reportReasonType = reportReasonType;
     this.content = content;
   }
 
@@ -70,13 +70,13 @@ public class Report {
       User reportedUser,
       ReportType reportType,
       Long targetId,
-      ReasonType reasonType,
+      ReportReasonType reportReasonType,
       String content) {
 
-    if (reasonType == ReasonType.OTHER && (content == null || content.isBlank())) {
+    if (reportReasonType == ReportReasonType.OTHER && (content == null || content.isBlank())) {
       throw new CustomException(ErrorCode.REPORT_REASON_REQUIRED);
     }
 
-    return new Report(reporter, reportedUser, reportType, targetId, reasonType, content);
+    return new Report(reporter, reportedUser, reportType, targetId, reportReasonType, content);
   }
 }

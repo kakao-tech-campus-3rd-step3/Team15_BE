@@ -1,5 +1,7 @@
 package katecam.hyuswim.report.service;
 
+import katecam.hyuswim.report.domain.ReportReasonType;
+import katecam.hyuswim.report.dto.ReportReasonResponse;
 import org.springframework.stereotype.Service;
 
 import jakarta.transaction.Transactional;
@@ -16,6 +18,9 @@ import katecam.hyuswim.report.repository.ReportRepository;
 import katecam.hyuswim.user.User;
 import lombok.RequiredArgsConstructor;
 
+import java.util.Arrays;
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class ReportService {
@@ -23,6 +28,12 @@ public class ReportService {
   private final ReportRepository reportRepository;
   private final PostRepository postRepository;
   private final CommentRepository commentRespository;
+
+  public List<ReportReasonResponse> getReasons() {
+        return Arrays.stream(ReportReasonType.values())
+                .map(katecam.hyuswim.report.dto.ReportReasonResponse::from)
+                .toList();
+  }
 
   @Transactional
   public void report(User reporter, ReportRequest request) {
@@ -48,7 +59,7 @@ public class ReportService {
             reportedUser,
             request.getReportType(),
             request.getTargetId(),
-            request.getReasonType(),
+            request.getReportReasonType(),
             request.getContent());
 
     reportRepository.save(report);

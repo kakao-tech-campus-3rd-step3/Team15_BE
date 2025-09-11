@@ -2,7 +2,7 @@ package katecam.hyuswim.report.dto;
 
 import java.time.LocalDateTime;
 
-import katecam.hyuswim.report.domain.ReasonType;
+import katecam.hyuswim.report.domain.ReportReasonType;
 import katecam.hyuswim.report.domain.Report;
 import katecam.hyuswim.report.domain.ReportStatus;
 import katecam.hyuswim.report.domain.ReportType;
@@ -24,7 +24,7 @@ public class ReportListResponse {
   private String content;
   private String reporter;
   private String reportedUser;
-  private ReasonType reasonType;
+  private ReportReasonType reportReasonType;
   private ReportStatus status;
   private LocalDateTime reportedAt;
 
@@ -33,11 +33,11 @@ public class ReportListResponse {
         .id(report.getId())
         .reportType(report.getReportType())
         .targetId(report.getTargetId())
-        .reasonCode(report.getReasonType().name())
-        .reasonDisplayName(report.getReasonType().getDisplayName())
+        .reasonCode(report.getReportReasonType().name())
+        .reasonDisplayName(report.getReportReasonType().getDisplayName())
         .reporter(report.getReporter().getNickname())
         .reportedUser(report.getReportedUser().getNickname())
-        .reasonType(report.getReasonType())
+        .reportReasonType(report.getReportReasonType())
         .status(report.getStatus())
         .reportedAt(report.getReportedAt())
         .build();
