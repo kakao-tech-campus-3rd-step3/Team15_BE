@@ -27,7 +27,7 @@ public class MissionController {
   }
 
   // 미션 시작
-  @PutMapping("/{missionId}/start")
+  @PatchMapping("/{missionId}/start")
   public ResponseEntity<Void> startMission(
       @LoginUser User loginUser, @PathVariable Long missionId) {
     missionService.startMission(loginUser.getId(), missionId);
