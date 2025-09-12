@@ -57,9 +57,6 @@ public class PostService {
     LocalDateTime startDateTime = null;
     LocalDateTime endDateTime = null;
 
-    System.out.println("keyword = " + keyword);
-    System.out.println("category = " + request.getCategory());
-
     if (keyword == null || keyword.isBlank()) {
       return new PageResponse<>(Page.empty(pageable));
     }
