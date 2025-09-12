@@ -53,7 +53,8 @@ public class PostController {
           LocalDate startDate,
       @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
           LocalDate endDate,
-      Pageable pageable) {
+      @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC, size = 10)
+          Pageable pageable) {
     PostSearchRequest request = new PostSearchRequest(keyword, category, startDate, endDate);
     return ResponseEntity.ok(postService.searchPosts(request, pageable));
   }
