@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -52,17 +53,29 @@ public class PostService {
   }
 
   public PageResponse<PostListResponse> searchPosts(PostSearchRequest request, Pageable pageable) {
-    LocalDateTime startDateTime =
-        (request.getStartDate() != null) ? request.getStartDate().atStartOfDay() : null;
-    LocalDateTime endDateTime =
-        (request.getEndDate() != null)
-            ? request.getEndDate().plusDays(1).atStartOfDay().minusNanos(1)
-            : null;
+    String keyword = request.getKeyword();
+    LocalDateTime startDateTime = null;
+    LocalDateTime endDateTime = null;
+
+    System.out.println("keyword = " + keyword);
+    System.out.println("category = " + request.getCategory());
+
+    if (keyword == null || keyword.isBlank()) {
+      return new PageResponse<>(Page.empty(pageable));
+    }
+
+    if (request.getStartDate() != null) {
+      startDateTime = request.getStartDate().atStartOfDay();
+    }
+
+    if (request.getEndDate() != null) {
+      endDateTime = request.getEndDate().plusDays(1).atStartOfDay().minusNanos(1);
+    }
 
     return new PageResponse<>(
         postRepository
             .searchByCategoryAndKeywordAndPeriod(
-                request.getCategory(), request.getKeyword(), startDateTime, endDateTime, pageable)
+                keyword, request.getCategory(), startDateTime, endDateTime, pageable)
             .map(PostListResponse::from));
   }
 
