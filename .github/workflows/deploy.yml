@@ -174,7 +174,7 @@ jobs:
                        --spring.datasource.username=${{ secrets.DB_USER }} \
                        --spring.datasource.password=${{ secrets.DB_PASSWORD }} \
                        --jwt.secret=${{ secrets.JWT_SECRET }}"
-            nohup java -jar "${APP_JAR}" $JAVA_OPTS > "${LOG_FILE_PATH}" 2>&1 &
+            nohup java -Dspring.profiles.active=dev -jar "${APP_JAR}" $JAVA_OPTS > "${LOG_FILE_PATH}" 2>&1 &
 
             # 기동 확인
             echo "Verifying application startup..."
