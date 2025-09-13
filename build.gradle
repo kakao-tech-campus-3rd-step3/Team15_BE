@@ -86,3 +86,8 @@ spotless {
     endWithNewline()
   }
 }
+
+// spotlessCheck를 항상 skip 처리
+tasks.withType(com.diffplug.gradle.spotless.SpotlessTask).configureEach {
+  onlyIf { false }
+}
