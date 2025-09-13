@@ -50,44 +50,38 @@ public class LocalSecurityConfig {
   @Bean
   @Order(2)
   public SecurityFilterChain apiChain(HttpSecurity http, JwtFilter jwtFilter) throws Exception {
-    http.securityMatcher("/api/**")
-        .authorizeHttpRequests(
-            auth ->
-                auth.requestMatchers("/api/user/signup", "/api/auth/login")
-                    .permitAll()
-                    .requestMatchers(
-                        HttpMethod.GET,
-                        "/api/posts",
-                        "/api/posts/**",
-                        "/api/posts/categories",
-                        "/api/posts/category/**",
-                        "/api/posts/search",
-                        "/api/posts/stats",
-                        "/api/comments/**",
-                        "/api/reports/**")
-                    .permitAll()
-                    .anyRequest()
-                    .authenticated())
-        .csrf(csrf -> csrf.disable())
-        .formLogin(form -> form.disable())
-        .httpBasic(Customizer.withDefaults())
-        .exceptionHandling(
-            ex ->
-                ex.authenticationEntryPoint(
-                    (request, response, authException) -> {
-                      response.setContentType("application/json");
-                      response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                      response.getWriter().write("{\"error\":\"Unauthorized\"}");
-                    }))
-        .addFilterBefore(
-            jwtFilter,
-            org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
-                .class);
+      http.securityMatcher("/api/**")
+              .authorizeHttpRequests(auth -> auth
+                      .requestMatchers("/api/user/signup", "/api/auth/login").permitAll()
+                      .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                      .requestMatchers(HttpMethod.GET, "/api/**").permitAll()
+                      .anyRequest().authenticated()
+              )
+              .csrf(csrf -> csrf.disable())
+              .formLogin(form -> form.disable())
+              .httpBasic(Customizer.withDefaults())
+              .exceptionHandling(ex -> ex
+                      .authenticationEntryPoint((req, res, e) -> {
+                          res.setContentType("application/json");
+                          res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                          res.getWriter().write("{\"error\":\"Unauthorized\"}");
+                      })
+                      .accessDeniedHandler((req, res, e) -> {
+                          res.setContentType("application/json");
+                          res.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                          res.getWriter().write("{\"error\":\"Forbidden\"}");
+                      })
+              )
+              .addFilterBefore(
+                      jwtFilter,
+                      org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class
+              );
 
-    return http.build();
+      return http.build();
   }
 
-  // Admin 전용
+
+    // Admin 전용
   @Bean
   @Order(3)
   public SecurityFilterChain adminChain(HttpSecurity http) throws Exception {
