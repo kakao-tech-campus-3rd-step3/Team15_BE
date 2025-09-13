@@ -1,5 +1,6 @@
 package katecam.hyuswim.comment.service;
 
+import com.sun.source.doctree.CommentTree;
 import katecam.hyuswim.comment.dto.CommentTreeResponse;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -17,6 +18,8 @@ import katecam.hyuswim.post.dto.PageResponse;
 import katecam.hyuswim.post.repository.PostRepository;
 import katecam.hyuswim.user.User;
 import lombok.RequiredArgsConstructor;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -72,6 +75,13 @@ public class CommentService {
   public PageResponse<CommentListResponse> getComments(Long postId, Pageable pageable) {
     return new PageResponse<>(
         commentRepository.findByPostIdAndParentIsNullAndIsDeletedFalse(postId,pageable).map(CommentListResponse::from));
+  }
+
+  public List<CommentTreeResponse> getReplies(Long parentId){
+      List<Comment> children = commentRepository.findByParentIdAndIsDeletedFalse(parentId);
+      return children.stream()
+              .map(CommentTreeResponse::from)
+              .toList();
   }
 
   public CommentDetailResponse getComment(Long id) {
