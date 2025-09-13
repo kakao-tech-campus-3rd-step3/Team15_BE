@@ -20,7 +20,7 @@ public class JwtUtil {
 
   private JwtParser jwtParser;
 
-  private final long TOKEN_EXPIRATION_TIME_MS = 60 * 60 * 1000; //1시간
+  private static final long TOKEN_EXPIRATION_TIME_MS = 60 * 60 * 1000; //1시간
 
   @PostConstruct
   public void init() {
