@@ -17,6 +17,8 @@ import katecam.hyuswim.post.dto.PageResponse;
 import katecam.hyuswim.user.User;
 import lombok.RequiredArgsConstructor;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
@@ -47,6 +49,14 @@ public class CommentController {
       @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC, size = 10)
           Pageable pageable) {
     return ResponseEntity.ok(commentService.getComments(postId,pageable));
+  }
+
+  @GetMapping("/comments/{parentId}/replies")
+  public ResponseEntity<List<CommentTreeResponse>> getReplies(
+            @PathVariable Long parentId
+  ) {
+      List<CommentTreeResponse> response = commentService.getReplies(parentId);
+      return ResponseEntity.ok(response);
   }
 
   @GetMapping("/comments/{id}")
