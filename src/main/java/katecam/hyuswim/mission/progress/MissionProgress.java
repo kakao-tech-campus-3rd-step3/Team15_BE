@@ -40,7 +40,7 @@ public class MissionProgress {
   @Column(name = "completed_at")
   private LocalDateTime completedAt;
 
-  @Column(name = "is_completed")
+  @Column(name = "is_completed", nullable = false)
   private Boolean isCompleted = false;
 
     protected MissionProgress() {}
@@ -58,7 +58,7 @@ public class MissionProgress {
     }
 
     public void complete(LocalDateTime now) {
-        if (Boolean.TRUE.equals(this.isCompleted)) return;
+        if (this.isCompleted) return;
         this.isCompleted = true;
         this.completedAt = now;
     }
