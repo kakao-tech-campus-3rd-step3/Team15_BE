@@ -3,11 +3,11 @@ package katecam.hyuswim.mission;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-import lombok.AccessLevel;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -44,11 +44,15 @@ public class Mission {
   @Column(name = "created_at", updatable = false)
   private LocalDateTime createdAt;
 
-    public boolean isAvailableOn(LocalDate date) {
-        return active && (startAt == null || !startAt.isAfter(date));
-    }
+  public boolean isAvailableOn(LocalDate date) {
+    return active && (startAt == null || !startAt.isAfter(date));
+  }
 
-    public void activate() { this.active = true; }
-    public void deactivate() { this.active = false; }
+  public void activate() {
+    this.active = true;
+  }
 
+  public void deactivate() {
+    this.active = false;
+  }
 }
