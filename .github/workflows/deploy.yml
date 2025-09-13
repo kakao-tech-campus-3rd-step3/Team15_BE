@@ -88,22 +88,7 @@ jobs:
           overwrite: true
           strip_components: 2
 
-      # 9) EC2에서 파일 존재 확인(루트에 존재해야 함)
-      - name: Verify file transfer on EC2
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_PEM_KEY }}
-          script: |
-            set -euo pipefail
-            APP_DIR="/home/${USER}/Team15_BE"
-            echo "--- Full listing of ${APP_DIR} ---"
-            ls -al "${APP_DIR}"
-            echo "--- Verifying specific file ---"
-            ls -l "${APP_DIR}/${{ steps.find_jar.outputs.JAR_NAME }}"
-
-      # 10) 배포 & 실행 (심볼릭 링크 + 안전한 중지)
+          # 10) 배포 & 실행 (심볼릭 링크 + 안전한 중지)
       - name: Deploy and Run on EC2
         uses: appleboy/ssh-action@master
         with:
@@ -117,7 +102,6 @@ jobs:
             JAR_NAME="${{ steps.find_jar.outputs.JAR_NAME }}"
             APP_JAR="app.jar"                           # 고정 실행명
             LOG_DIR="${APP_DIR}/logs"
-            START_PATTERN="java -jar ${APP_JAR}"
 
             cd "${APP_DIR}" || { echo "Failed to change directory to ${APP_DIR}"; exit 1; }
 
@@ -136,28 +120,19 @@ jobs:
             ln -sfn "${JAR_NAME}" "${APP_JAR}"
             echo "Linked ${JAR_NAME} -> ${APP_JAR}"
 
-            # 기존 프로세스 정상 종료(SIGTERM), 실패코드는 무시
-            echo "Checking for running Java application..."
-            if pgrep -f "${START_PATTERN}" >/dev/null 2>&1; then
-              echo "Running application found. Attempting to stop it (SIGTERM)..."
-              pkill -TERM -f "${START_PATTERN}" || true
-
-              # 최대 30초 대기, 남아있으면 SIGKILL
-              for i in {1..30}; do
-                if pgrep -f "${START_PATTERN}" >/dev/null 2>&1; then
-                  sleep 1
-                else
-                  echo "Application stopped gracefully."
-                  break
-                fi
-                if [ "$i" -eq 30 ]; then
-                  echo "Process still alive after 30s. Sending SIGKILL..."
-                  pkill -KILL -f "${START_PATTERN}" || true
-                  sleep 2
-                fi
-              done
+            # 포트 8080 점유 프로세스 강제 종료
+            EXISTING_PID=$(lsof -t -i:8080 || true)
+            if [ -n "$EXISTING_PID" ]; then
+              echo "Port 8080 in use by PID=$EXISTING_PID. Stopping..."
+              kill -15 "$EXISTING_PID" || true
+              sleep 5
+              if ps -p "$EXISTING_PID" > /dev/null 2>&1; then
+                echo "Process still alive. Sending SIGKILL..."
+                kill -9 "$EXISTING_PID" || true
+                sleep 2
+              fi
             else
-              echo "No running application found. Skipping stop."
+              echo "No process using port 8080."
             fi
 
             # 로그 디렉터리 준비
@@ -177,14 +152,17 @@ jobs:
 
             # 기동 확인 (백그라운드 프로세스 PID 기준)
             APP_PID=$!
-          echo "App PID: $APP_PID"
+            echo "App PID: $APP_PID"
             sleep 15
             if ps -p $APP_PID > /dev/null 2>&1; then
-            echo "✅ Application started successfully. PID=$APP_PID"
+              echo "✅ Application started successfully. PID=$APP_PID"
             else
-          echo "❌ ERROR: Application failed to start. Last 120 log lines:"
-            tail -n 120 "${LOG_FILE_PATH}" || true
-            exit 1
+              echo "❌ ERROR: Application failed to start. Last 120 log lines:"
+              tail -n 120 "${LOG_FILE_PATH}" || true
+              exit 1
             fi
+
+
+
 
 
