@@ -1,6 +1,9 @@
 package katecam.hyuswim.auth.login;
 
+import katecam.hyuswim.auth.principal.UserPrincipal;
 import org.springframework.core.MethodParameter;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
@@ -18,9 +21,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class LoginUserArgumentResolver implements HandlerMethodArgumentResolver {
 
-  private final JwtUtil jwtUtil;
-  private final UserRepository userRepository;
-
+    private final UserRepository userRepository;
   @Override
   public boolean supportsParameter(MethodParameter parameter) {
     return parameter.hasParameterAnnotation(LoginUser.class);
@@ -34,23 +35,17 @@ public class LoginUserArgumentResolver implements HandlerMethodArgumentResolver 
       WebDataBinderFactory binderFactory)
       throws Exception {
 
-    HttpServletRequest request = webRequest.getNativeRequest(HttpServletRequest.class);
-    String bearerToken = request.getHeader("Authorization");
+      Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-    if (bearerToken == null || !bearerToken.startsWith("Bearer ")) {
-      throw new CustomException(ErrorCode.INVALID_TOKEN);
-    }
+      if (authentication == null || !(authentication.getPrincipal() instanceof UserPrincipal)) {
+          throw new CustomException(ErrorCode.INVALID_TOKEN);
+      }
 
-    String token = bearerToken.substring(7);
+      UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
 
-    if (!jwtUtil.validateToken(token)) {
-      throw new CustomException(ErrorCode.INVALID_TOKEN);
-    }
+      return userRepository
+              .findById(principal.getUserId())
+              .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
-    Long userId = jwtUtil.extractUserId(token);
-
-    return userRepository
-        .findById(userId)
-        .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
   }
 }
