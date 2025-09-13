@@ -25,13 +25,13 @@ public class MyPageService {
 
   @Transactional
   public MyOverviewResponse selectMyOverview(User loginUser) {
-    String email = loginUser.getEmail();
+    Long userId = loginUser.getId();
     int postCount = loginUser.getPosts().size();
     int commentCount = loginUser.getComments().size();
-    int likeCount = selectMyLikesCount(email);
+    int likeCount = selectMyLikesCount(userId);
     int missionCount = loginUser.getMissionProgresses().size();
 
-    return new MyOverviewResponse(postCount, commentCount, likeCount, missionCount, email);
+    return new MyOverviewResponse(postCount, commentCount, likeCount, missionCount);
   }
 
   @Transactional
@@ -74,7 +74,7 @@ public class MyPageService {
   }
 
   @Transactional
-  public int selectMyLikesCount(String email) {
-    return postLikeRepository.countByUserEmail(email);
+  public int selectMyLikesCount(Long userId) {
+    return postLikeRepository.countByUserId(userId);
   }
 }
