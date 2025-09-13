@@ -10,9 +10,11 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import katecam.hyuswim.comment.domain.Comment;
 
 public interface CommentRepository extends JpaRepository<Comment, Long> {
-  Page<Comment> findAllByIsDeletedFalse(Pageable pageable);
+  Page<Comment> findByPostIdAndParentIsNullAndIsDeletedFalse(Long postId, Pageable pageable);
+
+  List<Comment> findByParentIdAndIsDeletedFalse(Long parentId);
 
   Optional<Comment> findByIdAndIsDeletedFalse(Long id);
 
-  List<Comment> findAllByUser_IdAndIsDeletedFalse(Long userId);
+  List<Comment> findAllByUserIdAndIsDeletedFalse(Long userId);
 }
