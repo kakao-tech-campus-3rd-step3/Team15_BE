@@ -56,7 +56,7 @@ public class MyPageService {
 
   @Transactional
   public List<MyLikedPostResponse> selectMyLikedPostList(User loginUser) {
-    List<PostLike> postLikes = postLikeRepository.findByUserEmail(loginUser.getEmail());
+    List<PostLike> postLikes = postLikeRepository.findByUserId(loginUser.getId());
     List<MyLikedPostResponse> myLikedPostResponseList = new ArrayList<>();
     for (PostLike postLike : postLikes) {
       Post post = postLike.getPost();
