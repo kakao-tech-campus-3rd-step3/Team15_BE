@@ -31,7 +31,7 @@ public class PostListResponse {
         .postCategory(entity.getPostCategory().name())
         .postCategoryName(entity.getPostCategory().getDisplayName())
         .content(entity.getContent())
-        .author(entity.getUser().getEmail())
+        .author(entity.getUser().getNickname())
         .likeCount((long) entity.getPostLikes().size())
         .commentCount((long) entity.getComments().size())
         .viewCount(entity.getViewCount())
