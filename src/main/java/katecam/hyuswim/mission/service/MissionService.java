@@ -6,8 +6,10 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import katecam.hyuswim.mission.Mission;
 import katecam.hyuswim.mission.TodayState;
@@ -21,6 +23,7 @@ import katecam.hyuswim.user.repository.UserRepository;
 @Service
 @Transactional
 public class MissionService {
+    private static final int DAILY_LIMIT = 1;
 
   private final MissionRepository missionRepository;
   private final MissionProgressRepository missionProgressRepository;
@@ -42,22 +45,24 @@ public class MissionService {
 
     if (!mission.isActive()) throw new IllegalStateException("비활성 미션");
 
-    LocalDate today = LocalDate.now();
-    long exists = missionProgressRepository.countByUserIdAndProgressDate(userId, today);
-    if (exists > 0) throw new IllegalStateException("하루 1회 제한");
+      LocalDate today = LocalDate.now();
+      if (!mission.isAvailableOn(today)) {
+          throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "MISSION_UNAVAILABLE_TODAY");
+      }
 
-    MissionProgress p = new MissionProgress();
-    p.setUser(user);
-    p.setMission(mission);
-    p.setProgressDate(today);
-    p.setStartedAt(LocalDateTime.now());
-    p.setIsCompleted(false);
+      long countToday = missionProgressRepository.countByUserIdAndProgressDate(userId, today);
+      if (countToday >= DAILY_LIMIT) {
+          throw new ResponseStatusException(HttpStatus.TOO_MANY_REQUESTS, "DAILY_LIMIT_REACHED");
+      }
 
-    try {
-      missionProgressRepository.save(p);
-    } catch (DataIntegrityViolationException e) {
-      throw new IllegalStateException("하루 1회 제한(동시 요청)", e);
-    }
+      MissionProgress p = MissionProgress.startOf(user, mission, today, LocalDateTime.now());
+
+      try {
+          missionProgressRepository.save(p);
+      } catch (DataIntegrityViolationException e) {
+          // 동시 요청으로 동일 미션 중복/일일 한도 위반 등
+          throw new ResponseStatusException(HttpStatus.CONFLICT, "CONCURRENT_LIMIT_BREACH", e);
+      }
   }
 
   public void completeMission(Long userId, Long missionId) {
@@ -65,20 +70,22 @@ public class MissionService {
     MissionProgress progress =
         missionProgressRepository
             .findFirstByUserIdAndMissionIdAndProgressDate(userId, missionId, today)
-            .orElseThrow(() -> new IllegalStateException("오늘 시작 기록 없음"));
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "NO_START_RECORD_TODAY"));
 
     if (Boolean.TRUE.equals(progress.getIsCompleted())) {
-      throw new IllegalStateException("이미 완료");
+      throw new ResponseStatusException(HttpStatus.CONFLICT, "ALREADY_COMPLETED");
     }
 
-    progress.setIsCompleted(true);
-    progress.setCompletedAt(LocalDateTime.now());
+      progress.complete(LocalDateTime.now());
   }
 
-  // ===== Queries =====
   @Transactional(readOnly = true)
   public MissionStatsResponse getTodayStats(Long missionId) {
     LocalDate today = LocalDate.now();
+
+      missionRepository.findById(missionId)
+              .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "MISSION_NOT_FOUND"));
+
     long started = missionProgressRepository.countByMissionIdAndProgressDate(missionId, today);
     long completed =
         missionProgressRepository.countByMissionIdAndProgressDateAndIsCompletedTrue(

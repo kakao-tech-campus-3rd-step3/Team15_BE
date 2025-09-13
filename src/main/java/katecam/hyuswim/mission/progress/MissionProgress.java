@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 import jakarta.persistence.*;
 import katecam.hyuswim.mission.Mission;
 import katecam.hyuswim.user.User;
+import lombok.Getter;
 
 @Entity
 @Table(
@@ -13,8 +14,9 @@ import katecam.hyuswim.user.User;
     uniqueConstraints =
         @UniqueConstraint(
             name = "uk_progress_user_date",
-            columnNames = {"user_id", "progress_date"} // 하루 1회 제약
+            columnNames = {"user_id", "progress_date", "mission_id"} // 하루 1회 제약
             ))
+@Getter
 public class MissionProgress {
 
   @Id
@@ -41,56 +43,24 @@ public class MissionProgress {
   @Column(name = "is_completed")
   private Boolean isCompleted = false;
 
-  // === getters/setters ===
-  public Long getId() {
-    return id;
-  }
+    protected MissionProgress() {}
 
-  public User getUser() {
-    return user;
-  }
+    private MissionProgress(User user, Mission mission, LocalDate date, LocalDateTime startedAt) {
+        this.user = user;
+        this.mission = mission;
+        this.progressDate = date;
+        this.startedAt = startedAt;
+        this.isCompleted = false;
+    }
 
-  public void setUser(User user) {
-    this.user = user;
-  }
+    public static MissionProgress startOf(User user, Mission mission, LocalDate date, LocalDateTime now) {
+        return new MissionProgress(user, mission, date, now);
+    }
 
-  public Mission getMission() {
-    return mission;
-  }
+    public void complete(LocalDateTime now) {
+        if (Boolean.TRUE.equals(this.isCompleted)) return;
+        this.isCompleted = true;
+        this.completedAt = now;
+    }
 
-  public void setMission(Mission mission) {
-    this.mission = mission;
-  }
-
-  public LocalDate getProgressDate() {
-    return progressDate;
-  }
-
-  public void setProgressDate(LocalDate progressDate) {
-    this.progressDate = progressDate;
-  }
-
-  public LocalDateTime getStartedAt() {
-    return startedAt;
-  }
-
-  public void setStartedAt(LocalDateTime startedAt) {
-    this.startedAt = startedAt;
-  }
-
-  public LocalDateTime getCompletedAt() {
-    return completedAt;
-  }
-
-  public void setCompletedAt(LocalDateTime completedAt) {
-    this.completedAt = completedAt;
-  }
-
-  public Boolean getIsCompleted() {
-    return isCompleted;
-  }
-
-  public void setIsCompleted(Boolean isCompleted) {
-    this.isCompleted = isCompleted;
-  }
 }
