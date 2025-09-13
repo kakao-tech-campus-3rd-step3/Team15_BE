@@ -74,7 +74,11 @@ public class CommentService {
 
   public PageResponse<CommentListResponse> getComments(Long postId, Pageable pageable) {
     return new PageResponse<>(
-        commentRepository.findByPostIdAndParentIsNullAndIsDeletedFalse(postId,pageable).map(CommentListResponse::from));
+        commentRepository.findByPostIdAndParentIsNull(postId,pageable).map(comment -> CommentListResponse.from(
+                comment,
+                commentRepository.existsByParentIdAndIsDeletedFalse(comment.getId())
+        ))
+    );
   }
 
   public List<CommentTreeResponse> getReplies(Long parentId){
