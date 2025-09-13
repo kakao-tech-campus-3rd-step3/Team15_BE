@@ -3,8 +3,7 @@ package katecam.hyuswim.auth.jwt;
 import lombok.*;
 
 @Getter
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class JwtTokenResponse {
-
-  private String token;
+  private final String token;
 }

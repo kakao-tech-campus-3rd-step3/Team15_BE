@@ -4,9 +4,8 @@ import katecam.hyuswim.user.UserRole;
 import lombok.*;
 
 @Getter
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class JwtTokenRequest {
-
-  private Long userId;
-  private UserRole role;
+  private final Long userId;
+  private final UserRole role;
 }
