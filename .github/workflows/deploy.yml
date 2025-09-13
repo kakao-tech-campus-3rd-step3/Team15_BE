@@ -88,7 +88,22 @@ jobs:
           overwrite: true
           strip_components: 2
 
-          # 10) 배포 & 실행 (심볼릭 링크 + 안전한 중지)
+      # 9) EC2에서 파일 존재 확인(루트에 존재해야 함)
+      - name: Verify file transfer on EC2
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_PEM_KEY }}
+          script: |
+            set -euo pipefail
+            APP_DIR="/home/${USER}/Team15_BE"
+            echo "--- Full listing of ${APP_DIR} ---"
+            ls -al "${APP_DIR}"
+            echo "--- Verifying specific file ---"
+            ls -l "${APP_DIR}/${{ steps.find_jar.outputs.JAR_NAME }}"
+
+      # 10) 배포 & 실행 (심볼릭 링크 + 안전한 중지)
       - name: Deploy and Run on EC2
         uses: appleboy/ssh-action@master
         with:
