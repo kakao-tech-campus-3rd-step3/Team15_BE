@@ -6,7 +6,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import katecam.hyuswim.admin.dto.BlockRequest;
 import katecam.hyuswim.admin.dto.BlockResponse;
-import katecam.hyuswim.admin.dto.UserResponse;
 import katecam.hyuswim.admin.service.AdminUserService;
 
 @RestController

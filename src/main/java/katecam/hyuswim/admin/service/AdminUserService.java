@@ -8,7 +8,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import katecam.hyuswim.admin.dto.BlockRequest;
 import katecam.hyuswim.admin.dto.BlockResponse;
-import katecam.hyuswim.admin.dto.UserResponse;
 import katecam.hyuswim.comment.repository.CommentRepository;
 import katecam.hyuswim.post.repository.PostRepository;
 import katecam.hyuswim.user.User;
