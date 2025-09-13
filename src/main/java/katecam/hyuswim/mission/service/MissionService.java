@@ -72,9 +72,9 @@ public class MissionService {
             .findFirstByUserIdAndMissionIdAndProgressDate(userId, missionId, today)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "NO_START_RECORD_TODAY"));
 
-    if (Boolean.TRUE.equals(progress.getIsCompleted())) {
-      throw new ResponseStatusException(HttpStatus.CONFLICT, "ALREADY_COMPLETED");
-    }
+      if (progress.getIsCompleted()) {
+          throw new ResponseStatusException(HttpStatus.CONFLICT, "ALREADY_COMPLETED");
+      }
 
       progress.complete(LocalDateTime.now());
   }
@@ -116,11 +116,16 @@ public class MissionService {
   }
 
   private TodayState resolveState(MissionProgress todayProgressForUser, Mission m) {
-    if (todayProgressForUser == null) return TodayState.NOT_STARTED;
-    boolean sameMission = todayProgressForUser.getMission().getId().equals(m.getId());
-    if (sameMission && Boolean.TRUE.equals(todayProgressForUser.getIsCompleted()))
-      return TodayState.COMPLETED;
-    if (sameMission) return TodayState.IN_PROGRESS;
-    return TodayState.NOT_STARTED; // 다른 미션을 이미 진행 중/완료한 경우
+      if (todayProgressForUser == null) {
+          return TodayState.NOT_STARTED;
+      }
+      boolean sameMission = todayProgressForUser.getMission().getId().equals(m.getId());
+      if (sameMission && todayProgressForUser.getIsCompleted()) {
+          return TodayState.COMPLETED;
+      }
+      if (sameMission) {
+          return TodayState.IN_PROGRESS;
+      }
+      return TodayState.NOT_STARTED;
   }
 }
