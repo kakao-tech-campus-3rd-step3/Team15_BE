@@ -4,46 +4,50 @@ import java.util.List;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import katecam.hyuswim.admin.dto.BlockRequest;
+import katecam.hyuswim.admin.dto.UserListResponse;
 import katecam.hyuswim.admin.service.AdminUserService;
-import katecam.hyuswim.user.User;
 
 @Controller
 @RequestMapping("/admin")
 public class AdminController {
 
-  private final AdminUserService adminUserService;
+    private final AdminUserService adminUserService;
 
-  public AdminController(AdminUserService adminUserService) {
-    this.adminUserService = adminUserService;
-  }
+    public AdminController(AdminUserService adminUserService) {
+        this.adminUserService = adminUserService;
+    }
 
-  @GetMapping
-  public String dashboard(Model model) {
-    List<User> users = adminUserService.findAll(); // findAll()을 AdminUserService에 추가 필요
-    model.addAttribute("users", users);
-    return "admin/admin_dashboard";
-  }
+    @GetMapping
+    public String dashboard(Model model) {
+        List<UserListResponse> users = adminUserService.findAll();
+        model.addAttribute("users", users);
+        return "admin/admin_dashboard";
+    }
 
-  @PostMapping("/users/{userId}/block")
-  public String block(
-      @PathVariable Long userId, @ModelAttribute BlockRequest request, RedirectAttributes ra) {
-    adminUserService.blockUser(userId, request);
-    ra.addAttribute("msg", "사용자 차단 완료: " + userId);
-    return "redirect:/admin";
-  }
+    @PostMapping("/users/{userId}/block")
+    public String block(@PathVariable Long userId,
+                        @ModelAttribute BlockRequest request,
+                        RedirectAttributes ra) {
+        var resp = adminUserService.blockUser(userId, request);
+        ra.addFlashAttribute("msg", resp.getMessage());
+        return "redirect:/admin";
+    }
 
-  @PostMapping("/users/{userId}/unblock")
-  public String unblock(@PathVariable Long userId, RedirectAttributes ra) {
-    adminUserService.unblockUser(userId);
-    ra.addAttribute("msg", "사용자 차단 해제: " + userId);
-    return "redirect:/admin";
-  }
+    @PostMapping("/users/{userId}/unblock")
+    public String unblock(@PathVariable Long userId, RedirectAttributes ra) {
+        var resp = adminUserService.unblockUser(userId);
+        ra.addFlashAttribute("msg", resp.getMessage());
+        return "redirect:/admin";
+    }
+
+    @PostMapping("/users/{userId}/ban")
+    public String ban(@PathVariable Long userId, RedirectAttributes ra) {
+        var resp = adminUserService.banUser(userId);
+        ra.addFlashAttribute("msg", resp.getMessage());
+        return "redirect:/admin";
+    }
 }
