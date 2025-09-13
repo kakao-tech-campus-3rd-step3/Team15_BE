@@ -11,5 +11,4 @@ public class MyOverviewResponse {
   private int commentCount;
   private int likesCount;
   private int MissionsCount;
-  private String email;
 }
