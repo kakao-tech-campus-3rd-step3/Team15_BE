@@ -43,24 +43,24 @@ public class MissionProgress {
   @Column(name = "is_completed", nullable = false)
   private Boolean isCompleted = false;
 
-    protected MissionProgress() {}
+  protected MissionProgress() {}
 
-    private MissionProgress(User user, Mission mission, LocalDate date, LocalDateTime startedAt) {
-        this.user = user;
-        this.mission = mission;
-        this.progressDate = date;
-        this.startedAt = startedAt;
-        this.isCompleted = false;
-    }
+  private MissionProgress(User user, Mission mission, LocalDate date, LocalDateTime startedAt) {
+    this.user = user;
+    this.mission = mission;
+    this.progressDate = date;
+    this.startedAt = startedAt;
+    this.isCompleted = false;
+  }
 
-    public static MissionProgress startOf(User user, Mission mission, LocalDate date, LocalDateTime now) {
-        return new MissionProgress(user, mission, date, now);
-    }
+  public static MissionProgress startOf(
+      User user, Mission mission, LocalDate date, LocalDateTime now) {
+    return new MissionProgress(user, mission, date, now);
+  }
 
-    public void complete(LocalDateTime now) {
-        if (this.isCompleted) return;
-        this.isCompleted = true;
-        this.completedAt = now;
-    }
-
+  public void complete(LocalDateTime now) {
+    if (this.isCompleted) return;
+    this.isCompleted = true;
+    this.completedAt = now;
+  }
 }

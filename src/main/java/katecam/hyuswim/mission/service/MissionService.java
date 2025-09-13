@@ -23,7 +23,7 @@ import katecam.hyuswim.user.repository.UserRepository;
 @Service
 @Transactional
 public class MissionService {
-    private static final int DAILY_LIMIT = 1;
+  private static final int DAILY_LIMIT = 1;
 
   private final MissionRepository missionRepository;
   private final MissionProgressRepository missionProgressRepository;
@@ -45,24 +45,24 @@ public class MissionService {
 
     if (!mission.isActive()) throw new IllegalStateException("비활성 미션");
 
-      LocalDate today = LocalDate.now();
-      if (!mission.isAvailableOn(today)) {
-          throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "MISSION_UNAVAILABLE_TODAY");
-      }
+    LocalDate today = LocalDate.now();
+    if (!mission.isAvailableOn(today)) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "MISSION_UNAVAILABLE_TODAY");
+    }
 
-      long countToday = missionProgressRepository.countByUserIdAndProgressDate(userId, today);
-      if (countToday >= DAILY_LIMIT) {
-          throw new ResponseStatusException(HttpStatus.TOO_MANY_REQUESTS, "DAILY_LIMIT_REACHED");
-      }
+    long countToday = missionProgressRepository.countByUserIdAndProgressDate(userId, today);
+    if (countToday >= DAILY_LIMIT) {
+      throw new ResponseStatusException(HttpStatus.TOO_MANY_REQUESTS, "DAILY_LIMIT_REACHED");
+    }
 
-      MissionProgress p = MissionProgress.startOf(user, mission, today, LocalDateTime.now());
+    MissionProgress p = MissionProgress.startOf(user, mission, today, LocalDateTime.now());
 
-      try {
-          missionProgressRepository.save(p);
-      } catch (DataIntegrityViolationException e) {
-          // 동시 요청으로 동일 미션 중복/일일 한도 위반 등
-          throw new ResponseStatusException(HttpStatus.CONFLICT, "CONCURRENT_LIMIT_BREACH", e);
-      }
+    try {
+      missionProgressRepository.save(p);
+    } catch (DataIntegrityViolationException e) {
+      // 동시 요청으로 동일 미션 중복/일일 한도 위반 등
+      throw new ResponseStatusException(HttpStatus.CONFLICT, "CONCURRENT_LIMIT_BREACH", e);
+    }
   }
 
   public void completeMission(Long userId, Long missionId) {
@@ -70,21 +70,23 @@ public class MissionService {
     MissionProgress progress =
         missionProgressRepository
             .findFirstByUserIdAndMissionIdAndProgressDate(userId, missionId, today)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "NO_START_RECORD_TODAY"));
+            .orElseThrow(
+                () -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "NO_START_RECORD_TODAY"));
 
-      if (progress.getIsCompleted()) {
-          throw new ResponseStatusException(HttpStatus.CONFLICT, "ALREADY_COMPLETED");
-      }
+    if (progress.getIsCompleted()) {
+      throw new ResponseStatusException(HttpStatus.CONFLICT, "ALREADY_COMPLETED");
+    }
 
-      progress.complete(LocalDateTime.now());
+    progress.complete(LocalDateTime.now());
   }
 
   @Transactional(readOnly = true)
   public MissionStatsResponse getTodayStats(Long missionId) {
     LocalDate today = LocalDate.now();
 
-      missionRepository.findById(missionId)
-              .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "MISSION_NOT_FOUND"));
+    missionRepository
+        .findById(missionId)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "MISSION_NOT_FOUND"));
 
     long started = missionProgressRepository.countByMissionIdAndProgressDate(missionId, today);
     long completed =
@@ -116,16 +118,16 @@ public class MissionService {
   }
 
   private TodayState resolveState(MissionProgress todayProgressForUser, Mission m) {
-      if (todayProgressForUser == null) {
-          return TodayState.NOT_STARTED;
-      }
-      boolean sameMission = todayProgressForUser.getMission().getId().equals(m.getId());
-      if (sameMission && todayProgressForUser.getIsCompleted()) {
-          return TodayState.COMPLETED;
-      }
-      if (sameMission) {
-          return TodayState.IN_PROGRESS;
-      }
+    if (todayProgressForUser == null) {
       return TodayState.NOT_STARTED;
+    }
+    boolean sameMission = todayProgressForUser.getMission().getId().equals(m.getId());
+    if (sameMission && todayProgressForUser.getIsCompleted()) {
+      return TodayState.COMPLETED;
+    }
+    if (sameMission) {
+      return TodayState.IN_PROGRESS;
+    }
+    return TodayState.NOT_STARTED;
   }
 }
