@@ -18,7 +18,7 @@ public class CommentTreeResponse {
     public static CommentTreeResponse from(Comment comment){
         return new CommentTreeResponse(
                 comment.getId(),
-                comment.getIsDeleted() ? "삭제된 댓글입니다." : comment.getContent(),
+                comment.getContent(),
                 comment.getUser().getNickname(),
                 comment.getIsDeleted(),
                 comment.getChildren().stream()
