@@ -7,11 +7,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import katecam.hyuswim.auth.login.LoginUser;
 import katecam.hyuswim.comment.dto.CommentDetailResponse;
 import katecam.hyuswim.comment.dto.CommentListResponse;
 import katecam.hyuswim.comment.dto.CommentRequest;
 import katecam.hyuswim.comment.service.CommentService;
 import katecam.hyuswim.post.dto.PageResponse;
+import katecam.hyuswim.user.User;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -23,8 +25,8 @@ public class CommentController {
 
   @PostMapping("/posts/{postId}/comments")
   public ResponseEntity<CommentDetailResponse> createComment(
-      @PathVariable Long postId, @RequestParam Long userId, @RequestBody CommentRequest request) {
-    CommentDetailResponse response = commentService.createComment(request, userId, postId);
+      @PathVariable Long postId, @LoginUser User user, @RequestBody CommentRequest request) {
+    CommentDetailResponse response = commentService.createComment(request, user, postId);
     return ResponseEntity.status(HttpStatus.CREATED).body(response);
   }
 
@@ -43,14 +45,14 @@ public class CommentController {
 
   @PatchMapping("/comments/{id}")
   public ResponseEntity<CommentDetailResponse> updateComment(
-      @PathVariable Long id, @RequestParam Long userId, @RequestBody CommentRequest request) {
-    CommentDetailResponse response = commentService.updateComment(id, userId, request);
+      @PathVariable Long id, @LoginUser User user, @RequestBody CommentRequest request) {
+    CommentDetailResponse response = commentService.updateComment(id, user, request);
     return ResponseEntity.ok(response);
   }
 
   @DeleteMapping("/comments/{id}")
-  public ResponseEntity<Void> deletePost(@PathVariable Long id, @RequestParam Long userId) {
-    commentService.deleteComment(id, userId);
+  public ResponseEntity<Void> deleteComment(@PathVariable Long id, @LoginUser User user) {
+    commentService.deleteComment(id, user);
     return ResponseEntity.noContent().build();
   }
 }

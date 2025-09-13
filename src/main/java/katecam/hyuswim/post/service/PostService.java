@@ -1,6 +1,8 @@
 package katecam.hyuswim.post.service;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -13,7 +15,6 @@ import katecam.hyuswim.post.domain.PostCategory;
 import katecam.hyuswim.post.dto.*;
 import katecam.hyuswim.post.repository.PostRepository;
 import katecam.hyuswim.user.User;
-import katecam.hyuswim.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -22,17 +23,11 @@ import lombok.RequiredArgsConstructor;
 public class PostService {
 
   private final PostRepository postRepository;
-  private final UserRepository userRepository;
 
   @Transactional
-  public PostDetailResponse createPost(PostRequest request, Long userId) {
-    User user =
-        userRepository
-            .findById(userId)
-            .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
-
+  public PostDetailResponse createPost(PostRequest request, User user) {
     Post post =
-        new Post(
+        Post.create(
             request.getTitle(),
             request.getContent(),
             request.getPostCategory(),
@@ -48,14 +43,6 @@ public class PostService {
         postRepository.findAllByIsDeletedFalse(pageable).map(PostListResponse::from));
   }
 
-  public PageResponse<PostListResponse> getPostsByCategory(
-      PostCategory category, Pageable pageable) {
-    return new PageResponse<>(
-        postRepository
-            .findByPostCategoryAndIsDeletedFalse(category, pageable)
-            .map(PostListResponse::from));
-  }
-
   public PostDetailResponse getPost(Long id) {
     Post post =
         postRepository
@@ -65,28 +52,37 @@ public class PostService {
   }
 
   public PageResponse<PostListResponse> searchPosts(PostSearchRequest request, Pageable pageable) {
-    LocalDateTime startDateTime =
-        (request.getStartDate() != null) ? request.getStartDate().atStartOfDay() : null;
-    LocalDateTime endDateTime =
-        (request.getEndDate() != null)
-            ? request.getEndDate().plusDays(1).atStartOfDay().minusNanos(1)
-            : null;
+    String keyword = request.getKeyword();
+    LocalDateTime startDateTime = null;
+    LocalDateTime endDateTime = null;
+
+    if (keyword == null || keyword.isBlank()) {
+      keyword = null;
+    }
+
+    if (request.getStartDate() != null) {
+      startDateTime = request.getStartDate().atStartOfDay();
+    }
+
+    if (request.getEndDate() != null) {
+      endDateTime = request.getEndDate().plusDays(1).atStartOfDay().minusNanos(1);
+    }
 
     return new PageResponse<>(
         postRepository
             .searchByCategoryAndKeywordAndPeriod(
-                request.getCategory(), request.getKeyword(), startDateTime, endDateTime, pageable)
+                keyword, request.getCategory(), startDateTime, endDateTime, pageable)
             .map(PostListResponse::from));
   }
 
   @Transactional
-  public PostDetailResponse updatePost(Long id, PostRequest request, Long userId) {
+  public PostDetailResponse updatePost(Long id, PostRequest request, User user) {
     Post post =
         postRepository
             .findById(id)
             .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
-    if (!post.getUser().getId().equals(userId)) {
+    if (!post.getUser().getId().equals(user.getId())) {
       throw new CustomException(ErrorCode.POST_ACCESS_DENIED);
     }
 
@@ -96,16 +92,28 @@ public class PostService {
   }
 
   @Transactional
-  public void deletePost(Long id, Long userId) {
+  public void deletePost(Long id, User user) {
     Post post =
         postRepository
             .findById(id)
             .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
-    if (!post.getUser().getId().equals(userId)) {
+    if (!post.getUser().getId().equals(user.getId())) {
       throw new CustomException(ErrorCode.POST_ACCESS_DENIED);
     }
 
     post.delete();
+  }
+
+  public List<PostCategoryResponse> getCategories() {
+    return Arrays.stream(PostCategory.values()).map(PostCategoryResponse::from).toList();
+  }
+
+  public PageResponse<PostListResponse> getPostsByCategory(
+      PostCategory category, Pageable pageable) {
+    return new PageResponse<>(
+        postRepository
+            .findByPostCategoryAndIsDeletedFalse(category, pageable)
+            .map(PostListResponse::from));
   }
 }

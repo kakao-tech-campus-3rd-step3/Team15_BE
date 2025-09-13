@@ -1,5 +1,8 @@
 package katecam.hyuswim.report.service;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 
 import jakarta.transaction.Transactional;
@@ -10,28 +13,32 @@ import katecam.hyuswim.common.error.ErrorCode;
 import katecam.hyuswim.post.domain.Post;
 import katecam.hyuswim.post.repository.PostRepository;
 import katecam.hyuswim.report.domain.Report;
+import katecam.hyuswim.report.domain.ReportReasonType;
 import katecam.hyuswim.report.domain.ReportType;
+import katecam.hyuswim.report.dto.ReportReasonResponse;
 import katecam.hyuswim.report.dto.ReportRequest;
 import katecam.hyuswim.report.repository.ReportRepository;
 import katecam.hyuswim.user.User;
-import katecam.hyuswim.user.repository.UserRepository;
-import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
-@NoArgsConstructor
 @Service
+@RequiredArgsConstructor
 public class ReportService {
-  private ReportRepository reportRepository;
-  private UserRepository userRepository;
-  private PostRepository postRepository;
-  private CommentRepository commentRespository;
+
+  private final ReportRepository reportRepository;
+  private final PostRepository postRepository;
+  private final CommentRepository commentRespository;
+
+  public List<ReportReasonResponse> getReasons() {
+    return Arrays.stream(ReportReasonType.values())
+        .map(katecam.hyuswim.report.dto.ReportReasonResponse::from)
+        .toList();
+  }
 
   @Transactional
-  public void report(Long userId, ReportRequest request) {
+  public void report(User reporter, ReportRequest request) {
     User reportedUser;
-    User reporter =
-        userRepository
-            .findById(userId)
-            .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
     if (request.getReportType() == ReportType.POST) {
       Post post =
           postRepository
@@ -52,7 +59,7 @@ public class ReportService {
             reportedUser,
             request.getReportType(),
             request.getTargetId(),
-            request.getReasonType(),
+            request.getReportReasonType(),
             request.getContent());
 
     reportRepository.save(report);
