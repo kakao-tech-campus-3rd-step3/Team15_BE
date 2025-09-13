@@ -44,6 +44,6 @@ public class UserService {
       throw new CustomException(ErrorCode.LOGIN_FAILED);
     }
 
-    return jwtUtil.generateToken(user.getEmail(), user.getRole());
+    return jwtUtil.generateToken(user.getId(), user.getRole());
   }
 }

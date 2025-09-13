@@ -1,4 +1,4 @@
-package katecam.hyuswim.config;
+package katecam.hyuswim.auth.config;
 
 import java.util.List;
 

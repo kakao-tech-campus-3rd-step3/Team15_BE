@@ -1,6 +1,7 @@
 package katecam.hyuswim.post.domain;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.data.annotation.CreatedDate;
@@ -11,13 +12,17 @@ import jakarta.persistence.*;
 import katecam.hyuswim.comment.domain.Comment;
 import katecam.hyuswim.like.domain.PostLike;
 import katecam.hyuswim.user.User;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Getter
-@NoArgsConstructor
 @Entity
 @EntityListeners(AuditingEntityListener.class)
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Post {
 
   @Id
@@ -28,25 +33,30 @@ public class Post {
   @JoinColumn(name = "user_id")
   private User user;
 
-  @OneToMany(mappedBy = "post")
-  private List<PostLike> postLikes;
-
-  @OneToMany(mappedBy = "post")
-  private List<Comment> comments;
-
   @Enumerated(EnumType.STRING)
   private PostCategory postCategory;
 
   private String title;
+
   private String content;
 
-  private Long viewCount = 0L;
-
+  @Builder.Default
   @Column(name = "is_anonymous")
   private Boolean isAnonymous = false;
 
+  @Builder.Default
   @Column(name = "is_deleted")
   private Boolean isDeleted = false;
+
+  @Builder.Default private Long viewCount = 0L;
+
+  @Builder.Default
+  @OneToMany(mappedBy = "post")
+  private List<PostLike> postLikes = new ArrayList<>();
+
+  @Builder.Default
+  @OneToMany(mappedBy = "post")
+  private List<Comment> comments = new ArrayList<>();
 
   @CreatedDate
   @Column(name = "created_at", updatable = false)
@@ -56,13 +66,16 @@ public class Post {
   @Column(name = "updated_at")
   private LocalDateTime updatedAt;
 
-  public Post(
+  public static Post create(
       String title, String content, PostCategory postCategory, User user, Boolean isAnonymous) {
-    this.title = title;
-    this.content = content;
-    this.postCategory = postCategory;
-    this.user = user;
-    this.isAnonymous = isAnonymous;
+
+    return Post.builder()
+        .title(title)
+        .content(content)
+        .postCategory(postCategory)
+        .user(user)
+        .isAnonymous(isAnonymous)
+        .build();
   }
 
   public void update(String title, String content, PostCategory postCategory) {

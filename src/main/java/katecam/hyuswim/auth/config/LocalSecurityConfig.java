@@ -1,4 +1,4 @@
-package katecam.hyuswim.config;
+package katecam.hyuswim.auth.config;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
@@ -16,6 +16,7 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
 import jakarta.servlet.http.HttpServletResponse;
+import katecam.hyuswim.auth.jwt.JwtFilter;
 
 @Configuration
 @Profile("local")
@@ -48,7 +49,7 @@ public class LocalSecurityConfig {
   // API 전용
   @Bean
   @Order(2)
-  public SecurityFilterChain apiChain(HttpSecurity http) throws Exception {
+  public SecurityFilterChain apiChain(HttpSecurity http, JwtFilter jwtFilter) throws Exception {
     http.securityMatcher("/api/**")
         .authorizeHttpRequests(
             auth ->
@@ -57,10 +58,13 @@ public class LocalSecurityConfig {
                     .requestMatchers(
                         HttpMethod.GET,
                         "/api/posts",
-                        "/api/posts/",
+                        "/api/posts/**",
+                        "/api/posts/categories",
                         "/api/posts/category/**",
                         "/api/posts/search",
-                        "/api/posts/stats")
+                        "/api/posts/stats",
+                        "/api/comments/**",
+                        "/api/reports/**")
                     .permitAll()
                     .anyRequest()
                     .authenticated())
@@ -74,7 +78,12 @@ public class LocalSecurityConfig {
                       response.setContentType("application/json");
                       response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                       response.getWriter().write("{\"error\":\"Unauthorized\"}");
-                    }));
+                    }))
+        .addFilterBefore(
+            jwtFilter,
+            org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
+                .class);
+
     return http.build();
   }
 
