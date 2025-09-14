@@ -19,15 +19,15 @@ public class CommentDetailResponse {
   private LocalDateTime createdAt;
   private LocalDateTime updatedAt;
 
-  public static CommentDetailResponse from(Comment entity) {
+  public static CommentDetailResponse from(Comment comment) {
     return CommentDetailResponse.builder()
-        .id(entity.getId())
-        .postId(entity.getPost().getId())
-        .author(entity.getUser().getNickname())
-        .content(entity.getContent())
-        .isAnonymous(entity.getIsAnonymous())
-        .createdAt(entity.getCreatedAt())
-        .updatedAt(entity.getUpdatedAt())
+        .id(comment.getId())
+        .postId(comment.getPost().getId())
+        .author(comment.getUser().getNickname())
+        .content(comment.getContent())
+        .isAnonymous(comment.getIsAnonymous())
+        .createdAt(comment.getCreatedAt())
+        .updatedAt(comment.getUpdatedAt())
         .build();
   }
 }
