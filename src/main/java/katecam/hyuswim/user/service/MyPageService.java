@@ -2,7 +2,13 @@ package katecam.hyuswim.user.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
+import katecam.hyuswim.common.error.CustomException;
+import katecam.hyuswim.common.error.ErrorCode;
+import katecam.hyuswim.user.dto.mypage.*;
+import katecam.hyuswim.user.exception.UserNotFoundException;
+import katecam.hyuswim.user.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -11,10 +17,6 @@ import katecam.hyuswim.like.domain.PostLike;
 import katecam.hyuswim.like.repository.PostLikeRepository;
 import katecam.hyuswim.post.domain.Post;
 import katecam.hyuswim.user.User;
-import katecam.hyuswim.user.dto.mypage.MyCommentResponse;
-import katecam.hyuswim.user.dto.mypage.MyLikedPostResponse;
-import katecam.hyuswim.user.dto.mypage.MyOverviewResponse;
-import katecam.hyuswim.user.dto.mypage.MyPostListReponse;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -22,6 +24,7 @@ import lombok.RequiredArgsConstructor;
 public class MyPageService {
 
   private final PostLikeRepository postLikeRepository;
+  private final UserRepository userRepository;
 
   @Transactional
   public MyOverviewResponse selectMyOverview(User loginUser) {
@@ -77,4 +80,11 @@ public class MyPageService {
   public int selectMyLikesCount(Long userId) {
     return postLikeRepository.countByUserId(userId);
   }
+
+  @Transactional
+  public ProfileUpdate updateUserProfile(User loginUser, ProfileUpdate profileUpdate) {
+    loginUser.updateProfile(profileUpdate.getNickname(), profileUpdate.getIntroduction());
+    return new ProfileUpdate(loginUser.getNickname(), loginUser.getIntroduction());
+  }
+
 }
