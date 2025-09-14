@@ -20,7 +20,6 @@ import lombok.NoArgsConstructor;
 @Entity
 @EntityListeners(AuditingEntityListener.class)
 @NoArgsConstructor
-@Setter
 public class User {
 
   @Id
