@@ -6,6 +6,8 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import katecam.hyuswim.mission.progress.MissionProgress;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 public interface MissionProgressRepository extends JpaRepository<MissionProgress, Long> {
   long countByUserIdAndProgressDate(Long userId, LocalDate date);
@@ -18,4 +20,15 @@ public interface MissionProgressRepository extends JpaRepository<MissionProgress
   long countByMissionIdAndProgressDate(Long missionId, LocalDate date);
 
   long countByMissionIdAndProgressDateAndIsCompletedTrue(Long missionId, LocalDate date);
+
+    long countByUserIdAndIsCompletedTrue(Long userId);
+
+    @Query("""
+    select coalesce(sum(mp.mission.point), 0)
+    from MissionProgress mp
+    where mp.user.id = :userId and mp.isCompleted = true
+  """)
+    Long sumCompletedPointsByUser(@Param("userId") Long userId);
+
+    long countByUserIdAndProgressDateAndIsCompletedFalse(Long userId, LocalDate date);
 }

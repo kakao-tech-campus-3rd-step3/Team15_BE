@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import katecam.hyuswim.mission.dto.UserMissionStats;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -164,5 +165,14 @@ public class MissionService {
                 })
                 .limit(limit)
                 .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public UserMissionStats getUserStats(Long userId) {
+        long completed = missionProgressRepository.countByUserIdAndIsCompletedTrue(userId);
+        long inProgressToday =
+                missionProgressRepository.countByUserIdAndProgressDateAndIsCompletedFalse(userId, LocalDate.now());
+        long points = missionProgressRepository.sumCompletedPointsByUser(userId);
+        return new UserMissionStats(completed, inProgressToday, points);
     }
 }
