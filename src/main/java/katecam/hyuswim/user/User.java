@@ -31,7 +31,7 @@ public class User {
 
   private String password;
 
-  private String nickname;
+  private String nickname = "새싹이";
 
   private String introduction;
 
