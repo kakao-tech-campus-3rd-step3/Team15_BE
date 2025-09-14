@@ -3,6 +3,7 @@ package katecam.hyuswim.user;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -30,6 +31,8 @@ public class User {
   private String password;
 
   private String nickname;
+
+  private String introduction;
 
   @OneToMany(mappedBy = "user")
   private List<Badge> badges;
@@ -62,10 +65,10 @@ public class User {
   @Column(name = "updated_at")
   private LocalDateTime updatedAt;
 
-  public User(String email, String password, String nickname) {
+  public User(String email, String password) {
     this.email = email;
     this.password = password;
-    this.nickname = nickname;
+    this.nickname = "새싹이";
     this.role = UserRole.USER;
   }
 
@@ -100,4 +103,9 @@ public class User {
     this.blockedUntil = null;
     this.blockReason = reason;
   }
+
+    public void updateProfile(String nickname, String introduction) {
+        this.nickname = nickname;
+        this.introduction = introduction;
+    }
 }

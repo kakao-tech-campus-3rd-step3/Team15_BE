@@ -21,9 +21,9 @@ public class UserController {
   private final JwtUtil jwtUtil;
 
   @PostMapping("/api/user/signup")
-  public ResponseEntity<String> postSignup(@RequestBody SignupRequest signupRequest) {
+  public ResponseEntity<Void> postSignup(@RequestBody SignupRequest signupRequest) {
     userService.saveUser(signupRequest);
-    return ResponseEntity.status(HttpStatus.CREATED).body("회원가입 완료");
+    return ResponseEntity.status(HttpStatus.CREATED).build();
   }
 
   @PostMapping("/api/auth/login")
