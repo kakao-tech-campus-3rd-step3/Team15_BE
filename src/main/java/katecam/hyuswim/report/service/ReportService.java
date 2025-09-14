@@ -39,19 +39,22 @@ public class ReportService {
   public void report(User reporter, ReportRequest request) {
     User reportedUser;
 
-    if (request.getReportType() == ReportType.POST) {
-      Post post =
-          postRepository
-              .findById(request.getTargetId())
-              .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
-      reportedUser = post.getUser();
-    } else {
-      Comment comment =
-          commentRespository
-              .findById(request.getTargetId())
-              .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
-      reportedUser = comment.getUser();
+    switch(request.getReportType()){
+        case POST -> {
+            Post post = postRepository
+                    .findById(request.getTargetId())
+                    .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
+            reportedUser = post.getUser();
+        }
+        case COMMENT -> {
+            Comment comment = commentRespository
+                    .findById(request.getTargetId())
+                    .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
+            reportedUser = comment.getUser();
+        }
+        default -> throw new CustomException(ErrorCode.INVALID_REPORT_TYPE);
     }
+
 
     Report report =
         Report.create(
