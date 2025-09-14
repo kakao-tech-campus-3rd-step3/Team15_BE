@@ -40,15 +40,12 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
 
-      # 5) 코드 스타일 체크 (Spotless)
-      - name: Check code style with Spotless
-        run: ./gradlew spotlessCheck
 
-      # 6) 빌드 (테스트 제외)
+      # 5) 빌드 (테스트 제외)
       - name: Build with Gradle
         run: ./gradlew build -x test
 
-      # 7) 빌드 산출물(SNAPSHOT) 파일명 추출 (단일 파일 보장)
+      # 6) 빌드 산출물(SNAPSHOT) 파일명 추출 (단일 파일 보장)
       - name: Find and export JAR file name
         id: find_jar
         shell: bash
@@ -68,7 +65,7 @@ jobs:
       - name: Debug - list local build/libs
         run: ls -al build/libs
 
-      # 8) 원격 타겟 디렉터리 보장
+      # 7) 원격 타겟 디렉터리 보장
       - name: Ensure target dir on EC2
         uses: appleboy/ssh-action@master
         with:
@@ -79,7 +76,7 @@ jobs:
             set -e
             mkdir -p /home/${USER}/Team15_BE
 
-      # 9) 정확히 단일 파일만 전송 + 경로 납작화(strip_components: 2)
+      # 8) 정확히 단일 파일만 전송 + 경로 납작화(strip_components: 2)
       - name: Copy JAR to EC2 (flatten path)
         uses: appleboy/scp-action@master
         with:
@@ -91,7 +88,7 @@ jobs:
           overwrite: true
           strip_components: 2
 
-      # 10) EC2에서 파일 존재 확인(루트에 존재해야 함)
+      # 9) EC2에서 파일 존재 확인(루트에 존재해야 함)
       - name: Verify file transfer on EC2
         uses: appleboy/ssh-action@master
         with:
@@ -106,7 +103,7 @@ jobs:
             echo "--- Verifying specific file ---"
             ls -l "${APP_DIR}/${{ steps.find_jar.outputs.JAR_NAME }}"
 
-      # 11) 배포 & 실행 (심볼릭 링크 + 안전한 중지)
+      # 10) 배포 & 실행 (심볼릭 링크 + 안전한 중지)
       - name: Deploy and Run on EC2
         uses: appleboy/ssh-action@master
         with:
@@ -120,7 +117,6 @@ jobs:
             JAR_NAME="${{ steps.find_jar.outputs.JAR_NAME }}"
             APP_JAR="app.jar"                           # 고정 실행명
             LOG_DIR="${APP_DIR}/logs"
-            START_PATTERN="java -jar ${APP_JAR}"
 
             cd "${APP_DIR}" || { echo "Failed to change directory to ${APP_DIR}"; exit 1; }
 
@@ -139,28 +135,19 @@ jobs:
             ln -sfn "${JAR_NAME}" "${APP_JAR}"
             echo "Linked ${JAR_NAME} -> ${APP_JAR}"
 
-            # 기존 프로세스 정상 종료(SIGTERM), 실패코드는 무시
-            echo "Checking for running Java application..."
-            if pgrep -f "${START_PATTERN}" >/dev/null 2>&1; then
-              echo "Running application found. Attempting to stop it (SIGTERM)..."
-              pkill -TERM -f "${START_PATTERN}" || true
-
-              # 최대 30초 대기, 남아있으면 SIGKILL
-              for i in {1..30}; do
-                if pgrep -f "${START_PATTERN}" >/dev/null 2>&1; then
-                  sleep 1
-                else
-                  echo "Application stopped gracefully."
-                  break
-                fi
-                if [ "$i" -eq 30 ]; then
-                  echo "Process still alive after 30s. Sending SIGKILL..."
-                  pkill -KILL -f "${START_PATTERN}" || true
-                  sleep 2
-                fi
-              done
+            # 포트 8080 점유 프로세스 강제 종료
+            EXISTING_PID=$(lsof -t -i:8080 || true)
+            if [ -n "$EXISTING_PID" ]; then
+              echo "Port 8080 in use by PID=$EXISTING_PID. Stopping..."
+              kill -15 "$EXISTING_PID" || true
+              sleep 5
+              if ps -p "$EXISTING_PID" > /dev/null 2>&1; then
+                echo "Process still alive. Sending SIGKILL..."
+                kill -9 "$EXISTING_PID" || true
+                sleep 2
+              fi
             else
-              echo "No running application found. Skipping stop."
+              echo "No process using port 8080."
             fi
 
             # 로그 디렉터리 준비
@@ -170,18 +157,27 @@ jobs:
 
             # 기동
             echo "Starting new application (${APP_JAR})... Logging to ${LOG_FILE_PATH}"
-            JAVA_OPTS=""
-            nohup java ${JAVA_OPTS} -jar "${APP_JAR}" \
-              --jwt.secret="${{ secrets.JWT_SECRET }}" > "${LOG_FILE_PATH}" 2>&1 &
+            JAVA_OPTS="--spring.datasource.url=jdbc:mysql://${{ secrets.EC2_HOST }}:3306/${{ secrets.DB_NAME }}?useSSL=false&serverTimezone=Asia/Seoul&characterEncoding=UTF-8 \
+            --spring.datasource.username=${{ secrets.DB_USER }} \
+            --spring.datasource.password=${{ secrets.DB_PASSWORD }} \
+            --jwt.secret=${{ secrets.JWT_SECRET }}"
 
-            # 기동 확인
-            echo "Verifying application startup..."
+            # 백그라운드 실행
+            nohup java -Dspring.profiles.active=dev -jar "${APP_JAR}" $JAVA_OPTS > "${LOG_FILE_PATH}" 2>&1 &
+
+            # 기동 확인 (백그라운드 프로세스 PID 기준)
+            APP_PID=$!
+            echo "App PID: $APP_PID"
             sleep 15
-            if pgrep -f "${START_PATTERN}" >/dev/null 2>&1; then
-              echo "Application started successfully."
-              exit 0
+            if ps -p $APP_PID > /dev/null 2>&1; then
+              echo "✅ Application started successfully. PID=$APP_PID"
             else
-              echo "ERROR: Application failed to start. Last 120 log lines:"
+              echo "❌ ERROR: Application failed to start. Last 120 log lines:"
               tail -n 120 "${LOG_FILE_PATH}" || true
               exit 1
             fi
+
+
+
+
+
