@@ -24,8 +24,7 @@ public class MissionViewController {
   }
 
     @GetMapping
-    public String list(@RequestParam(value = "cat", required = false) MissionCategory cat,
-                       Model model) {
+    public String list(@RequestParam(value = "cat", required = false) MissionCategory cat, Model model) {
         var userId = currentUserId();
 
         var list = missionService.getTodayMissionsWithState(userId);
@@ -33,12 +32,18 @@ public class MissionViewController {
                 list.stream().anyMatch(m -> m.getState() == TodayState.IN_PROGRESS || m.getState() == TodayState.COMPLETED);
 
         var recos = missionService.getTodayRecommendations(userId, 3);
+        var stats = missionService.getUserStats(userId);
 
         model.addAttribute("missions", list);
         model.addAttribute("hasPickedToday", hasPickedToday);
         model.addAttribute("recos", recos);
         model.addAttribute("categories", MissionCategory.values());
-        model.addAttribute("activeCat", cat); // null이면 전체
+        model.addAttribute("activeCat", cat);
+
+        // 상단 요약
+        model.addAttribute("completedCount", stats.getCompletedCount());
+        model.addAttribute("inProgressCount", stats.getInProgressCount());
+        model.addAttribute("earnedPoints", stats.getEarnedPoints());
 
         return "missions/list";
     }
@@ -54,6 +59,5 @@ public class MissionViewController {
     missionService.completeMission(currentUserId(), missionId);
     return "redirect:/missions";
   }
-
 
 }
