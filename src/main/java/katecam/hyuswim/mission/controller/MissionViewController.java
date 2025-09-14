@@ -1,11 +1,11 @@
 // src/main/java/katecam/hyuswim/mission/controller/MissionViewController.java
 package katecam.hyuswim.mission.controller;
 
-import katecam.hyuswim.mission.MissionCategory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import katecam.hyuswim.mission.MissionCategory;
 import katecam.hyuswim.mission.TodayState;
 import katecam.hyuswim.mission.service.MissionService;
 
@@ -23,30 +23,34 @@ public class MissionViewController {
     return 1L;
   }
 
-    @GetMapping
-    public String list(@RequestParam(value = "cat", required = false) MissionCategory cat, Model model) {
-        var userId = currentUserId();
+  @GetMapping
+  public String list(
+      @RequestParam(value = "cat", required = false) MissionCategory cat, Model model) {
+    var userId = currentUserId();
 
-        var list = missionService.getTodayMissionsWithState(userId);
-        boolean hasPickedToday =
-                list.stream().anyMatch(m -> m.getState() == TodayState.IN_PROGRESS || m.getState() == TodayState.COMPLETED);
+    var list = missionService.getTodayMissionsWithState(userId);
+    boolean hasPickedToday =
+        list.stream()
+            .anyMatch(
+                m ->
+                    m.getState() == TodayState.IN_PROGRESS || m.getState() == TodayState.COMPLETED);
 
-        var recos = missionService.getTodayRecommendations(userId, 3);
-        var stats = missionService.getUserStats(userId);
+    var recos = missionService.getTodayRecommendations(userId, 3);
+    var stats = missionService.getUserStats(userId);
 
-        model.addAttribute("missions", list);
-        model.addAttribute("hasPickedToday", hasPickedToday);
-        model.addAttribute("recos", recos);
-        model.addAttribute("categories", MissionCategory.values());
-        model.addAttribute("activeCat", cat);
+    model.addAttribute("missions", list);
+    model.addAttribute("hasPickedToday", hasPickedToday);
+    model.addAttribute("recos", recos);
+    model.addAttribute("categories", MissionCategory.values());
+    model.addAttribute("activeCat", cat);
 
-        // 상단 요약
-        model.addAttribute("completedCount", stats.getCompletedCount());
-        model.addAttribute("inProgressCount", stats.getInProgressCount());
-        model.addAttribute("earnedPoints", stats.getEarnedPoints());
+    // 상단 요약
+    model.addAttribute("completedCount", stats.getCompletedCount());
+    model.addAttribute("inProgressCount", stats.getInProgressCount());
+    model.addAttribute("earnedPoints", stats.getEarnedPoints());
 
-        return "missions/list";
-    }
+    return "missions/list";
+  }
 
   @PostMapping("/{missionId}/start")
   public String start(@PathVariable Long missionId) {
@@ -59,5 +63,4 @@ public class MissionViewController {
     missionService.completeMission(currentUserId(), missionId);
     return "redirect:/missions";
   }
-
 }
