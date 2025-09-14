@@ -8,7 +8,7 @@ public enum ErrorCode {
 
     //User
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."),
-    LOGIN_FAILED(HttpStatus.FORBIDDEN, "아이디 또는 비밀번호가 잘못되었습니다"),
+    LOGIN_FAILED(HttpStatus.UNAUTHORIZED, "아이디 또는 비밀번호가 잘못되었습니다"),
 
     //Auth
     INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "유효하지 않은 토큰입니다."),
