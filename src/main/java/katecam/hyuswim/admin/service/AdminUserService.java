@@ -41,7 +41,7 @@ public class AdminUserService {
                 .map(p -> new UserDetailResponse.PostSummary(p.getId(), p.getTitle(), p.getCreatedAt()))
                 .collect(Collectors.toList());
 
-        var comments = commentRepository.findAllByUser_IdAndIsDeletedFalse(userId).stream()
+        var comments = commentRepository.findAllByUserIdAndIsDeletedFalse(userId).stream()
                 .map(c -> new UserDetailResponse.CommentSummary(c.getId(), c.getContent(), c.getCreatedAt()))
                 .collect(Collectors.toList());
 

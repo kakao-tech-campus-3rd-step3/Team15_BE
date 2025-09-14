@@ -1,5 +1,7 @@
 package katecam.hyuswim.comment.service;
 
+import com.sun.source.doctree.CommentTree;
+import katecam.hyuswim.comment.dto.CommentTreeResponse;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +19,8 @@ import katecam.hyuswim.post.repository.PostRepository;
 import katecam.hyuswim.user.User;
 import lombok.RequiredArgsConstructor;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class CommentService {
@@ -25,7 +29,7 @@ public class CommentService {
   private final PostRepository postRepository;
 
   @Transactional
-  public CommentDetailResponse createComment(CommentRequest request, User user, Long postId) {
+  public CommentDetailResponse createComment(User user, Long postId, CommentRequest request) {
     Post post =
         postRepository
             .findById(postId)
@@ -44,9 +48,44 @@ public class CommentService {
     return CommentDetailResponse.from(saved);
   }
 
-  public PageResponse<CommentListResponse> getComments(Pageable pageable) {
+  @Transactional
+  public CommentTreeResponse createReplyComment(User user, Long parentId, CommentRequest request){
+
+      Comment parent = commentRepository.findById(parentId)
+              .orElseThrow(()-> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
+
+      Post post = parent.getPost();
+      if (post.getIsDeleted()) {
+          throw new CustomException(ErrorCode.POST_DELETED);
+      }
+      Comment reply = Comment.builder()
+              .user(user)
+              .post(post)
+              .content(request.getContent())
+              .isAnonymous(request.getIsAnonymous())
+              .build();
+
+      reply.assignParent(parent);
+
+      commentRepository.save(reply);
+
+      return CommentTreeResponse.from(reply);
+  }
+
+  public PageResponse<CommentListResponse> getComments(Long postId, Pageable pageable) {
     return new PageResponse<>(
-        commentRepository.findAllByIsDeletedFalse(pageable).map(CommentListResponse::from));
+        commentRepository.findByPostIdAndParentIsNull(postId,pageable).map(comment -> CommentListResponse.from(
+                comment,
+                commentRepository.existsByParentIdAndIsDeletedFalse(comment.getId())
+        ))
+    );
+  }
+
+  public List<CommentTreeResponse> getReplies(Long parentId){
+      List<Comment> children = commentRepository.findByParentIdAndIsDeletedFalse(parentId);
+      return children.stream()
+              .map(CommentTreeResponse::from)
+              .toList();
   }
 
   public CommentDetailResponse getComment(Long id) {
