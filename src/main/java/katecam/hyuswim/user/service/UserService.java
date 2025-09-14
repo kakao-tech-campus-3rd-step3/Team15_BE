@@ -29,7 +29,7 @@ public class UserService {
     String encPassword = bCryptPasswordEncoder.encode(signupRequest.getPassword());
 
     userRepository.save(
-        new User(signupRequest.getEmail(), encPassword, signupRequest.getNickname()));
+        new User(signupRequest.getEmail(), encPassword));
   }
 
   @Transactional
