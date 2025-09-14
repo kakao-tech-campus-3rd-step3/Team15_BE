@@ -34,6 +34,9 @@ public class User {
 
   private String introduction;
 
+  @Column(nullable = false, unique = true)
+  private String handle;
+
   @OneToMany(mappedBy = "user")
   private List<Badge> badges;
 
@@ -70,6 +73,7 @@ public class User {
     this.password = password;
     this.nickname = "새싹이";
     this.role = UserRole.USER;
+    this.handle = "@"+generateHandle();
   }
 
   public boolean isBlocked() {
@@ -107,5 +111,17 @@ public class User {
     public void updateProfile(String nickname, String introduction) {
         this.nickname = nickname;
         this.introduction = introduction;
+    }
+
+    public String generateHandle() {
+        String CHARACTERS = "0123456789abcdefghijklmnopqrstuvwxyz";
+        StringBuilder sb = new StringBuilder(6);
+
+        for (int i = 0; i < 6; i++) {
+            int randomIndex = java.util.concurrent.ThreadLocalRandom.current()
+                    .nextInt(CHARACTERS.length());
+            sb.append(CHARACTERS.charAt(randomIndex));
+        }
+        return sb.toString();
     }
 }
