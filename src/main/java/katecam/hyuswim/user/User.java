@@ -30,7 +30,7 @@ public class User {
 
   private String password;
 
-  private String nickname = "새싹이";
+  private String nickname;
 
   private String introduction;
 
@@ -68,6 +68,7 @@ public class User {
   public User(String email, String password) {
     this.email = email;
     this.password = password;
+    this.nickname = "새싹이";
     this.role = UserRole.USER;
   }
 
