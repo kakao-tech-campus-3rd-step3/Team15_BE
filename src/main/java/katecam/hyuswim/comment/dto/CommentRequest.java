@@ -1,11 +1,11 @@
 package katecam.hyuswim.comment.dto;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 @Getter
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class CommentRequest {
-  private String content;
-  private Boolean isAnonymous;
+  private final String content;
+  private final Boolean isAnonymous;
 }

@@ -3,6 +3,8 @@ package katecam.hyuswim.auth.principal;
 import java.util.Collection;
 import java.util.List;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -10,32 +12,25 @@ import org.springframework.security.core.userdetails.UserDetails;
 import katecam.hyuswim.user.User;
 import katecam.hyuswim.user.UserRole;
 
+@Getter
+@RequiredArgsConstructor
 public class UserPrincipal implements UserDetails {
-
-  private final User user;
-
-  public UserPrincipal(User user) {
-    this.user = user;
-  }
-
-  public User getUser() {
-    return user;
-  }
+    private final Long userId;
+    private final UserRole role;
 
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {
-    UserRole role = user.getRole();
-    return List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
+      return List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
   }
 
   @Override
   public String getPassword() {
-    return user.getPassword();
+        return null;
   }
 
   @Override
   public String getUsername() {
-    return String.valueOf(user.getId());
+      return String.valueOf(userId);
   }
 
   @Override
