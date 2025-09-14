@@ -38,3 +38,6 @@ out/
 
 ### env ###
 .env
+
+# MySQL local volume
+mysql-data/
