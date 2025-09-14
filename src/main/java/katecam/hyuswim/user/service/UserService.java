@@ -46,4 +46,12 @@ public class UserService {
 
     return jwtUtil.generateToken(user.getId(), user.getRole());
   }
+
+    @Transactional
+    public void deleteUser(User user, String confirmText) {
+      if (!confirmText.equals("계정 탈퇴")){
+          throw new CustomException(ErrorCode.WITHDRAWAL_FAILED);
+      }
+      userRepository.delete(user);
+    }
 }
