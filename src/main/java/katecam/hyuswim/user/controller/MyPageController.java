@@ -39,7 +39,8 @@ public class MyPageController {
   }
 
   @PatchMapping("/me/profile/edit/info")
-  public ResponseEntity<ProfileUpdate> updateMyProfile(@LoginUser User loginUser, @RequestBody ProfileUpdate profileUpdate) {
-    return ResponseEntity.ok(myPageService.updateUserProfile(loginUser, profileUpdate));
+  public ResponseEntity<Void> updateMyProfile(@LoginUser User loginUser, @RequestBody ProfileUpdate profileUpdate) {
+    myPageService.updateUserProfile(loginUser, profileUpdate);
+    return ResponseEntity.ok().build();
   }
 }

@@ -82,9 +82,8 @@ public class MyPageService {
   }
 
   @Transactional
-  public ProfileUpdate updateUserProfile(User loginUser, ProfileUpdate profileUpdate) {
+  public void updateUserProfile(User loginUser, ProfileUpdate profileUpdate) {
     loginUser.updateProfile(profileUpdate.getNickname(), profileUpdate.getIntroduction());
-    return new ProfileUpdate(loginUser.getNickname(), loginUser.getIntroduction());
   }
 
 }
