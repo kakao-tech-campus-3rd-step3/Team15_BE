@@ -26,6 +26,7 @@ public enum ErrorCode {
     LIKE_NOT_FOUND(HttpStatus.NOT_FOUND, "좋아요가 존재하지 않습니다."),
 
     //Report
+    INVALID_REPORT_TYPE(HttpStatus.BAD_REQUEST, "허용되지 않은 신고 타입입니다."),
     REPORT_REASON_REQUIRED(HttpStatus.BAD_REQUEST, "기타 사유 선택 시 내용은 필수입니다."),
 
     //Common
