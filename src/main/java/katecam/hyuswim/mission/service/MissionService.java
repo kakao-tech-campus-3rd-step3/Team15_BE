@@ -15,9 +15,12 @@ import katecam.hyuswim.mission.Mission;
 import katecam.hyuswim.mission.TodayState;
 import katecam.hyuswim.mission.dto.MissionStatsResponse;
 import katecam.hyuswim.mission.dto.MissionTodayResponse;
+import katecam.hyuswim.mission.dto.UserMissionStatsResponse;
+import katecam.hyuswim.mission.dto.UserMissionStats;
 import katecam.hyuswim.mission.progress.MissionProgress;
 import katecam.hyuswim.mission.repository.MissionProgressRepository;
 import katecam.hyuswim.mission.repository.MissionRepository;
+import katecam.hyuswim.user.User;
 import katecam.hyuswim.user.repository.UserRepository;
 
 @Service
@@ -80,6 +83,15 @@ public class MissionService {
     progress.complete(LocalDateTime.now());
   }
 
+    @Transactional(readOnly = true)
+    public UserMissionStatsResponse getUserStats(User user) {
+        LocalDate today = LocalDate.now();
+        long started = missionProgressRepository.countByUserIdAndProgressDate(user.getId(), today);
+        long completed =
+                missionProgressRepository.countByUserIdAndProgressDateAndIsCompletedTrue(user.getId(), today);
+        return new UserMissionStatsResponse(started, completed);
+    }
+
   @Transactional(readOnly = true)
   public MissionStatsResponse getTodayStats(Long missionId) {
     LocalDate today = LocalDate.now();
@@ -129,5 +141,56 @@ public class MissionService {
       return TodayState.IN_PROGRESS;
     }
     return TodayState.NOT_STARTED;
+  }
+
+  @Transactional(readOnly = true)
+  public List<MissionTodayResponse> getTodayRecommendations(Long userId, int limit) {
+    LocalDate today = LocalDate.now();
+    var missions = missionRepository.findAll();
+
+    var todayProgressForUser =
+        missionProgressRepository.findFirstByUserIdAndProgressDate(userId, today).orElse(null);
+
+    // 추천 기준 예시:
+    // 오늘 수행 가능(isAvailableOn)
+    // 아직 시작 안 함(NOT_STARTED)
+    // 점수(point) 높은 순 → 같은 점수면 난이도 낮은 순(BEGINNER → INTERMEDIATE → ADVANCED)
+    // 교체 예정
+    return missions.stream()
+        .filter(m -> m.isAvailableOn(today) && m.isActive())
+        .map(
+            m -> {
+              long started =
+                  missionProgressRepository.countByMissionIdAndProgressDate(m.getId(), today);
+              long completed =
+                  missionProgressRepository.countByMissionIdAndProgressDateAndIsCompletedTrue(
+                      m.getId(), today);
+              TodayState state = resolveState(todayProgressForUser, m);
+              return MissionTodayResponse.of(m, started, completed, state);
+            })
+        .filter(r -> r.getState() == TodayState.NOT_STARTED) // 아직 안 한 것만 추천
+        .sorted(
+            (a, b) -> {
+              long pa = a.getPoint() == null ? 0 : a.getPoint();
+              long pb = b.getPoint() == null ? 0 : b.getPoint();
+              int byPoint = Long.compare(pb, pa); // desc
+              if (byPoint != 0) return byPoint;
+              // 난이도: BEGINNER(가벼움) 먼저 추천
+              int la = a.getLevel().ordinal();
+              int lb = b.getLevel().ordinal();
+              return Integer.compare(la, lb); // asc
+            })
+        .limit(limit)
+        .toList();
+  }
+
+  @Transactional(readOnly = true)
+  public UserMissionStats getUserStats(Long userId) {
+    long completed = missionProgressRepository.countByUserIdAndIsCompletedTrue(userId);
+    long inProgressToday =
+        missionProgressRepository.countByUserIdAndProgressDateAndIsCompletedFalse(
+            userId, LocalDate.now());
+    long points = missionProgressRepository.sumCompletedPointsByUser(userId);
+    return new UserMissionStats(completed, inProgressToday, points);
   }
 }

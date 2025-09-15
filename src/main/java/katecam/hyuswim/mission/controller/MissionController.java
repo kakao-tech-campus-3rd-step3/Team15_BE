@@ -2,12 +2,14 @@ package katecam.hyuswim.mission.controller;
 
 import java.util.List;
 
+import katecam.hyuswim.mission.dto.UserMissionStatsResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import katecam.hyuswim.auth.login.LoginUser;
 import katecam.hyuswim.mission.dto.MissionStatsResponse;
 import katecam.hyuswim.mission.dto.MissionTodayResponse;
+import katecam.hyuswim.mission.dto.UserMissionStats;
 import katecam.hyuswim.mission.service.MissionService;
 import katecam.hyuswim.user.User;
 
@@ -47,4 +49,9 @@ public class MissionController {
   public ResponseEntity<MissionStatsResponse> getTodayStats(@PathVariable Long missionId) {
     return ResponseEntity.ok(missionService.getTodayStats(missionId));
   }
+
+    @GetMapping("/stats")
+    public ResponseEntity<UserMissionStatsResponse> getUserStats(@LoginUser User loginUser) {
+        return ResponseEntity.ok(missionService.getUserStats(loginUser));
+    }
 }
