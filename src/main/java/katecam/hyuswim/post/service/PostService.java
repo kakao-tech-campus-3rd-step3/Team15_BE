@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 
+import katecam.hyuswim.comment.service.CommentService;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +24,7 @@ import lombok.RequiredArgsConstructor;
 public class PostService {
 
   private final PostRepository postRepository;
+  private final CommentService commentService;
 
   @Transactional
   public PostDetailResponse createPost(PostRequest request, User user) {
@@ -35,6 +37,9 @@ public class PostService {
             request.getIsAnonymous());
 
     Post saved = postRepository.save(post);
+
+    commentService.createAiComment(saved);
+
     return PostDetailResponse.from(saved);
   }
 

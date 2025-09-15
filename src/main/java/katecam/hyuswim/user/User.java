@@ -3,6 +3,7 @@ package katecam.hyuswim.user;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import lombok.Builder;
 import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -16,9 +17,9 @@ import katecam.hyuswim.post.domain.Post;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Getter
 @Entity
 @EntityListeners(AuditingEntityListener.class)
+@Getter
 @NoArgsConstructor
 public class User {
 
@@ -53,6 +54,7 @@ public class User {
   private List<MissionProgress> missionProgresses;
 
   @Enumerated(EnumType.STRING)
+  @Column(nullable = false, length = 20)
   private UserRole role;
 
   @Enumerated(EnumType.STRING)
@@ -87,6 +89,16 @@ public class User {
     this.commentNotificationEnabled = true;
     this.likeNotificationEnabled = true;
   }
+
+  public User(String email, String nickname, String introduction, UserRole role) {
+      this.email = email;
+      this.password = "N/A";
+      this.nickname = nickname;
+      this.introduction = introduction;
+      this.role = role;
+      this.handle = "@ai-" +generateHandle();
+      this.status = UserStatus.ACTIVE;
+    }
 
   public boolean isBlocked() {
     return this.status == UserStatus.BLOCKED;

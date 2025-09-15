@@ -1,5 +1,6 @@
 package katecam.hyuswim.comment.dto;
 
+import katecam.hyuswim.comment.domain.AuthorTag;
 import katecam.hyuswim.comment.domain.Comment;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +15,8 @@ public class CommentTreeResponse {
     private final Long postId;
     private final String content;
     private final String author;
+    private final String handle;
+    private final AuthorTag authorTag;
     private final boolean isDeleted;
     private final LocalDateTime createdAt;
     private final LocalDateTime updatedAt;
@@ -25,6 +28,8 @@ public class CommentTreeResponse {
                 comment.getPost().getId(),
                 comment.getContent(),
                 comment.getUser().getNickname(),
+                comment.getUser().getHandle(),
+                comment.getAuthorTag(),
                 comment.getIsDeleted(),
                 comment.getCreatedAt(),
                 comment.getUpdatedAt(),
