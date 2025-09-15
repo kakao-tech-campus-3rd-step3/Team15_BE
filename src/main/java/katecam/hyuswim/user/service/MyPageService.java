@@ -9,6 +9,7 @@ import katecam.hyuswim.common.error.ErrorCode;
 import katecam.hyuswim.user.dto.mypage.*;
 import katecam.hyuswim.user.exception.UserNotFoundException;
 import katecam.hyuswim.user.repository.UserRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,6 +20,7 @@ import katecam.hyuswim.post.domain.Post;
 import katecam.hyuswim.user.User;
 import lombok.RequiredArgsConstructor;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class MyPageService {
@@ -89,6 +91,16 @@ public class MyPageService {
   @Transactional
   public MyProfileEditResponse selectMyProfileEdit(User loginUser) {
       return new MyProfileEditResponse("/profileImage/"+loginUser.getProfileImage(), loginUser.getNickname(), loginUser.getIntroduction());
+  }
+
+  @Transactional
+    public void updateCommentNotification(User loginUser, Boolean enabled) {
+      loginUser.isCommentNotificationEnabled(enabled);
+  }
+
+  @Transactional
+    public void updateLikeNotification(User loginUser, Boolean enabled) {
+      loginUser.isLikeNotificationEnabled(enabled);
   }
 
 }
