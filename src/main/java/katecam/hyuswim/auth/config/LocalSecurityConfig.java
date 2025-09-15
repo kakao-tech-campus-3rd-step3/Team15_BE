@@ -36,19 +36,9 @@ public class LocalSecurityConfig {
     return new InMemoryUserDetailsManager(admin);
   }
 
-  @Bean
-  @Order(1)
-  public SecurityFilterChain h2ConsoleChain(HttpSecurity http) throws Exception {
-    http.securityMatcher("/h2-console/**")
-        .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
-        .csrf(csrf -> csrf.disable())
-        .headers(headers -> headers.frameOptions(fo -> fo.sameOrigin()));
-    return http.build();
-  }
-
   // API 전용
   @Bean
-  @Order(2)
+  @Order(1)
   public SecurityFilterChain apiChain(HttpSecurity http, JwtFilter jwtFilter) throws Exception {
       http.securityMatcher("/api/**")
               .authorizeHttpRequests(auth -> auth
@@ -83,7 +73,7 @@ public class LocalSecurityConfig {
 
     // Admin 전용
   @Bean
-  @Order(3)
+  @Order(2)
   public SecurityFilterChain adminChain(HttpSecurity http) throws Exception {
     http.securityMatcher("/admin/**")
         .authorizeHttpRequests(

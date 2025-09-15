@@ -49,6 +49,10 @@ public class Comment {
   @Column(name = "is_deleted")
   private Boolean isDeleted = false;
 
+  @Enumerated(EnumType.STRING)
+  @Column(name = "author_tag", nullable = false)
+  private AuthorTag authorTag;
+
   @CreatedDate
   @Column(name = "created_at", updatable = false)
   private LocalDateTime createdAt;
@@ -58,11 +62,12 @@ public class Comment {
   private LocalDateTime updatedAt;
 
   @Builder
-  public Comment(User user, Post post, String content, boolean isAnonymous) {
+  public Comment(User user, Post post, String content, boolean isAnonymous, AuthorTag authorTag) {
     this.user = user;
     this.post = post;
     this.content = content;
     this.isAnonymous = isAnonymous;
+    this.authorTag = authorTag;
   }
 
   public void assignParent(Comment parent){
