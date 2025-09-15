@@ -1,6 +1,8 @@
 package katecam.hyuswim.user.controller;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 import katecam.hyuswim.user.dto.mypage.*;
 import org.springframework.http.ResponseEntity;
