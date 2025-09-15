@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import katecam.hyuswim.user.dto.mypage.*;
+import org.apache.coyote.Response;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -44,5 +45,10 @@ public class MyPageController {
   public ResponseEntity<Void> updateMyProfile(@LoginUser User loginUser, @RequestBody ProfileUpdate profileUpdate) {
     myPageService.updateUserProfile(loginUser, profileUpdate);
     return ResponseEntity.ok().build();
+  }
+
+  @GetMapping("/me/profile/edit")
+  public ResponseEntity<MyProfileEditResponse> selectMyProfile(@LoginUser User loginUser) {
+      return ResponseEntity.ok(myPageService.selectMyProfileEdit(loginUser));
   }
 }

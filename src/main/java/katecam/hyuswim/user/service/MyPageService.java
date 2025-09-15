@@ -86,4 +86,9 @@ public class MyPageService {
     loginUser.updateProfile(profileUpdate.getNickname(), profileUpdate.getIntroduction());
   }
 
+  @Transactional
+  public MyProfileEditResponse selectMyProfileEdit(User loginUser) {
+      return new MyProfileEditResponse("/profileImage/"+loginUser.getProfileImage(), loginUser.getNickname(), loginUser.getIntroduction());
+  }
+
 }
