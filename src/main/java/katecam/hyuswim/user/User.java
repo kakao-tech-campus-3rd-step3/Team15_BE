@@ -51,6 +51,7 @@ public class User {
   private List<MissionProgress> missionProgresses;
 
   @Enumerated(EnumType.STRING)
+  @Column(nullable = false, length = 20)
   private UserRole role;
 
   @Enumerated(EnumType.STRING)
