@@ -1,55 +1,49 @@
 package katecam.hyuswim.user.service;
 
-import katecam.hyuswim.user.User;
-import katecam.hyuswim.user.dto.LoginRequest;
-import katecam.hyuswim.user.dto.SignupRequest;
-import katecam.hyuswim.user.exception.UserNotFoundException;
-import katecam.hyuswim.user.repository.UserRepository;
-import lombok.RequiredArgsConstructor;
+import java.util.Optional;
+
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
+import katecam.hyuswim.auth.jwt.JwtUtil;
+import katecam.hyuswim.common.error.CustomException;
+import katecam.hyuswim.common.error.ErrorCode;
+import katecam.hyuswim.user.User;
+import katecam.hyuswim.user.dto.LoginRequest;
+import katecam.hyuswim.user.dto.SignupRequest;
+import katecam.hyuswim.user.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
 public class UserService {
 
-    private final UserRepository userRepository;
-    private final BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
+  private final UserRepository userRepository;
+  private final BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
+  private final JwtUtil jwtUtil;
 
+  @Transactional
+  public void saveUser(SignupRequest signupRequest) {
 
+    String encPassword = bCryptPasswordEncoder.encode(signupRequest.getPassword());
 
-    @Transactional
-    public void saveUser(SignupRequest signupRequest) {
+    userRepository.save(
+        new User(signupRequest.getEmail(), encPassword, signupRequest.getNickname()));
+  }
 
-        String encPassword = bCryptPasswordEncoder.encode(signupRequest.getPassword());
-        signupRequest.setPassword(encPassword);
+  @Transactional
+  public String login(LoginRequest loginRequest) {
+    Optional<User> userOptional = userRepository.findByEmail(loginRequest.getEmail());
 
-        userRepository.save(signupRequest.toEntity());
-
+    if (userOptional.isEmpty()) {
+      throw new CustomException(ErrorCode.LOGIN_FAILED);
+    }
+    User user = userOptional.get();
+    if (!bCryptPasswordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
+      throw new CustomException(ErrorCode.LOGIN_FAILED);
     }
 
-    @Transactional
-    public boolean existUser(LoginRequest loginRequest) {
-        Optional<User> userOptional = userRepository.findByUsername(loginRequest.getUsername());
-
-        if (userOptional.isEmpty()) {
-            return false;
-        }
-
-        User user = userOptional.get();
-        return bCryptPasswordEncoder.matches(loginRequest.getPassword(), user.getPassword());
-    }
-
-    @Transactional
-    public User findUserByUsername(String username) throws UserNotFoundException {
-        Optional<User> userOptional = userRepository.findByUsername(username);
-        if(userOptional.isEmpty()) {
-            throw new UserNotFoundException("해당 유저는 존재하지 않습니다.");
-        }
-        return userOptional.get();
-    }
-
+    return jwtUtil.generateToken(user.getId(), user.getRole());
+  }
 }
