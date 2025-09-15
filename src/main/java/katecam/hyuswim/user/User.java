@@ -140,4 +140,8 @@ public class User {
     public void updateProfileImage(String profileImage) {
       this.profileImage = profileImage;
     }
+
+    public void isCommentNotificationEnabled(Boolean enabled) {
+        this.commentNotificationEnabled = enabled;
+    }
 }
