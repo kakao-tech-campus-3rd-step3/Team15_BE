@@ -144,4 +144,8 @@ public class User {
     public void isCommentNotificationEnabled(Boolean enabled) {
         this.commentNotificationEnabled = enabled;
     }
+
+    public void isLikeNotificationEnabled(Boolean enabled) {
+      this.likeNotificationEnabled = enabled;
+    }
 }

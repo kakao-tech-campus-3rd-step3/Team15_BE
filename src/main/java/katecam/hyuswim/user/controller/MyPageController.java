@@ -57,4 +57,10 @@ public class MyPageController {
       myPageService.updateCommentNotification(loginUser, requestMap.get("enabled"));
       return ResponseEntity.ok().build();
   }
+
+  @PutMapping("/me/notification/like")
+    public ResponseEntity<Void> updateLikeNotification(@LoginUser User loginUser, @RequestBody Map<String, Boolean> requestMap) {
+      myPageService.updateLikeNotification(loginUser, requestMap.get("enabled"));
+      return ResponseEntity.ok().build();
+  }
 }
