@@ -13,6 +13,7 @@ public class MissionTodayResponse {
   private String content;
   private Long point;
   private MissionCategory category;
+  private String categoryDisplayName;
   private MissionLevel level;
   private boolean active;
 
@@ -29,6 +30,7 @@ public class MissionTodayResponse {
       String content,
       Long point,
       MissionCategory category,
+      String categoryDisplayName,
       MissionLevel level,
       boolean active,
       long todayStartedCount,
@@ -39,6 +41,7 @@ public class MissionTodayResponse {
     this.content = content;
     this.point = point;
     this.category = category;
+    this.categoryDisplayName = categoryDisplayName;
     this.level = level;
     this.active = active;
     this.todayStartedCount = todayStartedCount;
@@ -53,6 +56,7 @@ public class MissionTodayResponse {
         m.getContent(),
         m.getPoint(),
         m.getCategory(),
+        m.getCategory().getDisplayName(),
         m.getLevel(),
         m.isActive(),
         started,
