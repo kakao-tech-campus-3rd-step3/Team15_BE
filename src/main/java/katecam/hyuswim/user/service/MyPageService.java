@@ -98,4 +98,9 @@ public class MyPageService {
       loginUser.isCommentNotificationEnabled(enabled);
   }
 
+  @Transactional
+    public void updateLikeNotification(User loginUser, Boolean enabled) {
+      loginUser.isLikeNotificationEnabled(enabled);
+  }
+
 }
