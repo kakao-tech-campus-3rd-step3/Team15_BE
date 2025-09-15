@@ -63,6 +63,12 @@ public class User {
 
   private String blockReason;
 
+  @Column(name = "comment_notification_enabled", nullable = false)
+  private Boolean commentNotificationEnabled = true;
+
+  @Column(name = "like_notification_enabled", nullable = false)
+  private Boolean likeNotificationEnabled = true;
+
   @CreatedDate
   @Column(name = "created_at", updatable = false)
   private LocalDateTime createdAt;
@@ -78,6 +84,8 @@ public class User {
     this.role = UserRole.USER;
     this.handle = "@"+generateHandle();
     this.profileImage = "default.png";
+    this.commentNotificationEnabled = true;
+    this.likeNotificationEnabled = true;
   }
 
   public boolean isBlocked() {
@@ -131,5 +139,13 @@ public class User {
 
     public void updateProfileImage(String profileImage) {
       this.profileImage = profileImage;
+    }
+
+    public void isCommentNotificationEnabled(Boolean enabled) {
+        this.commentNotificationEnabled = enabled;
+    }
+
+    public void isLikeNotificationEnabled(Boolean enabled) {
+      this.likeNotificationEnabled = enabled;
     }
 }
