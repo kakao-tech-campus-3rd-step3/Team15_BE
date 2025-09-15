@@ -1,4 +1,4 @@
-package katecam.hyuswim.user.service;
+package katecam.hyuswim.ai.service;
 
 import jakarta.annotation.PostConstruct;
 import katecam.hyuswim.user.User;
@@ -9,8 +9,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class AiUserProvider {
-
+public class AiUserService {
     private final UserRepository userRepository;
     private User aiUser;
 
@@ -31,5 +30,4 @@ public class AiUserProvider {
     public User getAiUser() {
         return aiUser;
     }
-
 }
