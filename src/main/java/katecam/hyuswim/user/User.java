@@ -34,6 +34,9 @@ public class User {
 
   private String introduction;
 
+  @Column(name = "profile_image", nullable = false)
+  private String profileImage;
+
   @Column(nullable = false, unique = true)
   private String handle;
 
@@ -74,6 +77,7 @@ public class User {
     this.nickname = "새싹이";
     this.role = UserRole.USER;
     this.handle = "@"+generateHandle();
+    this.profileImage = "default.png";
   }
 
   public boolean isBlocked() {
@@ -123,5 +127,9 @@ public class User {
             sb.append(CHARACTERS.charAt(randomIndex));
         }
         return sb.toString();
+    }
+
+    public void updateProfileImage(String profileImage) {
+      this.profileImage = profileImage;
     }
 }
