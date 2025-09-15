@@ -94,10 +94,13 @@ public class User {
       this.email = email;
       this.password = "N/A";
       this.nickname = nickname;
-      this.introduction = introduction;
       this.role = role;
       this.handle = "@ai-" +generateHandle();
+      this.profileImage = "AI.png";
+      this.introduction = introduction;
       this.status = UserStatus.ACTIVE;
+      this.commentNotificationEnabled = true;
+      this.likeNotificationEnabled = true;
     }
 
   public boolean isBlocked() {
