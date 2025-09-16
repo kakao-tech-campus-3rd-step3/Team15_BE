@@ -95,12 +95,12 @@ public class MyPageService {
 
   @Transactional
     public void updateCommentNotification(User loginUser, Boolean enabled) {
-      loginUser.isCommentNotificationEnabled(enabled);
+      loginUser.updateCommentNotificationEnabled(enabled);
   }
 
   @Transactional
     public void updateLikeNotification(User loginUser, Boolean enabled) {
-      loginUser.isLikeNotificationEnabled(enabled);
+      loginUser.updateLikeNotificationEnabled(enabled);
   }
 
 }
