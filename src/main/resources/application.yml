@@ -1,9 +1,11 @@
 spring:
   profiles:
-    active: local
-
+    active: dev
 jwt:
   secret: ${JWT_SECRET}
 
 openai:
   api-key: ${OPENAI_API_KEY}
+
+app:
+  frontend-url: ${FRONTEND_URL}
