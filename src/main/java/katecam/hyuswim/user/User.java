@@ -23,61 +23,65 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class User {
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-  private String email;
+    @Column(nullable = false, unique = true)
+    private String email;
 
-  private String password;
+    private String password;
 
-  private String nickname;
+    @Column(nullable = false, unique = true)
+    private String handle;
 
-  private String introduction;
+    private String nickname;
 
-  @Column(name = "profile_image", nullable = false)
-  private String profileImage;
+    private String introduction;
 
-  @Column(nullable = false, unique = true)
-  private String handle;
+    @Column(name = "profile_image", nullable = false)
+    private String profileImage;
 
-  @OneToMany(mappedBy = "user")
-  private List<Badge> badges;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private UserRole role;
 
-  @OneToMany(mappedBy = "user")
-  private List<Post> posts;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private UserStatus status = UserStatus.ACTIVE;
 
-  @OneToMany(mappedBy = "user")
-  private List<Comment> comments;
+    @Column(name = "is_deleted", nullable = false)
+    private Boolean isDeleted = false;
 
-  @OneToMany(mappedBy = "user")
-  private List<MissionProgress> missionProgresses;
+    private LocalDateTime blockedUntil;
 
-  @Enumerated(EnumType.STRING)
-  @Column(nullable = false, length = 20)
-  private UserRole role;
+    private String blockReason;
 
-  @Enumerated(EnumType.STRING)
-  @Column(nullable = false, length = 20)
-  private UserStatus status = UserStatus.ACTIVE;
+    @Column(name = "comment_notification_enabled", nullable = false)
+    private Boolean commentNotificationEnabled = true;
 
-  private LocalDateTime blockedUntil;
+    @Column(name = "like_notification_enabled", nullable = false)
+    private Boolean likeNotificationEnabled = true;
 
-  private String blockReason;
+    @OneToMany(mappedBy = "user")
+    private List<Badge> badges;
 
-  @Column(name = "comment_notification_enabled", nullable = false)
-  private Boolean commentNotificationEnabled = true;
+    @OneToMany(mappedBy = "user")
+    private List<Post> posts;
 
-  @Column(name = "like_notification_enabled", nullable = false)
-  private Boolean likeNotificationEnabled = true;
+    @OneToMany(mappedBy = "user")
+    private List<Comment> comments;
 
-  @CreatedDate
-  @Column(name = "created_at", updatable = false)
-  private LocalDateTime createdAt;
+    @OneToMany(mappedBy = "user")
+    private List<MissionProgress> missionProgresses;
 
-  @LastModifiedDate
-  @Column(name = "updated_at")
-  private LocalDateTime updatedAt;
+    @CreatedDate
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime createdAt;
+
+    @LastModifiedDate
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
 
   public User(String email, String password) {
     this.email = email;
@@ -103,44 +107,60 @@ public class User {
       this.likeNotificationEnabled = true;
     }
 
-  public boolean isBlocked() {
-    return this.status == UserStatus.BLOCKED;
-  }
+    public boolean isBlocked() {
+        return this.status == UserStatus.BLOCKED;
+    }
 
-  public boolean isBanned() {
-    return this.status == UserStatus.BANNED;
-  }
+    public boolean isBanned() {
+        return this.status == UserStatus.BANNED;
+    }
 
-  public void blockUntil(LocalDateTime until, String reason) {
-    this.status = UserStatus.BLOCKED;
-    this.blockedUntil = until;
-    this.blockReason = reason;
-  }
+    public void blockUntil(LocalDateTime until, String reason) {
+        this.status = UserStatus.BLOCKED;
+        this.blockedUntil = until;
+        this.blockReason = reason;
+    }
 
-  public void blockPermanently(String reason) {
-    this.status = UserStatus.BLOCKED;
-    this.blockedUntil = null;
-    this.blockReason = reason;
-  }
+    public void blockPermanently(String reason) {
+        this.status = UserStatus.BLOCKED;
+        this.blockedUntil = null;
+        this.blockReason = reason;
+    }
 
-  public void unblock() {
-    this.status = UserStatus.ACTIVE;
-    this.blockedUntil = null;
-    this.blockReason = null;
-  }
+    public void unblock() {
+        this.status = UserStatus.ACTIVE;
+        this.blockedUntil = null;
+        this.blockReason = null;
+    }
 
-  public void ban(String reason) {
-    this.status = UserStatus.BANNED;
-    this.blockedUntil = null;
-    this.blockReason = reason;
-  }
+    public void ban(String reason) {
+        this.status = UserStatus.BANNED;
+        this.blockedUntil = null;
+        this.blockReason = reason;
+    }
+
+    public void delete() {
+        this.isDeleted = true;
+    }
 
     public void updateProfile(String nickname, String introduction) {
         this.nickname = nickname;
         this.introduction = introduction;
     }
 
-    public String generateHandle() {
+    public void updateProfileImage(String profileImage) {
+        this.profileImage = profileImage;
+    }
+
+    public void updateCommentNotificationEnabled(Boolean enabled) {
+        this.commentNotificationEnabled = enabled;
+    }
+
+    public void updateLikeNotificationEnabled(Boolean enabled) {
+        this.likeNotificationEnabled = enabled;
+    }
+
+    private String generateHandle() {
         String CHARACTERS = "0123456789abcdefghijklmnopqrstuvwxyz";
         StringBuilder sb = new StringBuilder(6);
 
@@ -150,17 +170,5 @@ public class User {
             sb.append(CHARACTERS.charAt(randomIndex));
         }
         return sb.toString();
-    }
-
-    public void updateProfileImage(String profileImage) {
-      this.profileImage = profileImage;
-    }
-
-    public void isCommentNotificationEnabled(Boolean enabled) {
-        this.commentNotificationEnabled = enabled;
-    }
-
-    public void isLikeNotificationEnabled(Boolean enabled) {
-      this.likeNotificationEnabled = enabled;
     }
 }

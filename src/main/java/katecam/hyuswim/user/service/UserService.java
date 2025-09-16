@@ -52,6 +52,6 @@ public class UserService {
       if (!confirmText.equals("계정 탈퇴")){
           throw new CustomException(ErrorCode.WITHDRAWAL_FAILED);
       }
-      userRepository.delete(user);
+      user.delete();
     }
 }
