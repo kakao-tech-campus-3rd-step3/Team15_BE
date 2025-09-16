@@ -2,6 +2,7 @@ package katecam.hyuswim.auth.config;
 
 import jakarta.servlet.http.HttpServletResponse;
 import katecam.hyuswim.auth.jwt.JwtFilter;
+import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,10 +13,16 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.cors.CorsConfiguration;
+
+import java.util.List;
 
 @Configuration
+@RequiredArgsConstructor
 @Profile("dev")
 public class DevSecurityConfig {
+
+    private final AppProperties appProperties;
 
     @Bean
     @ConditionalOnMissingBean(PasswordEncoder.class)
@@ -27,6 +34,14 @@ public class DevSecurityConfig {
     @Bean
     public SecurityFilterChain apiChain(HttpSecurity http, JwtFilter jwtFilter) throws Exception {
         http.securityMatcher("/api/**")
+                .cors(cors -> cors.configurationSource(request -> {
+                    CorsConfiguration config = new CorsConfiguration();
+                    config.setAllowCredentials(true);
+                    config.setAllowedOrigins(appProperties.frontendUrls());
+                    config.addAllowedHeader("*");
+                    config.addAllowedMethod("*");
+                    return config;
+                }))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/user/signup", "/api/auth/login").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/**").permitAll()
