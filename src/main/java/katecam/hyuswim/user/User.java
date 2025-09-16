@@ -143,6 +143,10 @@ public class User {
         this.isDeleted = true;
     }
 
+    public String getDisplayName() {
+        return isDeleted ? "탈퇴한 유저" : nickname;
+    }
+
     public void updateProfile(String nickname, String introduction) {
         this.nickname = nickname;
         this.introduction = introduction;
