@@ -79,4 +79,7 @@ public class Report {
 
     return new Report(reporter, reportedUser, reportType, targetId, reportReasonType, content);
   }
+  public void updateStatus(ReportStatus status) {
+      this.status = status;
+  }
 }
