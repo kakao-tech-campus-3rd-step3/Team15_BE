@@ -36,7 +36,7 @@ public class PostDetailResponse {
         .postCategoryName(post.getPostCategory().getDisplayName())
         .title(post.getTitle())
         .content(post.getContent())
-        .author(post.getUser().getNickname())
+        .author(post.getUser().getDisplayName())
         .handle(post.getUser().getHandle())
         .isAnonymous(post.getIsAnonymous())
         .isDeleted(post.getIsDeleted())

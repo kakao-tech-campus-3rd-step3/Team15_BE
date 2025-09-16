@@ -26,7 +26,7 @@ public class CommentDetailResponse {
     return CommentDetailResponse.builder()
         .id(comment.getId())
         .postId(comment.getPost().getId())
-        .author(comment.getUser().getNickname())
+        .author(comment.getUser().getDisplayName())
         .handle(comment.getUser().getHandle())
         .authorTag(comment.getAuthorTag())
         .content(comment.getContent())
