@@ -20,7 +20,7 @@ import katecam.hyuswim.mission.dto.UserMissionStats;
 import katecam.hyuswim.mission.progress.MissionProgress;
 import katecam.hyuswim.mission.repository.MissionProgressRepository;
 import katecam.hyuswim.mission.repository.MissionRepository;
-import katecam.hyuswim.user.User;
+import katecam.hyuswim.user.domain.User;
 import katecam.hyuswim.user.repository.UserRepository;
 
 @Service

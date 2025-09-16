@@ -2,7 +2,7 @@ package katecam.hyuswim.admin.dto;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import katecam.hyuswim.user.UserStatus;
+import katecam.hyuswim.user.domain.UserStatus;
 
 public class UserDetailResponse {
     private final Long userId;

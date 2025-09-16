@@ -6,7 +6,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import jakarta.persistence.*;
-import katecam.hyuswim.user.User;
+import katecam.hyuswim.user.domain.User;
 
 @Entity
 @EntityListeners(AuditingEntityListener.class)

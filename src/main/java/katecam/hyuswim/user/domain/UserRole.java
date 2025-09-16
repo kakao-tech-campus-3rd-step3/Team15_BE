@@ -1,4 +1,4 @@
-package katecam.hyuswim.user;
+package katecam.hyuswim.user.domain;
 
 public enum UserRole {
   USER,
