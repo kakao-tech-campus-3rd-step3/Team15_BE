@@ -1,16 +1,14 @@
 package katecam.hyuswim.user.controller;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
 import katecam.hyuswim.user.dto.mypage.*;
-import org.apache.coyote.Response;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import katecam.hyuswim.auth.login.LoginUser;
-import katecam.hyuswim.user.User;
+import katecam.hyuswim.user.domain.User;
 import katecam.hyuswim.user.service.MyPageService;
 import lombok.RequiredArgsConstructor;
 

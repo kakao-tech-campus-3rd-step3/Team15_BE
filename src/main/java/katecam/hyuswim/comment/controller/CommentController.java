@@ -14,7 +14,7 @@ import katecam.hyuswim.comment.dto.CommentListResponse;
 import katecam.hyuswim.comment.dto.CommentRequest;
 import katecam.hyuswim.comment.service.CommentService;
 import katecam.hyuswim.post.dto.PageResponse;
-import katecam.hyuswim.user.User;
+import katecam.hyuswim.user.domain.User;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;

@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.*;
 
 import katecam.hyuswim.auth.login.LoginUser;
 import katecam.hyuswim.like.service.PostLikeService;
-import katecam.hyuswim.user.User;
+import katecam.hyuswim.user.domain.User;
 import lombok.RequiredArgsConstructor;
 
 @RestController

@@ -1,10 +1,8 @@
-package katecam.hyuswim.user;
+package katecam.hyuswim.user.domain;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-import lombok.Builder;
-import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -27,7 +25,11 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private AuthProvider provider;
+
+    @Column(nullable = false)
     private String email;
 
     private String password;
@@ -83,7 +85,7 @@ public class User {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-  public User(String email, String password) {
+  public User(String email, String password, AuthProvider provider) {
     this.email = email;
     this.password = password;
     this.nickname = "새싹이";
@@ -92,6 +94,7 @@ public class User {
     this.profileImage = "default.png";
     this.commentNotificationEnabled = true;
     this.likeNotificationEnabled = true;
+    this.provider =provider;
   }
 
   public User(String email, String nickname, String introduction, UserRole role) {

@@ -9,8 +9,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import katecam.hyuswim.user.User;
-import katecam.hyuswim.user.UserRole;
+import katecam.hyuswim.user.domain.UserRole;
 
 @Getter
 @RequiredArgsConstructor
