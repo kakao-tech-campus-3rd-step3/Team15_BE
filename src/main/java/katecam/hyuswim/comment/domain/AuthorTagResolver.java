@@ -1,8 +1,8 @@
 package katecam.hyuswim.comment.domain;
 
 import katecam.hyuswim.post.domain.Post;
-import katecam.hyuswim.user.User;
-import katecam.hyuswim.user.UserRole;
+import katecam.hyuswim.user.domain.User;
+import katecam.hyuswim.user.domain.UserRole;
 import org.springframework.stereotype.Component;
 
 @Component

@@ -19,7 +19,7 @@ import katecam.hyuswim.common.error.ErrorCode;
 import katecam.hyuswim.post.domain.Post;
 import katecam.hyuswim.post.dto.PageResponse;
 import katecam.hyuswim.post.repository.PostRepository;
-import katecam.hyuswim.user.User;
+import katecam.hyuswim.user.domain.User;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;

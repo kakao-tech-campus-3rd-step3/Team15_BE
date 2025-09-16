@@ -10,7 +10,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
 import jakarta.annotation.PostConstruct;
-import katecam.hyuswim.user.UserRole;
+import katecam.hyuswim.user.domain.UserRole;
 
 @Component
 public class JwtUtil {
