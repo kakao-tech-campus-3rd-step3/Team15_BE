@@ -1,13 +1,10 @@
 package katecam.hyuswim.user.controller;
 
 import katecam.hyuswim.auth.login.LoginUser;
-import katecam.hyuswim.user.User;
+import katecam.hyuswim.user.domain.User;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import katecam.hyuswim.auth.jwt.JwtTokenResponse;
 import katecam.hyuswim.auth.jwt.JwtUtil;
@@ -20,12 +17,13 @@ import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/api")
 public class UserController {
 
   private final UserService userService;
   private final JwtUtil jwtUtil;
 
-  @PostMapping("/api/user/signup")
+  @PostMapping("/users/signup")
   public ResponseEntity<Void> postSignup(@RequestBody SignupRequest signupRequest) {
     userService.saveUser(signupRequest);
     return ResponseEntity.status(HttpStatus.CREATED).build();
@@ -37,7 +35,7 @@ public class UserController {
     return ResponseEntity.ok(new JwtTokenResponse(jwtToken));
   }
 
-    @DeleteMapping("/api/user")
+    @DeleteMapping("/users/me")
     public ResponseEntity<Void> deleteUser(@LoginUser User loginUser, @RequestBody Map<String, String> requestMap) {
       userService.deleteUser(loginUser, requestMap.get("confirmText"));
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();

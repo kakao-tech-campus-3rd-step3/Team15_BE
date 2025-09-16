@@ -1,6 +1,6 @@
 package katecam.hyuswim.admin.dto;
 
-import katecam.hyuswim.user.UserStatus;
+import katecam.hyuswim.user.domain.UserStatus;
 
 public class UserListResponse {
     private final Long userId;

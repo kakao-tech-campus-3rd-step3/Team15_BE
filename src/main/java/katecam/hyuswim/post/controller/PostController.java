@@ -15,7 +15,7 @@ import katecam.hyuswim.auth.login.LoginUser;
 import katecam.hyuswim.post.domain.PostCategory;
 import katecam.hyuswim.post.dto.*;
 import katecam.hyuswim.post.service.PostService;
-import katecam.hyuswim.user.User;
+import katecam.hyuswim.user.domain.User;
 import lombok.RequiredArgsConstructor;
 
 @RestController

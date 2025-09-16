@@ -9,7 +9,7 @@ import katecam.hyuswim.auth.login.LoginUser;
 import katecam.hyuswim.report.dto.ReportReasonResponse;
 import katecam.hyuswim.report.dto.ReportRequest;
 import katecam.hyuswim.report.service.ReportService;
-import katecam.hyuswim.user.User;
+import katecam.hyuswim.user.domain.User;
 import lombok.RequiredArgsConstructor;
 
 @RestController

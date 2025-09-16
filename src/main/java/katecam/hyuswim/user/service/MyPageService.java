@@ -2,12 +2,8 @@ package katecam.hyuswim.user.service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
-import katecam.hyuswim.common.error.CustomException;
-import katecam.hyuswim.common.error.ErrorCode;
 import katecam.hyuswim.user.dto.mypage.*;
-import katecam.hyuswim.user.exception.UserNotFoundException;
 import katecam.hyuswim.user.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -17,7 +13,7 @@ import katecam.hyuswim.comment.domain.Comment;
 import katecam.hyuswim.like.domain.PostLike;
 import katecam.hyuswim.like.repository.PostLikeRepository;
 import katecam.hyuswim.post.domain.Post;
-import katecam.hyuswim.user.User;
+import katecam.hyuswim.user.domain.User;
 import lombok.RequiredArgsConstructor;
 
 @Slf4j
@@ -95,12 +91,12 @@ public class MyPageService {
 
   @Transactional
     public void updateCommentNotification(User loginUser, Boolean enabled) {
-      loginUser.isCommentNotificationEnabled(enabled);
+      loginUser.updateCommentNotificationEnabled(enabled);
   }
 
   @Transactional
     public void updateLikeNotification(User loginUser, Boolean enabled) {
-      loginUser.isLikeNotificationEnabled(enabled);
+      loginUser.updateLikeNotificationEnabled(enabled);
   }
 
 }
