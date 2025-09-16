@@ -14,3 +14,6 @@ spring:
         dialect: org.hibernate.dialect.MySQL8Dialect
         globally_quoted_identifiers: true
     show-sql: true
+
+jwt:
+  secret: ${JWT_SECRET}
