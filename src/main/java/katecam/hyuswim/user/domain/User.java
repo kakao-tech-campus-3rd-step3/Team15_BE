@@ -29,7 +29,8 @@ public class User {
     @Column(nullable = false, length = 20)
     private AuthProvider provider;
 
-    @Column(nullable = false)
+    private Long providerId;
+
     private String email;
 
     private String password;
@@ -40,9 +41,6 @@ public class User {
     private String nickname;
 
     private String introduction;
-
-    @Column(name = "profile_image", nullable = false)
-    private String profileImage;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
@@ -91,9 +89,6 @@ public class User {
     this.nickname = "새싹이";
     this.role = UserRole.USER;
     this.handle = "@"+generateHandle();
-    this.profileImage = "default.png";
-    this.commentNotificationEnabled = true;
-    this.likeNotificationEnabled = true;
     this.provider =provider;
   }
 
@@ -103,22 +98,25 @@ public class User {
       this.nickname = nickname;
       this.role = role;
       this.handle = "@ai-" +generateHandle();
-      this.profileImage = "AI.png";
       this.introduction = introduction;
-      this.status = UserStatus.ACTIVE;
-      this.commentNotificationEnabled = true;
-      this.likeNotificationEnabled = true;
       this.provider =AuthProvider.LOCAL;
     }
 
-
+    public static User createKakaoUser(AuthProvider provider, Long providerId) {
+        User user = new User();
+        user.provider = provider;
+        user.providerId = providerId;
+        user.nickname = "새싹이";
+        user.handle = "@"+generateHandle();
+        user.role = UserRole.USER;
+        return user;
+    }
 
     public void blockUntil(LocalDateTime until, String reason) {
         this.status = UserStatus.BLOCKED;
         this.blockedUntil = until;
         this.blockReason = reason;
     }
-
 
     public void unblock() {
         this.status = UserStatus.ACTIVE;
@@ -145,10 +143,6 @@ public class User {
         this.introduction = introduction;
     }
 
-    public void updateProfileImage(String profileImage) {
-        this.profileImage = profileImage;
-    }
-
     public void updateCommentNotificationEnabled(Boolean enabled) {
         this.commentNotificationEnabled = enabled;
     }
@@ -157,7 +151,7 @@ public class User {
         this.likeNotificationEnabled = enabled;
     }
 
-    private String generateHandle() {
+    public static String generateHandle() {
         String CHARACTERS = "0123456789abcdefghijklmnopqrstuvwxyz";
         StringBuilder sb = new StringBuilder(6);
 
