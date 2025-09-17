@@ -108,6 +108,7 @@ public class User {
       this.status = UserStatus.ACTIVE;
       this.commentNotificationEnabled = true;
       this.likeNotificationEnabled = true;
+      this.provider =AuthProvider.LOCAL;
     }
 
     public boolean isBlocked() {
