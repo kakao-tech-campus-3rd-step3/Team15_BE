@@ -53,6 +53,10 @@ public class PostService {
         postRepository
             .findByIdAndIsDeletedFalse(id)
             .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
+
+    post.increaseViewCount();
+    postRepository.save(post);
+
     return PostDetailResponse.from(post);
   }
 
