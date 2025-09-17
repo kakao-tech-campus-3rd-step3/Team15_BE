@@ -1,7 +1,6 @@
 package katecam.hyuswim.post.domain;
 
 public enum PostCategory {
-    ALL("전체"),
     FREE("자유"),
     STUDY("학업"),
     CAREER("진로취업"),
