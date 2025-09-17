@@ -12,42 +12,44 @@ import katecam.hyuswim.admin.dto.UserListResponse;
 import katecam.hyuswim.admin.service.AdminUserService;
 
 @Controller
-@RequestMapping("/admin")
-public class AdminController {
+@RequestMapping("/admin/users")
+public class AdminUserController {
 
     private final AdminUserService adminUserService;
 
-    public AdminController(AdminUserService adminUserService) {
+    public AdminUserController(AdminUserService adminUserService) {
         this.adminUserService = adminUserService;
     }
 
     @GetMapping
-    public String dashboard(Model model) {
+    public String listUsers(Model model) {
         List<UserListResponse> users = adminUserService.findAll();
         model.addAttribute("users", users);
-        return "admin/admin_dashboard";
+        model.addAttribute("content", "admin/users :: content");
+        return "admin/layout";
     }
 
-    @PostMapping("/users/{userId}/block")
+    @PostMapping("/{userId}/block")
     public String block(@PathVariable Long userId,
                         @ModelAttribute BlockRequest request,
                         RedirectAttributes ra) {
         var resp = adminUserService.blockUser(userId, request);
         ra.addFlashAttribute("msg", resp.getMessage());
-        return "redirect:/admin";
+        return "redirect:/admin/users";
     }
 
-    @PostMapping("/users/{userId}/unblock")
+    @PostMapping("/{userId}/unblock")
     public String unblock(@PathVariable Long userId, RedirectAttributes ra) {
         var resp = adminUserService.unblockUser(userId);
         ra.addFlashAttribute("msg", resp.getMessage());
-        return "redirect:/admin";
+        return "redirect:/admin/users";
     }
 
-    @PostMapping("/users/{userId}/ban")
+    @PostMapping("/{userId}/ban")
     public String ban(@PathVariable Long userId, RedirectAttributes ra) {
         var resp = adminUserService.banUser(userId);
         ra.addFlashAttribute("msg", resp.getMessage());
-        return "redirect:/admin";
+        return "redirect:/admin/users";
     }
 }
+
