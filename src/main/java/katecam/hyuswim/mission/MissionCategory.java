@@ -1,7 +1,6 @@
 package katecam.hyuswim.mission;
 
 public enum MissionCategory {
-    ALL("전체"),
     ROUTINE("루틴"),
     ACTIVITY("활동"),
     COMMUNICATION("소통"),
