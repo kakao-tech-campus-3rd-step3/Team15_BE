@@ -78,6 +78,10 @@ public class Post {
         .build();
   }
 
+  public void increaseViewCount(){
+      this.viewCount++;
+  }
+
   public void update(String title, String content, PostCategory postCategory) {
     if (title != null) this.title = title;
     if (content != null) this.content = content;
