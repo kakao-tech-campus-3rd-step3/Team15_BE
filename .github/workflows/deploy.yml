@@ -167,12 +167,12 @@ jobs:
             --kakao.redirect-uri=${{ secrets.KAKAO_REDIRECT_URI }}"
 
 
-  # 백그라운드 실행
+            # 백그라운드 실행
             nohup java -Dspring.profiles.active=dev -jar "${APP_JAR}" $JAVA_OPTS > "${LOG_FILE_PATH}" 2>&1 &
 
             # 기동 확인 (백그라운드 프로세스 PID 기준)
             APP_PID=$!
-            echo "App PID: $APP_PID"
+              echo "App PID: $APP_PID"
             sleep 15
             if ps -p $APP_PID > /dev/null 2>&1; then
               echo "✅ Application started successfully. PID=$APP_PID"
