@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout(~{::body})}">
+<body>
+<div class="container">
+    <h1>신고 목록</h1>
+
+    <div th:if="${msg}" class="alert alert-success" th:text="${msg}"></div>
+
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>신고자</th>
+            <th>게시글</th>
+            <th>상태</th>
+            <th>상세</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="report : ${reports}">
+            <td th:text="${report.id}"></td>
+            <td th:text="${report.reporterEmail}"></td>
+            <td th:text="${report.postTitle}"></td>
+            <td th:text="${report.status}"></td>
+            <td>
+                <a th:href="@{|/admin/reports/${report.id}|}" class="btn btn-sm btn-primary">보기</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

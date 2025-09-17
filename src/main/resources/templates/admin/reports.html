@@ -1,0 +1,26 @@
+<!-- templates/admin/reports.html -->
+<div th:fragment="content">
+    <h2>신고 목록</h2>
+    <table border="1">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>신고 유형</th>
+            <th>신고자</th>
+            <th>피신고자</th>
+            <th>상태</th>
+            <th>처리일</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="report : ${reports}">
+            <td th:text="${report.id}"></td>
+            <td th:text="${report.reportType}"></td>
+            <td th:text="${report.reporter}"></td>
+            <td th:text="${report.reportedUser}"></td>
+            <td th:text="${report.status}"></td>
+            <td th:text="${#temporals.format(report.reportedAt, 'yyyy-MM-dd HH:mm')}"></td>
+        </tr>
+        </tbody>
+    </table>
+</div>

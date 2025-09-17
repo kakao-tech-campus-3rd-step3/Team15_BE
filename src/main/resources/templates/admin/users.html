@@ -1,0 +1,24 @@
+<!-- templates/admin/users.html -->
+<div th:fragment="content">
+    <h2>회원 목록</h2>
+    <table border="1">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>이메일</th>
+            <th>닉네임</th>
+            <th>상태</th>
+            <th>가입일</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="user : ${users}">
+            <td th:text="${user.id}"></td>
+            <td th:text="${user.email}"></td>
+            <td th:text="${user.nickname}"></td>
+            <td th:text="${user.status}"></td>
+            <td th:text="${#temporals.format(user.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
+        </tr>
+        </tbody>
+    </table>
+</div>

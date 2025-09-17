@@ -1,0 +1,25 @@
+<!-- templates/admin/layout.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>관리자 페이지</title>
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+</head>
+<body>
+<header>
+    <h1>관리자 페이지</h1>
+    <nav>
+        <a th:href="@{/admin/reports}">신고 관리</a> |
+        <a th:href="@{/admin/posts}">게시글 관리</a> |
+        <a th:href="@{/admin/users}">회원 관리</a>
+    </nav>
+</header>
+
+<main>
+    <!-- 여기에 페이지별 컨텐츠 들어옴 -->
+    <div th:replace="${content}"></div>
+</main>
+
+</body>
+</html>
