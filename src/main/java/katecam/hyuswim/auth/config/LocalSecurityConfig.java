@@ -71,20 +71,28 @@ public class LocalSecurityConfig {
   }
 
 
-    // Admin 전용
-  @Bean
-  @Order(2)
-  public SecurityFilterChain adminChain(HttpSecurity http) throws Exception {
-    http.securityMatcher("/admin/**")
-        .authorizeHttpRequests(
-            auth ->
-                auth.requestMatchers("/css/**", "/js/**", "/images/**", "/webjars/**")
-                    .permitAll()
-                    .anyRequest()
-                    .hasRole("ADMIN"))
-        .formLogin(Customizer.withDefaults()) // 여기서는 HTML 로그인 페이지
-        .logout(lo -> lo.logoutSuccessUrl("/login?logout"))
-        .csrf(Customizer.withDefaults());
-    return http.build();
-  }
+    @Bean
+    @Order(2)
+    public SecurityFilterChain adminChain(HttpSecurity http, JwtFilter jwtFilter) throws Exception {
+        http.securityMatcher("/admin/**")
+                .authorizeHttpRequests(auth -> auth.anyRequest().hasRole("ADMIN"))
+                .csrf(csrf -> csrf.disable())
+                .formLogin(form -> form.disable())
+                .httpBasic(Customizer.withDefaults())
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint((req, res, e) -> {
+                            res.setContentType("application/json");
+                            res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                            res.getWriter().write("{\"error\":\"Unauthorized\"}");
+                        })
+                )
+                .addFilterBefore(
+                        jwtFilter,
+                        org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class
+                );
+
+        return http.build();
+    }
+
+
 }
