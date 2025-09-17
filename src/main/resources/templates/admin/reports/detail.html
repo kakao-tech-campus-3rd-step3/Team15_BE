@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout(~{::body})}">
+<body>
+<div class="container">
+    <h1>신고 상세</h1>
+
+    <div th:if="${msg}" class="alert alert-success" th:text="${msg}"></div>
+
+    <dl class="row">
+        <dt class="col-sm-2">ID</dt>
+        <dd class="col-sm-10" th:text="${report.id}"></dd>
+
+        <dt class="col-sm-2">신고자</dt>
+        <dd class="col-sm-10" th:text="${report.reporterEmail}"></dd>
+
+        <dt class="col-sm-2">게시글</dt>
+        <dd class="col-sm-10" th:text="${report.postTitle}"></dd>
+
+        <dt class="col-sm-2">사유</dt>
+        <dd class="col-sm-10" th:text="${report.reason}"></dd>
+
+        <dt class="col-sm-2">상태</dt>
+        <dd class="col-sm-10" th:text="${report.status}"></dd>
+    </dl>
+
+    <form th:action="@{|/admin/reports/${report.id}/status|}" method="post" class="mt-3">
+        <div class="form-group">
+            <label for="status">상태 변경</label>
+            <select name="status" id="status" class="form-control">
+                <option value="PENDING">대기중</option>
+                <option value="IN_PROGRESS">처리중</option>
+                <option value="RESOLVED">해결됨</option>
+                <option value="REJECTED">거절됨</option>
+            </select>
+        </div>
+        <button type="submit" class="btn btn-success mt-2">업데이트</button>
+    </form>
+
+    <a href="/admin/reports" class="btn btn-secondary mt-3">목록으로</a>
+</div>
+</body>
+</html>
