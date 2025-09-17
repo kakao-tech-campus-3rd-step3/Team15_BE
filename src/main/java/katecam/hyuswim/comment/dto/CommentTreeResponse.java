@@ -27,7 +27,7 @@ public class CommentTreeResponse {
                 comment.getId(),
                 comment.getPost().getId(),
                 comment.getContent(),
-                comment.getUser().getNickname(),
+                comment.getUser().getDisplayName(),
                 comment.getUser().getHandle(),
                 comment.getAuthorTag(),
                 comment.getIsDeleted(),

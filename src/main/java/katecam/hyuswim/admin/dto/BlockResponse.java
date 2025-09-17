@@ -1,7 +1,7 @@
 package katecam.hyuswim.admin.dto;
 
 import java.time.LocalDateTime;
-import katecam.hyuswim.user.UserStatus;
+import katecam.hyuswim.user.domain.UserStatus;
 
 public class BlockResponse {
 
