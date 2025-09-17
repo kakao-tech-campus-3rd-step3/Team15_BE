@@ -117,7 +117,7 @@ public class User {
         this.blockedUntil = until;
         this.blockReason = reason;
     }
-    
+
 
     public void unblock() {
         this.status = UserStatus.ACTIVE;
