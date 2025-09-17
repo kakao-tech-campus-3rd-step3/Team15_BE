@@ -110,25 +110,14 @@ public class User {
       this.likeNotificationEnabled = true;
     }
 
-    public boolean isBlocked() {
-        return this.status == UserStatus.BLOCKED;
-    }
 
-    public boolean isBanned() {
-        return this.status == UserStatus.BANNED;
-    }
 
     public void blockUntil(LocalDateTime until, String reason) {
         this.status = UserStatus.BLOCKED;
         this.blockedUntil = until;
         this.blockReason = reason;
     }
-
-    public void blockPermanently(String reason) {
-        this.status = UserStatus.BLOCKED;
-        this.blockedUntil = null;
-        this.blockReason = reason;
-    }
+    
 
     public void unblock() {
         this.status = UserStatus.ACTIVE;
