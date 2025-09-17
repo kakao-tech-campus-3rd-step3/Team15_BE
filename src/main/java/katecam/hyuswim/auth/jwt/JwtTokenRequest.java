@@ -1,6 +1,6 @@
 package katecam.hyuswim.auth.jwt;
 
-import katecam.hyuswim.user.UserRole;
+import katecam.hyuswim.user.domain.UserRole;
 import lombok.*;
 
 @Getter

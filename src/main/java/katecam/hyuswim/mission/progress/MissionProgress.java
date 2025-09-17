@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 
 import jakarta.persistence.*;
 import katecam.hyuswim.mission.Mission;
-import katecam.hyuswim.user.User;
+import katecam.hyuswim.user.domain.User;
 import lombok.Getter;
 
 @Entity

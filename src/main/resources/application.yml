@@ -6,4 +6,4 @@ openai:
   api-key: ${OPENAI_API_KEY}
 
 app:
-  frontend-url: ${FRONTEND_URL}
+  frontend-urls: ${FRONTEND_URL}

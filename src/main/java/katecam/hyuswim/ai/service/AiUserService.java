@@ -1,8 +1,8 @@
 package katecam.hyuswim.ai.service;
 
 import jakarta.annotation.PostConstruct;
-import katecam.hyuswim.user.User;
-import katecam.hyuswim.user.UserRole;
+import katecam.hyuswim.user.domain.User;
+import katecam.hyuswim.user.domain.UserRole;
 import katecam.hyuswim.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

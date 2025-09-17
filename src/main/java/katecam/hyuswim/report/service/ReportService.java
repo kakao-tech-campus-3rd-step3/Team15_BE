@@ -14,11 +14,10 @@ import katecam.hyuswim.post.domain.Post;
 import katecam.hyuswim.post.repository.PostRepository;
 import katecam.hyuswim.report.domain.Report;
 import katecam.hyuswim.report.domain.ReportReasonType;
-import katecam.hyuswim.report.domain.ReportType;
 import katecam.hyuswim.report.dto.ReportReasonResponse;
 import katecam.hyuswim.report.dto.ReportRequest;
 import katecam.hyuswim.report.repository.ReportRepository;
-import katecam.hyuswim.user.User;
+import katecam.hyuswim.user.domain.User;
 import lombok.RequiredArgsConstructor;
 
 @Service

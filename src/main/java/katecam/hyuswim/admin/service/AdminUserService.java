@@ -12,8 +12,8 @@ import katecam.hyuswim.admin.dto.UserDetailResponse;
 import katecam.hyuswim.admin.dto.UserListResponse;
 import katecam.hyuswim.comment.repository.CommentRepository;
 import katecam.hyuswim.post.repository.PostRepository;
-import katecam.hyuswim.user.User;
-import katecam.hyuswim.user.UserStatus;
+import katecam.hyuswim.user.domain.User;
+import katecam.hyuswim.user.domain.UserStatus;
 import katecam.hyuswim.user.repository.UserRepository;
 
 @Service

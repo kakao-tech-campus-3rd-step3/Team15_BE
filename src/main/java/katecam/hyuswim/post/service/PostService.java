@@ -15,7 +15,7 @@ import katecam.hyuswim.post.domain.Post;
 import katecam.hyuswim.post.domain.PostCategory;
 import katecam.hyuswim.post.dto.*;
 import katecam.hyuswim.post.repository.PostRepository;
-import katecam.hyuswim.user.User;
+import katecam.hyuswim.user.domain.User;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -53,6 +53,10 @@ public class PostService {
         postRepository
             .findByIdAndIsDeletedFalse(id)
             .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
+
+    post.increaseViewCount();
+    postRepository.save(post);
+
     return PostDetailResponse.from(post);
   }
 
