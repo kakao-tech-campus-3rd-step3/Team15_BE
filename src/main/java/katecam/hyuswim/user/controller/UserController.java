@@ -29,7 +29,7 @@ public class UserController {
     return ResponseEntity.status(HttpStatus.CREATED).build();
   }
 
-  @PostMapping("/api/auth/login")
+  @PostMapping("/auth/login")
   public ResponseEntity<?> postLogin(@RequestBody LoginRequest loginRequest) {
     String jwtToken = userService.login(loginRequest);
     return ResponseEntity.ok(new JwtTokenResponse(jwtToken));
