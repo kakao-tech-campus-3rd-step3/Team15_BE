@@ -42,7 +42,7 @@ public class LocalSecurityConfig {
   public SecurityFilterChain apiChain(HttpSecurity http, JwtFilter jwtFilter) throws Exception {
       http.securityMatcher("/api/**")
               .authorizeHttpRequests(auth -> auth
-                      .requestMatchers("/api/user/signup", "/api/auth/login").permitAll()
+                      .requestMatchers("/api/users/signup", "/api/auth/login").permitAll()
                       .requestMatchers("/api/admin/**").hasRole("ADMIN")
                       .requestMatchers(HttpMethod.GET, "/api/**").permitAll()
                       .anyRequest().authenticated()
