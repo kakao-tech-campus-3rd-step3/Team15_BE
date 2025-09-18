@@ -23,6 +23,23 @@
     </dl>
 
     <a href="/admin/posts" class="btn btn-secondary mt-3">목록으로</a>
+
+    <!-- 숨김 -->
+    <form th:action="@{|/admin/posts/${post.id}/hide|}" method="post" style="display:inline;">
+        <button type="submit" class="btn btn-warning mt-3">숨김</button>
+    </form>
+
+    <!-- 숨김 해제 -->
+    <form th:action="@{|/admin/posts/${post.id}/unhide|}" method="post" style="display:inline;">
+        <button type="submit" class="btn btn-success mt-3">숨김 해제</button>
+    </form>
+
+    <!-- 삭제 -->
+    <form th:action="@{|/admin/posts/${post.id}|}" method="post" style="display:inline;"
+          onsubmit="return confirm('정말 삭제하시겠습니까?');">
+        <input type="hidden" name="_method" value="delete"/>
+        <button type="submit" class="btn btn-danger mt-3">삭제</button>
+    </form>
 </div>
 </body>
 </html>
