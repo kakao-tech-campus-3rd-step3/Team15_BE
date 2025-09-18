@@ -48,7 +48,7 @@ public class Post {
   @Column(name = "is_deleted")
   private Boolean isDeleted = false;
 
-  @Builder.Default private Long viewCount = 0L;
+    @Builder.Default private Long viewCount = 0L;
 
   @Builder.Default
   @OneToMany(mappedBy = "post")
@@ -90,5 +90,9 @@ public class Post {
 
   public void delete() {
     this.isDeleted = true;
+  }
+
+  public void unhide() {
+      this.isDeleted = false;
   }
 }
