@@ -12,8 +12,6 @@ import katecam.hyuswim.mission.progress.MissionProgress;
 public interface MissionProgressRepository extends JpaRepository<MissionProgress, Long> {
   long countByUserIdAndProgressDate(Long userId, LocalDate date);
 
-  long countByUserIdAndProgressDateAndIsCompletedTrue(Long userId, LocalDate date);
-
   Optional<MissionProgress> findFirstByUserIdAndProgressDate(Long userId, LocalDate date);
 
   Optional<MissionProgress> findFirstByUserIdAndMissionIdAndProgressDate(
