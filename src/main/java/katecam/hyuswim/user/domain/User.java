@@ -75,6 +75,10 @@ public class User {
     @OneToMany(mappedBy = "user")
     private List<MissionProgress> missionProgresses;
 
+    @Column(name = "last_active_date")
+    @CreatedDate
+    private LocalDateTime lastActiveDate;
+
     @CreatedDate
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
@@ -161,5 +165,9 @@ public class User {
             sb.append(CHARACTERS.charAt(randomIndex));
         }
         return sb.toString();
+    }
+
+    public void updateLastActiveDate() {
+        this.lastActiveDate = LocalDateTime.now();
     }
 }

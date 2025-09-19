@@ -49,6 +49,7 @@ public class UserService {
         if (!bCryptPasswordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
             throw new CustomException(ErrorCode.LOGIN_FAILED);
         }
+        user.updateLastActiveDate();
 
         return jwtUtil.generateToken(user.getId(), user.getRole());
     }
