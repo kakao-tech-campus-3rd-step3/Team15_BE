@@ -10,7 +10,7 @@ import katecam.hyuswim.mission.dto.MissionStatsResponse;
 import katecam.hyuswim.mission.dto.MissionTodayResponse;
 import katecam.hyuswim.mission.dto.UserMissionStats;
 import katecam.hyuswim.mission.service.MissionService;
-import katecam.hyuswim.user.User;
+import katecam.hyuswim.user.domain.User;
 
 @RestController
 @RequestMapping("/api/missions")
