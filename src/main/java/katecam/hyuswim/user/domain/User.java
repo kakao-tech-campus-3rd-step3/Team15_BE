@@ -65,6 +65,9 @@ public class User {
     @Column(name = "like_notification_enabled", nullable = false)
     private Boolean likeNotificationEnabled = true;
 
+    @Column(nullable = false)
+    private long points = 0;
+
     @OneToMany(mappedBy = "user")
     private List<Badge> badges;
 
@@ -111,7 +114,11 @@ public class User {
       this.provider =AuthProvider.LOCAL;
     }
 
-
+    public void addPoints(long points) {
+        if (points > 0) {
+            this.points += points;
+        }
+    }
 
     public void blockUntil(LocalDateTime until, String reason) {
         this.status = UserStatus.BLOCKED;

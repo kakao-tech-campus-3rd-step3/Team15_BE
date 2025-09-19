@@ -80,8 +80,16 @@ public class MissionService {
       throw new ResponseStatusException(HttpStatus.CONFLICT, "ALREADY_COMPLETED");
     }
 
+      var user = progress.getUser();
+      var mission = progress.getMission();
+      long pointsToAdd = mission.getPoint() == null ? 0 : mission.getPoint();
+
     progress.complete(LocalDateTime.now());
+      user.addPoints(pointsToAdd);
+      userRepository.save(user);
   }
+
+
 
     @Transactional(readOnly = true)
     public UserMissionStatsResponse getUserStats(User user) {
