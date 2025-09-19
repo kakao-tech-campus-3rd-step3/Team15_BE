@@ -42,6 +42,10 @@ public class User {
 
     private String introduction;
 
+    private int score;
+
+    private int level;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private UserRole role;
@@ -77,6 +81,16 @@ public class User {
 
     @OneToMany(mappedBy = "user")
     private List<MissionProgress> missionProgresses;
+
+    @Column(name = "last_active_date")
+    @CreatedDate
+    private LocalDateTime lastActiveDate;
+
+    @Column(name = "password_last_changed")
+    @CreatedDate
+    private LocalDateTime passwordLastChanged;
+
+
 
     @CreatedDate
     @Column(name = "created_at", updatable = false)
@@ -164,5 +178,9 @@ public class User {
             sb.append(CHARACTERS.charAt(randomIndex));
         }
         return sb.toString();
+    }
+
+    public void updateLastActiveDate() {
+        this.lastActiveDate = LocalDateTime.now();
     }
 }
