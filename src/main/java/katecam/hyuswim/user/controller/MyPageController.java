@@ -45,11 +45,6 @@ public class MyPageController {
     return ResponseEntity.ok().build();
   }
 
-  @GetMapping("/me/profile/edit")
-  public ResponseEntity<MyProfileEditResponse> selectMyProfile(@LoginUser User loginUser) {
-      return ResponseEntity.ok(myPageService.selectMyProfileEdit(loginUser));
-  }
-
   @PutMapping("/me/notification/comment")
     public ResponseEntity<Void> updateCommentNotification(@LoginUser User loginUser, @RequestBody Map<String, Boolean> requestMap) {
       myPageService.updateCommentNotification(loginUser, requestMap.get("enabled"));

@@ -32,4 +32,27 @@ public class AdminPostService {
 
         return AdminPostDetailResponse.from(post);
     }
+
+    // 숨김 처리
+    public void hidePost(Long postId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
+        post.delete();
+        postRepository.save(post);
+    }
+
+    // 숨김 해제
+    public void unhidePost(Long postId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
+        post.unhide();
+        postRepository.save(post);
+    }
+
+    // 영구 삭제 (DB 삭제)
+    public void deletePost(Long postId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
+        postRepository.delete(post);
+    }
 }

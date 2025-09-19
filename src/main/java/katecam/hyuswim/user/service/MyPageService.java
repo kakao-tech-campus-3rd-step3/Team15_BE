@@ -85,11 +85,6 @@ public class MyPageService {
   }
 
   @Transactional
-  public MyProfileEditResponse selectMyProfileEdit(User loginUser) {
-      return new MyProfileEditResponse("/profileImage/"+loginUser.getProfileImage(), loginUser.getNickname(), loginUser.getIntroduction());
-  }
-
-  @Transactional
     public void updateCommentNotification(User loginUser, Boolean enabled) {
       loginUser.updateCommentNotificationEnabled(enabled);
   }

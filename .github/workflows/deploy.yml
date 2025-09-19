@@ -162,7 +162,9 @@ jobs:
             --spring.datasource.password=${{ secrets.DB_PASSWORD }} \
             --jwt.secret=${{ secrets.JWT_SECRET }} \
             --openai.api-key=${{ secrets.OPENAI_API_KEY }} \
-            --app.frontend-urls=${{ secrets.FRONTEND_URLS }}"
+            --app.frontend-urls=${{ secrets.FRONTEND_URLS }} \
+            --kakao.client-id=${{ secrets.KAKAO_CLIENT_ID }} \
+            --kakao.redirect-uri=${{ secrets.KAKAO_REDIRECT_URI }}"
 
 
             # 백그라운드 실행
@@ -170,7 +172,7 @@ jobs:
 
             # 기동 확인 (백그라운드 프로세스 PID 기준)
             APP_PID=$!
-            echo "App PID: $APP_PID"
+              echo "App PID: $APP_PID"
             sleep 15
             if ps -p $APP_PID > /dev/null 2>&1; then
               echo "✅ Application started successfully. PID=$APP_PID"
