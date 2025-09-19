@@ -15,12 +15,10 @@ import katecam.hyuswim.mission.Mission;
 import katecam.hyuswim.mission.TodayState;
 import katecam.hyuswim.mission.dto.MissionStatsResponse;
 import katecam.hyuswim.mission.dto.MissionTodayResponse;
-import katecam.hyuswim.mission.dto.UserMissionStatsResponse;
 import katecam.hyuswim.mission.dto.UserMissionStats;
 import katecam.hyuswim.mission.progress.MissionProgress;
 import katecam.hyuswim.mission.repository.MissionProgressRepository;
 import katecam.hyuswim.mission.repository.MissionRepository;
-import katecam.hyuswim.user.domain.User;
 import katecam.hyuswim.user.repository.UserRepository;
 
 @Service
@@ -82,15 +80,6 @@ public class MissionService {
 
     progress.complete(LocalDateTime.now());
   }
-
-    @Transactional(readOnly = true)
-    public UserMissionStatsResponse getUserStats(User user) {
-        LocalDate today = LocalDate.now();
-        long started = missionProgressRepository.countByUserIdAndProgressDate(user.getId(), today);
-        long completed =
-                missionProgressRepository.countByUserIdAndProgressDateAndIsCompletedTrue(user.getId(), today);
-        return new UserMissionStatsResponse(started, completed);
-    }
 
   @Transactional(readOnly = true)
   public MissionStatsResponse getTodayStats(Long missionId) {

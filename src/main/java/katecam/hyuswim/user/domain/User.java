@@ -63,6 +63,9 @@ public class User {
     @Column(name = "like_notification_enabled", nullable = false)
     private Boolean likeNotificationEnabled = true;
 
+    @Column(nullable = false)
+    private long points = 0;
+
     @OneToMany(mappedBy = "user")
     private List<Badge> badges;
 
