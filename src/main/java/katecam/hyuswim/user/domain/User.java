@@ -42,6 +42,10 @@ public class User {
 
     private String introduction;
 
+    private int score;
+
+    private int level;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private UserRole role;
@@ -78,6 +82,12 @@ public class User {
     @Column(name = "last_active_date")
     @CreatedDate
     private LocalDateTime lastActiveDate;
+
+    @Column(name = "password_last_changed")
+    @CreatedDate
+    private LocalDateTime passwordLastChanged;
+
+
 
     @CreatedDate
     @Column(name = "created_at", updatable = false)
