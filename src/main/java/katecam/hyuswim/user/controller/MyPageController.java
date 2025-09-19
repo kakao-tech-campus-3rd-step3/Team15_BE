@@ -56,4 +56,9 @@ public class MyPageController {
       myPageService.updateLikeNotification(loginUser, requestMap.get("enabled"));
       return ResponseEntity.ok().build();
   }
+
+  @GetMapping("/me/profile")
+    public ResponseEntity<MyProfileReponse> myProfile(@LoginUser User loginUser) {
+      return ResponseEntity.ok(myPageService.selectMyProfile(loginUser));
+  }
 }
