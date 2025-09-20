@@ -43,6 +43,14 @@ public class MissionController {
     return ResponseEntity.ok().build();
   }
 
+    // 미션 취소
+    @PatchMapping("/{missionId}/cancel")
+    public ResponseEntity<Void> cancelMission(
+            @LoginUser User loginUser, @PathVariable Long missionId) {
+        missionService.cancelMission(loginUser.getId(), missionId);
+        return ResponseEntity.ok().build();
+    }
+
   // 오늘 통계 조회 (참여 인원, 완료 인원)
   @GetMapping("/{missionId}/stats/today")
   public ResponseEntity<MissionStatsResponse> getTodayStats(@PathVariable Long missionId) {
