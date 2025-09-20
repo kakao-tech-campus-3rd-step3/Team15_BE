@@ -25,7 +25,7 @@ public class MyPageController {
   }
 
   @GetMapping("/me/posts")
-  public ResponseEntity<List<MyPostListReponse>> myPostList(@LoginUser User loginUser) {
+  public ResponseEntity<List<MyPostListResponse>> myPostList(@LoginUser User loginUser) {
     return ResponseEntity.ok(myPageService.selectMyPostList(loginUser));
   }
 
