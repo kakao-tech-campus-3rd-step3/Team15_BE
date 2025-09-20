@@ -37,11 +37,11 @@ public class MyPageService {
   }
 
   @Transactional
-  public List<MyPostListReponse> selectMyPostList(User loginUser) {
+  public List<MyPostListResponse> selectMyPostList(User loginUser) {
     List<Post> posts = loginUser.getPosts();
-    List<MyPostListReponse> myPostListReponseList = new ArrayList<>();
+    List<MyPostListResponse> myPostListReponseList = new ArrayList<>();
     for (Post post : posts) {
-      myPostListReponseList.add(MyPostListReponse.from(post));
+      myPostListReponseList.add(MyPostListResponse.from(post));
     }
     return myPostListReponseList;
   }
