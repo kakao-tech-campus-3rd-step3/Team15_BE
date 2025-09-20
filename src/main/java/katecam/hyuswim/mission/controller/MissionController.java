@@ -49,6 +49,14 @@ public class MissionController {
     return ResponseEntity.ok(missionService.getTodayStats(missionId));
   }
 
+  // 미션 취소
+    @PatchMapping("/{missionId}/cancel")
+    public ResponseEntity<Void> cancelMission(
+            @LoginUser User loginUser, @PathVariable Long missionId) {
+        missionService.cancelMission(loginUser.getId(), missionId);
+        return ResponseEntity.ok().build();
+    }
+
   @GetMapping("/stats")
   public ResponseEntity<UserMissionStats> getUserStats(@LoginUser User loginUser) {
     return ResponseEntity.ok(missionService.getUserStats(loginUser.getId()));
