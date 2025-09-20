@@ -34,7 +34,7 @@ public class MyPageController {
     return ResponseEntity.ok(myPageService.selectMyCommentList(loginUser));
   }
 
-  @GetMapping("/me/liked-posts")
+  @GetMapping("/me/likes")
   public ResponseEntity<List<MyLikedPostResponse>> myLikedPostList(@LoginUser User loginUser) {
     return ResponseEntity.ok(myPageService.selectMyLikedPostList(loginUser));
   }

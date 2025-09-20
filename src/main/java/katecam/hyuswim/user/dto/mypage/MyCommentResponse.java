@@ -20,6 +20,9 @@ public class MyCommentResponse {
   private String postAuthor;
   private String postContent;
   private Boolean isAnonymous;
+  private Long likeCount;
+  private Long commentCount;
+  private Long viewCount;
   private LocalDateTime createdAt;
   private LocalDateTime updatedAt;
 
@@ -33,6 +36,9 @@ public class MyCommentResponse {
         .postAuthor(post.getUser().getNickname())
         .postContent(post.getContent())
         .isAnonymous(entity.getIsAnonymous())
+        .likeCount((long) post.getPostLikes().size())
+        .commentCount((long) post.getComments().size())
+        .viewCount(post.getViewCount())
         .createdAt(entity.getCreatedAt())
         .updatedAt(entity.getUpdatedAt())
         .build();
