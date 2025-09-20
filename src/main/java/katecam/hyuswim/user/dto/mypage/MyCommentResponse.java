@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 
 import katecam.hyuswim.comment.domain.Comment;
 import katecam.hyuswim.post.domain.Post;
+import katecam.hyuswim.post.domain.PostCategory;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -16,8 +17,8 @@ public class MyCommentResponse {
   private Long commentId;
   private String commentContent;
   private Long postId;
+  private PostCategory category;
   private String postTitle;
-  private String postAuthor;
   private String postContent;
   private Boolean isAnonymous;
   private Long likeCount;
@@ -32,8 +33,8 @@ public class MyCommentResponse {
         .commentId(entity.getId())
         .commentContent(entity.getContent())
         .postId(post.getId())
+        .category(post.getPostCategory())
         .postTitle(post.getTitle())
-        .postAuthor(post.getUser().getNickname())
         .postContent(post.getContent())
         .isAnonymous(entity.getIsAnonymous())
         .likeCount((long) post.getPostLikes().size())
