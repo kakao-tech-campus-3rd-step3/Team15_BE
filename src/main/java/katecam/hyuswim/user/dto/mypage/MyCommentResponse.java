@@ -3,6 +3,7 @@ package katecam.hyuswim.user.dto.mypage;
 import java.time.LocalDateTime;
 
 import katecam.hyuswim.comment.domain.Comment;
+import katecam.hyuswim.post.domain.Post;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -12,20 +13,25 @@ import lombok.Getter;
 @Builder
 public class MyCommentResponse {
 
-  private Long id;
+  private Long commentId;
+  private String commentContent;
   private Long postId;
-  private String author;
-  private String content;
+  private String postTitle;
+  private String postAuthor;
+  private String postContent;
   private Boolean isAnonymous;
   private LocalDateTime createdAt;
   private LocalDateTime updatedAt;
 
   public static MyCommentResponse from(Comment entity) {
+      Post post = entity.getPost();
     return MyCommentResponse.builder()
-        .id(entity.getId())
-        .postId(entity.getPost().getId())
-        .author(entity.getUser().getNickname())
-        .content(entity.getContent())
+        .commentId(entity.getId())
+        .commentContent(entity.getContent())
+        .postId(post.getId())
+        .postTitle(post.getTitle())
+        .postAuthor(post.getUser().getNickname())
+        .postContent(post.getContent())
         .isAnonymous(entity.getIsAnonymous())
         .createdAt(entity.getCreatedAt())
         .updatedAt(entity.getUpdatedAt())
