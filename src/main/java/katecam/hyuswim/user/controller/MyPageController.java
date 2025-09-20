@@ -19,7 +19,7 @@ public class MyPageController {
 
   private final MyPageService myPageService;
 
-  @GetMapping("/overview")
+  @GetMapping("/me")
   public ResponseEntity<MyOverviewResponse> myOverview(@LoginUser User loginUser) {
     return ResponseEntity.ok(myPageService.selectMyOverview(loginUser));
   }

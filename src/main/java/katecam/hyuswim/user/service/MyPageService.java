@@ -32,9 +32,8 @@ public class MyPageService {
     int postCount = loginUser.getPosts().size();
     int commentCount = loginUser.getComments().size();
     int likeCount = selectMyLikesCount(userId);
-    int missionCount = loginUser.getMissionProgresses().size();
 
-    return new MyOverviewResponse(postCount, commentCount, likeCount, missionCount);
+    return new MyOverviewResponse(postCount, commentCount, likeCount);
   }
 
   @Transactional
