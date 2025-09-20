@@ -10,7 +10,7 @@ import katecam.hyuswim.mission.dto.MissionStatsResponse;
 import katecam.hyuswim.mission.dto.MissionTodayResponse;
 import katecam.hyuswim.mission.dto.UserMissionStats;
 import katecam.hyuswim.mission.service.MissionService;
-import katecam.hyuswim.user.domain.User;
+import katecam.hyuswim.user.User;
 
 @RestController
 @RequestMapping("/api/missions")
@@ -42,14 +42,6 @@ public class MissionController {
     missionService.completeMission(loginUser.getId(), missionId);
     return ResponseEntity.ok().build();
   }
-
-    // 미션 취소
-    @PatchMapping("/{missionId}/cancel")
-    public ResponseEntity<Void> cancelMission(
-            @LoginUser User loginUser, @PathVariable Long missionId) {
-        missionService.cancelMission(loginUser.getId(), missionId);
-        return ResponseEntity.ok().build();
-    }
 
   // 오늘 통계 조회 (참여 인원, 완료 인원)
   @GetMapping("/{missionId}/stats/today")

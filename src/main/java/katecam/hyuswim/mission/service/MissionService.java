@@ -66,21 +66,6 @@ public class MissionService {
     }
   }
 
-    public void cancelMission(Long userId, Long missionId) {
-        LocalDate today = LocalDate.now();
-        MissionProgress progress =
-                missionProgressRepository
-                        .findFirstByUserIdAndMissionIdAndProgressDate(userId, missionId, today)
-                        .orElseThrow(
-                                () -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "NO_START_RECORD_TODAY"));
-
-        if (progress.getIsCompleted()) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "CANNOT_CANCEL_COMPLETED_MISSION");
-        }
-
-        missionProgressRepository.delete(progress);
-    }
-
   public void completeMission(Long userId, Long missionId) {
     LocalDate today = LocalDate.now();
     MissionProgress progress =
@@ -93,13 +78,7 @@ public class MissionService {
       throw new ResponseStatusException(HttpStatus.CONFLICT, "ALREADY_COMPLETED");
     }
 
-      var user = progress.getUser();
-      var mission = progress.getMission();
-      long pointsToAdd = mission.getPoint() == null ? 0 : mission.getPoint();
-
-      progress.complete(LocalDateTime.now());
-      user.addPoints(pointsToAdd);
-      userRepository.save(user);
+    progress.complete(LocalDateTime.now());
   }
 
   @Transactional(readOnly = true)
