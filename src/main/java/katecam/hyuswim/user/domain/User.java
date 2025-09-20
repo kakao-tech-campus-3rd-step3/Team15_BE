@@ -119,6 +119,12 @@ public class User {
       this.provider =AuthProvider.LOCAL;
     }
 
+    public void addPoints(long points) {
+        if (points > 0) {
+            this.points += points;
+        }
+    }
+
     public static User createKakaoUser(AuthProvider provider, Long providerId) {
         User user = new User();
         user.provider = provider;

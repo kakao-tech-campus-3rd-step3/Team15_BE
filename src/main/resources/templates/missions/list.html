@@ -115,7 +115,8 @@
 
 <div class="space-y">
     <section th:if="${(missions.?[level.name() == 'BEGINNER' and (#vars.activeCat == null or category == #vars.activeCat)]).size() > 0}">
-        <h2>초급 (INTERMEDIATE)</h2>
+        <div class="kicker">초급 (BEGINNER)</div>
+        <h2>초급 (BEGINNER)</h2>
         <div class="grid">
             <div class="card"
                  th:each="m : ${missions.?[level.name() == 'BEGINNER' and (#vars.activeCat == null or category == #vars.activeCat)]}">
