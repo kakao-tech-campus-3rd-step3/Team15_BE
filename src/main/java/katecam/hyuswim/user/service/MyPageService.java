@@ -61,16 +61,7 @@ public class MyPageService {
     List<PostLike> postLikes = postLikeRepository.findByUserId(loginUser.getId());
     List<MyLikedPostResponse> myLikedPostResponseList = new ArrayList<>();
     for (PostLike postLike : postLikes) {
-      Post post = postLike.getPost();
-      myLikedPostResponseList.add(
-          new MyLikedPostResponse(
-              postLike.getId(),
-              post.getId(),
-              post.getTitle(),
-              post.getContent(),
-              post.getPostLikes().size(),
-              post.getViewCount(),
-              post.getCreatedAt()));
+      myLikedPostResponseList.add(MyLikedPostResponse.from(postLike));
     }
     return myLikedPostResponseList;
   }

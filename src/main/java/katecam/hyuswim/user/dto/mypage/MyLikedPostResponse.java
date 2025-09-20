@@ -2,6 +2,10 @@ package katecam.hyuswim.user.dto.mypage;
 
 import java.time.LocalDateTime;
 
+import katecam.hyuswim.comment.domain.Comment;
+import katecam.hyuswim.like.domain.PostLike;
+import katecam.hyuswim.post.domain.Post;
+import katecam.hyuswim.post.domain.PostCategory;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -13,9 +17,27 @@ public class MyLikedPostResponse {
 
   private Long likeId;
   private Long postId;
+  private PostCategory category;
   private String postTitle;
   private String postContent;
-  private int postLikeCount;
-  private Long postViewCount;
-  private LocalDateTime createdAt;
+  private Long likeCount;
+  private Long commentCount;
+  private Long viewCount;
+  private LocalDateTime postCreatedAt;
+
+    public static MyLikedPostResponse from(PostLike entity) {
+        Post post = entity.getPost();
+        return MyLikedPostResponse.builder()
+                .likeId(entity.getId())
+                .postId(post.getId())
+                .category(post.getPostCategory())
+                .postTitle(post.getTitle())
+                .postContent(post.getContent())
+                .likeCount((long) post.getPostLikes().size())
+                .commentCount((long) post.getComments().size())
+                .viewCount(post.getViewCount())
+                .postCreatedAt(post.getCreatedAt())
+                .build();
+    }
+
 }
