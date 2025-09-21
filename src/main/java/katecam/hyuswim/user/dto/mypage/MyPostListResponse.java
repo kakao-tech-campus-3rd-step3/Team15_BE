@@ -12,8 +12,8 @@ import lombok.Getter;
 @AllArgsConstructor
 @Builder
 public class MyPostListResponse {
-  private Long postId;
-  private PostCategory category;
+  private Long id;
+  private PostCategory postCategory;
   private String displayName;
   private String title;
   private String content;
@@ -24,8 +24,8 @@ public class MyPostListResponse {
 
   public static MyPostListResponse from(Post entity) {
     return MyPostListResponse.builder()
-        .postId(entity.getId())
-        .category(entity.getPostCategory())
+        .id(entity.getId())
+        .postCategory(entity.getPostCategory())
         .displayName(entity.getPostCategory().getDisplayName())
         .title(entity.getTitle())
         .content(entity.getContent())

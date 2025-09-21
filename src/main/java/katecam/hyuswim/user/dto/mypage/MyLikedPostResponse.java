@@ -15,9 +15,9 @@ import lombok.Getter;
 @Builder
 public class MyLikedPostResponse {
 
-  private Long likeId;
+  private Long id;
   private Long postId;
-  private PostCategory category;
+  private PostCategory postCategory;
   private String displayName;
   private String postTitle;
   private String postContent;
@@ -29,9 +29,9 @@ public class MyLikedPostResponse {
     public static MyLikedPostResponse from(PostLike entity) {
         Post post = entity.getPost();
         return MyLikedPostResponse.builder()
-                .likeId(entity.getId())
+                .id(entity.getId())
                 .postId(post.getId())
-                .category(post.getPostCategory())
+                .postCategory(post.getPostCategory())
                 .displayName(post.getPostCategory().getDisplayName())
                 .postTitle(post.getTitle())
                 .postContent(post.getContent())
