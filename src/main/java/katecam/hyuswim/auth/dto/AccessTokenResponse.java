@@ -1,5 +1,5 @@
 package katecam.hyuswim.auth.dto;
 
-public record AuthResponseDTO(
+public record AccessTokenResponse(
         String accessToken
-) {}
+){}
