@@ -44,7 +44,7 @@ public class KakaoAuthService {
                         User.createKakaoUser(AuthProvider.KAKAO, userResponse.id())
                 ));
 
-        String jwt = jwtUtil.generateToken(user.getId(), user.getRole());
+        String jwt = jwtUtil.generateAccessToken(user.getId(), user.getRole());
         return new AuthResponseDTO(jwt);
     }
 }

@@ -50,7 +50,7 @@ public class UserService {
             throw new CustomException(ErrorCode.LOGIN_FAILED);
         }
 
-        return jwtUtil.generateToken(user.getId(), user.getRole());
+        return jwtUtil.generateAccessToken(user.getId(), user.getRole());
     }
 
     @Transactional
