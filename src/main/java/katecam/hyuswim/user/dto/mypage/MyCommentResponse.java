@@ -18,6 +18,7 @@ public class MyCommentResponse {
   private String commentContent;
   private Long postId;
   private PostCategory category;
+  private String displayName;
   private String postTitle;
   private String postContent;
   private Boolean isAnonymous;
@@ -33,6 +34,7 @@ public class MyCommentResponse {
         .commentContent(entity.getContent())
         .postId(post.getId())
         .category(post.getPostCategory())
+        .displayName(post.getPostCategory().getDisplayName())
         .postTitle(post.getTitle())
         .postContent(post.getContent())
         .isAnonymous(entity.getIsAnonymous())

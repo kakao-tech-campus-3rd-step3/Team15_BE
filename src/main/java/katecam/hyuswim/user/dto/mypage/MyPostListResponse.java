@@ -14,6 +14,7 @@ import lombok.Getter;
 public class MyPostListResponse {
   private Long postId;
   private PostCategory category;
+  private String displayName;
   private String title;
   private String content;
   private Long likeCount;
@@ -25,6 +26,7 @@ public class MyPostListResponse {
     return MyPostListResponse.builder()
         .postId(entity.getId())
         .category(entity.getPostCategory())
+        .displayName(entity.getPostCategory().getDisplayName())
         .title(entity.getTitle())
         .content(entity.getContent())
         .likeCount((long) entity.getPostLikes().size())
