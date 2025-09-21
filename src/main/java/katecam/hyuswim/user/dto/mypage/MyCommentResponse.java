@@ -14,10 +14,10 @@ import lombok.Getter;
 @Builder
 public class MyCommentResponse {
 
-  private Long commentId;
-  private String commentContent;
+  private Long id;
+  private String content;
   private Long postId;
-  private PostCategory category;
+  private PostCategory postCategory;
   private String displayName;
   private String postTitle;
   private String postContent;
@@ -30,10 +30,10 @@ public class MyCommentResponse {
   public static MyCommentResponse from(Comment entity) {
       Post post = entity.getPost();
     return MyCommentResponse.builder()
-        .commentId(entity.getId())
-        .commentContent(entity.getContent())
+        .id(entity.getId())
+        .content(entity.getContent())
         .postId(post.getId())
-        .category(post.getPostCategory())
+        .postCategory(post.getPostCategory())
         .displayName(post.getPostCategory().getDisplayName())
         .postTitle(post.getTitle())
         .postContent(post.getContent())
