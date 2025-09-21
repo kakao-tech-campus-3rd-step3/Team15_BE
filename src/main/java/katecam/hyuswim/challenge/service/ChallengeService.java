@@ -40,7 +40,7 @@ public class ChallengeService {
             if (!matches(ch, mission, now)) continue;
 
             ChallengeProgress cp = challengeProgressRepository
-                    .findByUserIdAndChallengeId(userId, ch.getId())
+                    .findByUserAndChallenge(user, ch)
                     .orElseGet(() -> ChallengeProgress.startOf(user, ch));
 
             if (cp.isAchieved()) continue;
@@ -62,20 +62,40 @@ public class ChallengeService {
     }
 
     private boolean matches(Challenge ch, Mission mission, LocalDateTime now) {
-        if (ch.getRequiredCategory() != null && mission.getCategory() != ch.getRequiredCategory()) return false;
-        if (ch.getRequiredLevel() != null && mission.getLevel() != ch.getRequiredLevel()) return false;
-        if (ch.getTimeWindowStart() != null && now.isBefore(ch.getTimeWindowStart())) return false;
-        if (ch.getTimeWindowEnd() != null && !now.isBefore(ch.getTimeWindowEnd())) return false;
+        return matchesCategory(ch, mission)
+                && matchesLevel(ch, mission)
+                && matchesTimeWindow(ch, now);
+    }
+
+    private boolean matchesCategory(Challenge ch, Mission mission) {
+        if (ch.getRequiredCategory() == null) { return true; }
+        return mission.getCategory() == ch.getRequiredCategory();
+    }
+
+    private boolean matchesLevel(Challenge ch, Mission mission) {
+        if (ch.getRequiredLevel() == null) { return true; }
+        return mission.getLevel() == ch.getRequiredLevel();
+    }
+
+    private boolean matchesTimeWindow(Challenge ch, LocalDateTime now) {
+        if (ch.getTimeWindowStart() != null && now.isBefore(ch.getTimeWindowStart())) { return false; }
+        if (ch.getTimeWindowEnd() != null && !now.isBefore(ch.getTimeWindowEnd())) { return false; }
         return true;
     }
 
     private long computeCurrentValue(Long userId, Challenge ch) {
         ChallengeRuleType t = ch.getRuleType();
         return switch (t) {
-            case COUNT_BY_LEVEL       -> missionProgressRepository.countCompletedByUserAndLevel(userId, ch.getRequiredLevel());
-            case COUNT_BY_CATEGORY    -> missionProgressRepository.countCompletedByUserAndCategory(userId, ch.getRequiredCategory());
-            case TOTAL_COMPLETED      -> missionProgressRepository.countCompletedByUser(userId);
-            case POINTS_SUM           -> missionProgressRepository.sumCompletedPointsByUser(userId);
+            case COUNT_BY_LEVEL ->
+                    missionProgressRepository.countCompletedByUserAndLevel(userId, ch.getRequiredLevel());
+            case COUNT_BY_CATEGORY ->
+                    missionProgressRepository.countCompletedByUserAndCategory(userId, ch.getRequiredCategory());
+            case TOTAL_COMPLETED ->
+                    missionProgressRepository.countCompletedByUser(userId);
+            case POINTS_SUM -> {
+                Long sum = missionProgressRepository.sumCompletedPointsByUser(userId);
+                yield (sum != null ? sum : 0L);
+            }
         };
     }
 
@@ -87,16 +107,18 @@ public class ChallengeService {
 
     @Transactional(readOnly = true)
     public List<ChallengeProgress> myProgress(Long userId) {
-        return challengeProgressRepository.findByUserId(userId);
+        var user = userRepository.findById(userId).orElseThrow();
+        return challengeProgressRepository.findByUser(user);
     }
 
     public void claimReward(Long userId, Long challengeId) {
-        ChallengeProgress cp = challengeProgressRepository
-                .findByUserIdAndChallengeId(userId, challengeId)
+        var user = userRepository.findById(userId).orElseThrow();
+        var challenge = challengeRepository.findById(challengeId).orElseThrow();
+
+        var cp = challengeProgressRepository.findByUserAndChallenge(user, challenge)
                 .orElseThrow();
 
         if (!cp.isAchieved() || cp.isClaimed()) return;
-
         cp.claim(LocalDateTime.now());
         challengeProgressRepository.save(cp);
     }
