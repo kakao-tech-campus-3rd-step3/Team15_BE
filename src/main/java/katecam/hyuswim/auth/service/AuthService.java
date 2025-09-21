@@ -16,13 +16,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class AuthService {
 
     private final JwtUtil jwtUtil;
-    private final CookieUtil cookieUtil;
     private final BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
     private final RefreshTokenService refreshTokenService;
     private final UserRepository userRepository;
@@ -32,18 +32,26 @@ public class AuthService {
         String email = request.getEmail();
         AuthProvider provider = AuthProvider.LOCAL;
 
-        boolean bannedExists = userRepository.existsByEmailAndProviderAndStatus(
-                email, provider, UserStatus.BANNED
-        );
+        userRepository.findByEmailAndProvider(email, provider)
+                .ifPresent(this::validateReSignup);;
 
-        if (bannedExists) {
+        return registerUser(request, provider);
+    }
+
+    private void validateReSignup(User user) {
+        if (user.getStatus() == UserStatus.BANNED) {
             throw new CustomException(ErrorCode.REJOIN_NOT_ALLOWED);
         }
-
-        String encPassword = bCryptPasswordEncoder.encode(request.getPassword());
-
-        return userRepository.save(new User(email, encPassword, provider));
+        if (!user.getIsDeleted()) {
+            throw new CustomException(ErrorCode.DUPLICATE_EMAIL);
+        }
     }
+
+    private User registerUser(SignupRequest request, AuthProvider provider) {
+        String encPassword = bCryptPasswordEncoder.encode(request.getPassword());
+        return userRepository.save(new User(request.getEmail(), encPassword, provider));
+    }
+
 
     @Transactional
     public LoginTokens login(LoginRequest request) {
