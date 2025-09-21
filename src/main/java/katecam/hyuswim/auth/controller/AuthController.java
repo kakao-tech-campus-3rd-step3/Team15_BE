@@ -4,6 +4,7 @@ import katecam.hyuswim.auth.dto.*;
 import katecam.hyuswim.auth.service.AuthService;
 import katecam.hyuswim.auth.service.RefreshTokenService;
 import katecam.hyuswim.auth.util.CookieUtil;
+import katecam.hyuswim.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -21,9 +22,10 @@ public class AuthController {
     private final RefreshTokenService refreshTokenService;
 
     @PostMapping("/signup")
-    public ResponseEntity<Void> signup(@RequestBody SignupRequest request) {
-        authService.signup(request);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+    public ResponseEntity<SignupResponse> signup(@RequestBody SignupRequest request) {
+        User user = authService.signup(request);
+        SignupResponse response = SignupResponse.from(user);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PostMapping("/login")

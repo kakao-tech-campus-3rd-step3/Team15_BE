@@ -1,9 +1,6 @@
 package katecam.hyuswim.auth.service;
 
-import katecam.hyuswim.auth.dto.AccessTokenResponse;
-import katecam.hyuswim.auth.dto.LoginRequest;
-import katecam.hyuswim.auth.dto.LoginTokens;
-import katecam.hyuswim.auth.dto.SignupRequest;
+import katecam.hyuswim.auth.dto.*;
 import katecam.hyuswim.auth.util.CookieUtil;
 import katecam.hyuswim.auth.util.JwtUtil;
 import katecam.hyuswim.common.error.CustomException;
@@ -31,7 +28,7 @@ public class AuthService {
     private final UserRepository userRepository;
 
     @Transactional
-    public void signup(SignupRequest request) {
+    public User signup(SignupRequest request) {
         String email = request.getEmail();
         AuthProvider provider = AuthProvider.LOCAL;
 
@@ -45,7 +42,7 @@ public class AuthService {
 
         String encPassword = bCryptPasswordEncoder.encode(request.getPassword());
 
-        userRepository.save(new User(email, encPassword, provider));
+        return userRepository.save(new User(email, encPassword, provider));
     }
 
     @Transactional
