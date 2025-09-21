@@ -18,6 +18,7 @@ public class MyLikedPostResponse {
   private Long likeId;
   private Long postId;
   private PostCategory category;
+  private String displayName;
   private String postTitle;
   private String postContent;
   private Long likeCount;
@@ -31,6 +32,7 @@ public class MyLikedPostResponse {
                 .likeId(entity.getId())
                 .postId(post.getId())
                 .category(post.getPostCategory())
+                .displayName(post.getPostCategory().getDisplayName())
                 .postTitle(post.getTitle())
                 .postContent(post.getContent())
                 .likeCount((long) post.getPostLikes().size())
