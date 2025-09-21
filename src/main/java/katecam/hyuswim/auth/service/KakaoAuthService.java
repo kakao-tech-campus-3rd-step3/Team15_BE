@@ -2,9 +2,9 @@ package katecam.hyuswim.auth.service;
 
 import katecam.hyuswim.auth.client.KakaoClient;
 import katecam.hyuswim.auth.config.KakaoProperties;
-import katecam.hyuswim.auth.dto.AuthResponseDTO;
 import katecam.hyuswim.auth.dto.KakaoTokenResponse;
 import katecam.hyuswim.auth.dto.KakaoUserResponse;
+import katecam.hyuswim.auth.dto.LoginTokens;
 import katecam.hyuswim.user.domain.AuthProvider;
 import katecam.hyuswim.user.domain.User;
 import katecam.hyuswim.user.repository.UserRepository;
@@ -15,6 +15,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import katecam.hyuswim.auth.util.JwtUtil;
 
 import java.net.URI;
+import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
@@ -24,6 +25,7 @@ public class KakaoAuthService {
     private final UserRepository userRepository;
     private final KakaoClient kakaoClient;
     private final JwtUtil jwtUtil;
+    private final RefreshTokenService refreshTokenService;
 
     public String generateLoginUrl() {
         return UriComponentsBuilder.newInstance()
@@ -35,8 +37,10 @@ public class KakaoAuthService {
     }
 
     @Transactional
-    public AuthResponseDTO loginWithKakao(String code) {
+    public LoginTokens loginWithKakao(String code) {
+
         KakaoTokenResponse tokenResponse = kakaoClient.getToken(code);
+
         KakaoUserResponse userResponse = kakaoClient.getUser(tokenResponse.access_token());
 
         User user = userRepository.findByProviderAndProviderId(AuthProvider.KAKAO, userResponse.id())
@@ -44,7 +48,11 @@ public class KakaoAuthService {
                         User.createKakaoUser(AuthProvider.KAKAO, userResponse.id())
                 ));
 
-        String jwt = jwtUtil.generateAccessToken(user.getId(), user.getRole());
-        return new AuthResponseDTO(jwt);
+        String accessToken = jwtUtil.generateAccessToken(user.getId(), user.getRole());
+        String refreshToken = jwtUtil.generateRefreshToken(user.getId(), user.getRole());
+
+        refreshTokenService.save(user, refreshToken, LocalDateTime.now().plusDays(7));
+
+        return new LoginTokens(accessToken, refreshToken);
     }
 }
