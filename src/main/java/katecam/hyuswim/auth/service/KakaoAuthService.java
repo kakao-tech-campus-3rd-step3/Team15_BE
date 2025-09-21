@@ -12,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.util.UriComponentsBuilder;
-import katecam.hyuswim.auth.jwt.JwtUtil;
+import katecam.hyuswim.auth.util.JwtUtil;
 
 import java.net.URI;
 
