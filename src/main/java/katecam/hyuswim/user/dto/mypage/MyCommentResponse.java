@@ -25,7 +25,6 @@ public class MyCommentResponse {
   private Long commentCount;
   private Long viewCount;
   private LocalDateTime createdAt;
-  private LocalDateTime updatedAt;
 
   public static MyCommentResponse from(Comment entity) {
       Post post = entity.getPost();
@@ -41,7 +40,6 @@ public class MyCommentResponse {
         .commentCount((long) post.getComments().size())
         .viewCount(post.getViewCount())
         .createdAt(entity.getCreatedAt())
-        .updatedAt(entity.getUpdatedAt())
         .build();
   }
 }
