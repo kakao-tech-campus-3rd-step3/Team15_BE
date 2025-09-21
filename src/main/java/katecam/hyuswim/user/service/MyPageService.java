@@ -32,17 +32,16 @@ public class MyPageService {
     int postCount = loginUser.getPosts().size();
     int commentCount = loginUser.getComments().size();
     int likeCount = selectMyLikesCount(userId);
-    int missionCount = loginUser.getMissionProgresses().size();
 
-    return new MyOverviewResponse(postCount, commentCount, likeCount, missionCount);
+    return new MyOverviewResponse(postCount, commentCount, likeCount);
   }
 
   @Transactional
-  public List<MyPostListReponse> selectMyPostList(User loginUser) {
+  public List<MyPostListResponse> selectMyPostList(User loginUser) {
     List<Post> posts = loginUser.getPosts();
-    List<MyPostListReponse> myPostListReponseList = new ArrayList<>();
+    List<MyPostListResponse> myPostListReponseList = new ArrayList<>();
     for (Post post : posts) {
-      myPostListReponseList.add(MyPostListReponse.from(post));
+      myPostListReponseList.add(MyPostListResponse.from(post));
     }
     return myPostListReponseList;
   }
@@ -62,16 +61,7 @@ public class MyPageService {
     List<PostLike> postLikes = postLikeRepository.findByUserId(loginUser.getId());
     List<MyLikedPostResponse> myLikedPostResponseList = new ArrayList<>();
     for (PostLike postLike : postLikes) {
-      Post post = postLike.getPost();
-      myLikedPostResponseList.add(
-          new MyLikedPostResponse(
-              postLike.getId(),
-              post.getId(),
-              post.getTitle(),
-              post.getContent(),
-              post.getPostLikes().size(),
-              post.getViewCount(),
-              post.getCreatedAt()));
+      myLikedPostResponseList.add(MyLikedPostResponse.from(postLike));
     }
     return myLikedPostResponseList;
   }
