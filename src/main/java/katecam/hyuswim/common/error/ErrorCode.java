@@ -9,6 +9,7 @@ public enum ErrorCode {
     //User
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."),
     REJOIN_NOT_ALLOWED(HttpStatus.FORBIDDEN, "영구 정지된 사용자는 재가입할 수 없습니다."),
+    DUPLICATE_EMAIL(HttpStatus.CONFLICT, "이미 사용 중인 이메일입니다."),
     LOGIN_FAILED(HttpStatus.UNAUTHORIZED, "아이디 또는 비밀번호가 잘못되었습니다"),
     WITHDRAWAL_FAILED(HttpStatus.BAD_REQUEST, "회원탈퇴에 실패했습니다."),
 
