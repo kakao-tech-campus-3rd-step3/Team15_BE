@@ -51,7 +51,7 @@ public class UserService {
         }
         user.updateLastActiveDate();
 
-        return jwtUtil.generateToken(user.getId(), user.getRole());
+        return jwtUtil.generateAccessToken(user.getId(), user.getRole());
     }
 
     @Transactional
