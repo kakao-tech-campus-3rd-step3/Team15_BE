@@ -10,5 +10,4 @@ public class MyOverviewResponse {
   private int postCount;
   private int commentCount;
   private int likesCount;
-  private int MissionsCount;
 }
