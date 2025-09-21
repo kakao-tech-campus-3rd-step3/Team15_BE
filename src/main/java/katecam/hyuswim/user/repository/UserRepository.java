@@ -11,6 +11,7 @@ import katecam.hyuswim.user.domain.User;
 
 public interface UserRepository extends JpaRepository<User, Long> {
 
+    Optional<User> findByEmailAndProvider(String email, AuthProvider provider);
     Optional<User> findByEmailAndProviderAndIsDeletedFalse(String email, AuthProvider provider);
     Optional<User> findByProviderAndProviderId(AuthProvider provider, Long providerId);
     Optional<User> findByRole(UserRole role);
