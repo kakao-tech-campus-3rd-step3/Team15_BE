@@ -10,8 +10,6 @@ import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
-import jakarta.servlet.http.HttpServletRequest;
-import katecam.hyuswim.auth.jwt.JwtUtil;
 import katecam.hyuswim.common.error.CustomException;
 import katecam.hyuswim.common.error.ErrorCode;
 import katecam.hyuswim.user.repository.UserRepository;

@@ -2,6 +2,7 @@ package katecam.hyuswim.auth.jwt;
 
 import java.io.IOException;
 
+import katecam.hyuswim.auth.util.JwtUtil;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;

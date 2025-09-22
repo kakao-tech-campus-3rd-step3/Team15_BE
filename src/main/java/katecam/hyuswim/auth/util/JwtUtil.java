@@ -1,4 +1,4 @@
-package katecam.hyuswim.auth.jwt;
+package katecam.hyuswim.auth.util;
 
 import java.util.Date;
 
@@ -20,23 +20,35 @@ public class JwtUtil {
 
   private JwtParser jwtParser;
 
-  private static final long TOKEN_EXPIRATION_TIME_MS = 60 * 60 * 1000; //1시간
+  private static final long ACCESS_TOKEN_EXPIRATION_TIME_MS = 60 * 60 * 1000; //1시간
+  private static final long REFRESH_TOKEN_EXPIRATION_MS = 7 * 24 * 60 * 60 * 1000;
 
   @PostConstruct
   public void init() {
     jwtParser = Jwts.parser().setSigningKey(secret).build();
   }
 
-  public String generateToken(Long userId, UserRole role) {
+  public String generateAccessToken(Long userId, UserRole role) {
       long now = System.currentTimeMillis();
       return Jwts.builder()
               .setSubject(String.valueOf(userId))
               .claim("role", role.name())
               .setIssuedAt(new Date(now))
-              .setExpiration(new Date(now + TOKEN_EXPIRATION_TIME_MS))
+              .setExpiration(new Date(now + ACCESS_TOKEN_EXPIRATION_TIME_MS))
               .signWith(SignatureAlgorithm.HS256, secret)
               .compact();
   }
+
+    public String generateRefreshToken(Long userId, UserRole role) {
+        long now = System.currentTimeMillis();
+        return Jwts.builder()
+                .setSubject(String.valueOf(userId))
+                .claim("role", role.name())
+                .setIssuedAt(new Date(now))
+                .setExpiration(new Date(now + REFRESH_TOKEN_EXPIRATION_MS))
+                .signWith(SignatureAlgorithm.HS256, secret)
+                .compact();
+    }
 
     public Claims getClaims(String token) {
         try {
