@@ -164,7 +164,10 @@ jobs:
             --openai.api-key=${{ secrets.OPENAI_API_KEY }} \
             --app.frontend-urls=${{ secrets.FRONTEND_URLS }} \
             --kakao.client-id=${{ secrets.KAKAO_CLIENT_ID }} \
-            --kakao.redirect-uri=${{ secrets.KAKAO_REDIRECT_URI }}"
+            --kakao.redirect-uri=${{ secrets.KAKAO_REDIRECT_URI }} \
+            --google.client-id=${{ secrets.GOOGLE_CLIENT_ID }} \
+            --google.client-secret=${{ secrets.GOOGLE_CLIENT_SECRET }} \
+            --google.redirect-uri=${{ secrets.GOOGLE_REDIRECT_URI }}"
 
 
             # 백그라운드 실행
