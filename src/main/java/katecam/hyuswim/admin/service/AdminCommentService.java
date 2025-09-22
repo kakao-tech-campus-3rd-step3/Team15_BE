@@ -3,6 +3,8 @@ package katecam.hyuswim.admin.service;
 import katecam.hyuswim.admin.dto.AdminCommentResponse;
 import katecam.hyuswim.comment.domain.Comment;
 import katecam.hyuswim.comment.repository.CommentRepository;
+import katecam.hyuswim.common.error.CustomException;
+import katecam.hyuswim.common.error.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -22,7 +24,7 @@ public class AdminCommentService {
 
     public void hideComment(Long id) {
         Comment comment = commentRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("해당 댓글이 존재하지 않습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
         comment.delete();
         commentRepository.save(comment);
     }
