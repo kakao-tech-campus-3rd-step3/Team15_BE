@@ -41,6 +41,10 @@ public class UserAuth {
         this.email = email;
         this.password = password;
     }
+    public UserAuth(User user, AuthProvider provider) {
+        this.user = user;
+        this.provider = provider;
+    }
 
     public static UserAuth createLocal(User user, SignupRequest request, String encodedPassword) {
         return new UserAuth(user, AuthProvider.LOCAL, null, request.getEmail(), encodedPassword);
