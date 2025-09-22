@@ -19,6 +19,10 @@ public class UserBlockHistory {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private UserStatus status;
+
     private LocalDateTime blockedUntil;
 
     private String reason;
@@ -26,8 +30,9 @@ public class UserBlockHistory {
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
-    public UserBlockHistory(User user, LocalDateTime blockedUntil, String reason) {
+    public UserBlockHistory(User user, UserStatus status, LocalDateTime blockedUntil, String reason) {
         this.user = user;
+        this.status = status;
         this.blockedUntil = blockedUntil;
         this.reason = reason;
     }
