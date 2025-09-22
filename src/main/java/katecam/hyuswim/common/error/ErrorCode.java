@@ -9,11 +9,17 @@ public enum ErrorCode {
     //User
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."),
     REJOIN_NOT_ALLOWED(HttpStatus.FORBIDDEN, "영구 정지된 사용자는 재가입할 수 없습니다."),
+    DUPLICATE_EMAIL(HttpStatus.CONFLICT, "이미 사용 중인 이메일입니다."),
     LOGIN_FAILED(HttpStatus.UNAUTHORIZED, "아이디 또는 비밀번호가 잘못되었습니다"),
     WITHDRAWAL_FAILED(HttpStatus.BAD_REQUEST, "회원탈퇴에 실패했습니다."),
 
     //Auth
+    GOOGLE_TOKEN_REQUEST_FAILED(HttpStatus.BAD_REQUEST, "구글 토큰 요청에 실패했습니다."),
+    GOOGLE_ID_TOKEN_INVALID(HttpStatus.UNAUTHORIZED, "구글 ID 토큰이 유효하지 않습니다."),
     INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "유효하지 않은 토큰입니다."),
+    INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "유효하지 않은 리프레시 토큰입니다."),
+    EXPIRED_TOKEN(HttpStatus.UNAUTHORIZED, "만료된 토큰입니다."),
+    EXPIRED_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "만료된 리프레시 토큰입니다."),
 
     //Post
     POST_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 게시글입니다."),

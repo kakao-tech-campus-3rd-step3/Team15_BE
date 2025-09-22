@@ -4,7 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import katecam.hyuswim.auth.domain.UserAuth;
+import katecam.hyuswim.auth.repository.UserAuthRepository;
 import katecam.hyuswim.mission.progress.MissionProgress;
+import katecam.hyuswim.user.domain.AuthProvider;
 import katecam.hyuswim.user.dto.mypage.*;
 import katecam.hyuswim.user.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +28,7 @@ public class MyPageService {
 
   private final PostLikeRepository postLikeRepository;
   private final UserRepository userRepository;
+  private final UserAuthRepository userAuthRepository;
 
   @Transactional
   public MyOverviewResponse selectMyOverview(User loginUser) {
@@ -32,17 +36,16 @@ public class MyPageService {
     int postCount = loginUser.getPosts().size();
     int commentCount = loginUser.getComments().size();
     int likeCount = selectMyLikesCount(userId);
-    int missionCount = loginUser.getMissionProgresses().size();
 
-    return new MyOverviewResponse(postCount, commentCount, likeCount, missionCount);
+    return new MyOverviewResponse(postCount, commentCount, likeCount);
   }
 
   @Transactional
-  public List<MyPostListReponse> selectMyPostList(User loginUser) {
+  public List<MyPostListResponse> selectMyPostList(User loginUser) {
     List<Post> posts = loginUser.getPosts();
-    List<MyPostListReponse> myPostListReponseList = new ArrayList<>();
+    List<MyPostListResponse> myPostListReponseList = new ArrayList<>();
     for (Post post : posts) {
-      myPostListReponseList.add(MyPostListReponse.from(post));
+      myPostListReponseList.add(MyPostListResponse.from(post));
     }
     return myPostListReponseList;
   }
@@ -62,16 +65,7 @@ public class MyPageService {
     List<PostLike> postLikes = postLikeRepository.findByUserId(loginUser.getId());
     List<MyLikedPostResponse> myLikedPostResponseList = new ArrayList<>();
     for (PostLike postLike : postLikes) {
-      Post post = postLike.getPost();
-      myLikedPostResponseList.add(
-          new MyLikedPostResponse(
-              postLike.getId(),
-              post.getId(),
-              post.getTitle(),
-              post.getContent(),
-              post.getPostLikes().size(),
-              post.getViewCount(),
-              post.getCreatedAt()));
+      myLikedPostResponseList.add(MyLikedPostResponse.from(postLike));
     }
     return myLikedPostResponseList;
   }
@@ -103,19 +97,31 @@ public class MyPageService {
       List<MissionProgress> missionProgresses = loginUser.getMissionProgresses();
 
       MyProfileReponse.UserInfo userInfo = selectUserInfo(loginUser);
-
       MyProfileReponse.UserStats userStats = selectUserStats(posts,comments, missionProgresses);
       List<MyProfileReponse.BadgeInfo> badgeInfos = selectBadgeInfo(loginUser);
       List<MyProfileReponse.PostSummary> postSummaries = buildRecentPosts(posts);
       List<MyProfileReponse.CommentInfo> commentInfos = buildRecentComments(comments);
       List<MyProfileReponse.LikedPostInfo> likedPostInfos = buildRecentLikedPosts(loginUser);
+
+      UserAuth localAuth = userAuthRepository.findByUserAndProvider(loginUser, AuthProvider.LOCAL)
+              .orElse(null);
+
       MyProfileReponse.AccountInfo accountInfo = MyProfileReponse.AccountInfo.builder()
-              .email(loginUser.getEmail())
-              .passwordLastChanged(loginUser.getPasswordLastChanged())
+              .email(localAuth != null ? localAuth.getEmail() : null)
+              .passwordLastChanged(localAuth != null ? localAuth.getPasswordLastChanged() : null)
               .newCommentNotification(loginUser.getCommentNotificationEnabled())
               .likeNoticeNotification(loginUser.getLikeNotificationEnabled())
               .build();
-    return new MyProfileReponse(userInfo, userStats, badgeInfos, postSummaries, commentInfos, likedPostInfos, accountInfo);
+
+      return new MyProfileReponse(
+              userInfo,
+              userStats,
+              badgeInfos,
+              postSummaries,
+              commentInfos,
+              likedPostInfos,
+              accountInfo
+      );
 
 
   }
