@@ -55,4 +55,8 @@ public class UserAuth {
     public static UserAuth createKakao(User user, String kakaoId) {
         return new UserAuth(user, AuthProvider.KAKAO, kakaoId, null, null);
     }
+
+    public static UserAuth createGoogle(User user, String googleId) {
+        return new UserAuth(user, AuthProvider.GOOGLE, googleId, null, null);
+    }
 }
