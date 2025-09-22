@@ -25,26 +25,12 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
-    private AuthProvider provider;
-
-    private Long providerId;
-
-    private String email;
-
-    private String password;
+    private String nickname;
 
     @Column(nullable = false, unique = true)
     private String handle;
 
-    private String nickname;
-
     private String introduction;
-
-    private int score;
-
-    private int level;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
@@ -70,6 +56,9 @@ public class User {
     @Column(nullable = false)
     private long points = 0;
 
+    private int score;
+    private int level;
+
     @OneToMany(mappedBy = "user")
     private List<Badge> badges;
 
@@ -86,12 +75,6 @@ public class User {
     @CreatedDate
     private LocalDateTime lastActiveDate;
 
-    @Column(name = "password_last_changed")
-    @CreatedDate
-    private LocalDateTime passwordLastChanged;
-
-
-
     @CreatedDate
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
@@ -100,39 +83,15 @@ public class User {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-  public User(String email, String password, AuthProvider provider) {
-    this.email = email;
-    this.password = password;
-    this.nickname = "새싹이";
-    this.role = UserRole.USER;
-    this.handle = "@"+generateHandle();
-    this.provider =provider;
-  }
-
-  public User(String email, String nickname, String introduction, UserRole role) {
-      this.email = email;
-      this.password = "N/A";
-      this.nickname = nickname;
-      this.role = role;
-      this.handle = "@ai-" +generateHandle();
-      this.introduction = introduction;
-      this.provider =AuthProvider.LOCAL;
+    public static User createDefault() {
+        return new User("새싹이", null, UserRole.USER);
     }
 
-    public void addPoints(long points) {
-        if (points > 0) {
-            this.points += points;
-        }
-    }
-
-    public static User createKakaoUser(AuthProvider provider, Long providerId) {
-        User user = new User();
-        user.provider = provider;
-        user.providerId = providerId;
-        user.nickname = "새싹이";
-        user.handle = "@"+generateHandle();
-        user.role = UserRole.USER;
-        return user;
+    public User(String nickname, String introduction, UserRole role) {
+        this.nickname = nickname;
+        this.introduction = introduction;
+        this.role = role;
+        this.handle = "@" + generateHandle();
     }
 
     public void blockUntil(LocalDateTime until, String reason) {
@@ -184,6 +143,12 @@ public class User {
             sb.append(CHARACTERS.charAt(randomIndex));
         }
         return sb.toString();
+    }
+  
+    public void addPoints(long points) {
+        if (points > 0) {
+            this.points += points;
+        }
     }
 
     public void updateLastActiveDate() {
