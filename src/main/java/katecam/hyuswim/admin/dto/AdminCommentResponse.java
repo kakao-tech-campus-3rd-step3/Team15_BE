@@ -6,7 +6,6 @@ import java.time.LocalDateTime;
 public record AdminCommentResponse(
         Long id,
         String content,
-        String writerEmail,
         boolean deleted,
         LocalDateTime createdAt
 ) {
@@ -14,7 +13,6 @@ public record AdminCommentResponse(
         return new AdminCommentResponse(
                 comment.getId(),
                 comment.getContent(),
-                comment.getUser().getEmail(),
                 comment.getIsDeleted(),
                 comment.getCreatedAt()
         );
