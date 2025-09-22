@@ -74,6 +74,8 @@ public class AuthService {
 
         refreshTokenService.save(user, refreshToken, LocalDateTime.now().plusDays(7));
 
+        user.updateLastActiveDate();
+
         return new LoginTokens(accessToken, refreshToken);
     }
 }
