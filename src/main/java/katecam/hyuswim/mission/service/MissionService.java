@@ -78,8 +78,29 @@ public class MissionService {
       throw new ResponseStatusException(HttpStatus.CONFLICT, "ALREADY_COMPLETED");
     }
 
-    progress.complete(LocalDateTime.now());
+      var user = progress.getUser();
+      var mission = progress.getMission();
+      long pointsToAdd = mission.getPoint() == null ? 0 : mission.getPoint();
+
+      progress.complete(LocalDateTime.now());
+      user.addPoints(pointsToAdd);
+      userRepository.save(user);
   }
+
+    public void cancelMission(Long userId, Long missionId) {
+        LocalDate today = LocalDate.now();
+        MissionProgress progress =
+                missionProgressRepository
+                        .findFirstByUserIdAndMissionIdAndProgressDate(userId, missionId, today)
+                        .orElseThrow(
+                                () -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "NO_START_RECORD_TODAY"));
+
+        if (progress.getIsCompleted()) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "CANNOT_CANCEL_COMPLETED_MISSION");
+        }
+
+        missionProgressRepository.delete(progress);
+    }
 
   @Transactional(readOnly = true)
   public MissionStatsResponse getTodayStats(Long missionId) {
