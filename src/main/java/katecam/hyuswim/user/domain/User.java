@@ -83,16 +83,16 @@ public class User {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    public static User createDefault() {
+        return new User("새싹이", null, UserRole.USER);
+    }
+
     public User(String nickname, String introduction, UserRole role) {
         this.nickname = nickname;
         this.introduction = introduction;
         this.role = role;
         this.handle = "@" + generateHandle();
     }
-
-  public static User createDefault() {
-      return new User("새싹이", null, UserRole.USER);
-  }
 
     public void blockUntil(LocalDateTime until, String reason) {
         this.status = UserStatus.BLOCKED;
