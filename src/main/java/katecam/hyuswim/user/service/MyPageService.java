@@ -4,7 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import katecam.hyuswim.auth.domain.UserAuth;
+import katecam.hyuswim.auth.repository.UserAuthRepository;
 import katecam.hyuswim.mission.progress.MissionProgress;
+import katecam.hyuswim.user.domain.AuthProvider;
 import katecam.hyuswim.user.dto.mypage.*;
 import katecam.hyuswim.user.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +28,7 @@ public class MyPageService {
 
   private final PostLikeRepository postLikeRepository;
   private final UserRepository userRepository;
+  private final UserAuthRepository userAuthRepository;
 
   @Transactional
   public MyOverviewResponse selectMyOverview(User loginUser) {
@@ -93,19 +97,31 @@ public class MyPageService {
       List<MissionProgress> missionProgresses = loginUser.getMissionProgresses();
 
       MyProfileReponse.UserInfo userInfo = selectUserInfo(loginUser);
-
       MyProfileReponse.UserStats userStats = selectUserStats(posts,comments, missionProgresses);
       List<MyProfileReponse.BadgeInfo> badgeInfos = selectBadgeInfo(loginUser);
       List<MyProfileReponse.PostSummary> postSummaries = buildRecentPosts(posts);
       List<MyProfileReponse.CommentInfo> commentInfos = buildRecentComments(comments);
       List<MyProfileReponse.LikedPostInfo> likedPostInfos = buildRecentLikedPosts(loginUser);
+
+      UserAuth localAuth = userAuthRepository.findByUserAndProvider(loginUser, AuthProvider.LOCAL)
+              .orElse(null);
+
       MyProfileReponse.AccountInfo accountInfo = MyProfileReponse.AccountInfo.builder()
-              .email(loginUser.getEmail())
-              .passwordLastChanged(loginUser.getPasswordLastChanged())
+              .email(localAuth != null ? localAuth.getEmail() : null)
+              .passwordLastChanged(localAuth != null ? localAuth.getPasswordLastChanged() : null)
               .newCommentNotification(loginUser.getCommentNotificationEnabled())
               .likeNoticeNotification(loginUser.getLikeNotificationEnabled())
               .build();
-    return new MyProfileReponse(userInfo, userStats, badgeInfos, postSummaries, commentInfos, likedPostInfos, accountInfo);
+
+      return new MyProfileReponse(
+              userInfo,
+              userStats,
+              badgeInfos,
+              postSummaries,
+              commentInfos,
+              likedPostInfos,
+              accountInfo
+      );
 
 
   }
