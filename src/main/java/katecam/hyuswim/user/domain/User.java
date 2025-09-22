@@ -144,6 +144,12 @@ public class User {
         }
         return sb.toString();
     }
+  
+    public void addPoints(long points) {
+        if (points > 0) {
+            this.points += points;
+        }
+    }
 
     public void updateLastActiveDate() {
         this.lastActiveDate = LocalDateTime.now();

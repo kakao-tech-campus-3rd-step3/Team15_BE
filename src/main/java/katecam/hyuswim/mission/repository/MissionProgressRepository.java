@@ -32,4 +32,26 @@ public interface MissionProgressRepository extends JpaRepository<MissionProgress
   Long sumCompletedPointsByUser(@Param("userId") Long userId);
 
   long countByUserIdAndProgressDateAndIsCompletedFalse(Long userId, LocalDate date);
+
+    @Query("""
+  select count(mp) from MissionProgress mp
+  where mp.user.id = :userId and mp.isCompleted = true
+    and mp.mission.level = :level
+""")
+    long countCompletedByUserAndLevel(@Param("userId") Long userId,
+                                      @Param("level") katecam.hyuswim.mission.MissionLevel level);
+
+    @Query("""
+  select count(mp) from MissionProgress mp
+  where mp.user.id = :userId and mp.isCompleted = true
+    and mp.mission.category = :category
+""")
+    long countCompletedByUserAndCategory(@Param("userId") Long userId,
+                                         @Param("category") katecam.hyuswim.mission.MissionCategory category);
+
+    @Query("""
+  select count(mp) from MissionProgress mp
+  where mp.user.id = :userId and mp.isCompleted = true
+""")
+    long countCompletedByUser(@Param("userId") Long userId);
 }
