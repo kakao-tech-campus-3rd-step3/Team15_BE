@@ -2,5 +2,15 @@ spring:
   profiles:
     active: local
 
-jwt:
-  secret: ${JWT_SECRET}
+openai:
+  api-key: ${OPENAI_API_KEY}
+
+app:
+  frontend-urls: ${FRONTEND_URL}
+
+kakao:
+  client-id: ${KAKAO_CLIENT_ID}
+  redirect-uri: ${KAKAO_REDIRECT_URI}
+  authorize-uri: https://kauth.kakao.com/oauth/authorize
+  token-uri: https://kauth.kakao.com/oauth/token
+  user-info-uri: https://kapi.kakao.com/v2/user/me

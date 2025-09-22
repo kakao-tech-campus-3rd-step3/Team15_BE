@@ -1,5 +1,10 @@
 package katecam.hyuswim.comment.service;
 
+import katecam.hyuswim.ai.client.OpenAiClient;
+import katecam.hyuswim.ai.service.AiUserService;
+import katecam.hyuswim.comment.domain.AuthorTag;
+import katecam.hyuswim.comment.domain.AuthorTagResolver;
+import katecam.hyuswim.comment.dto.CommentTreeResponse;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -14,8 +19,10 @@ import katecam.hyuswim.common.error.ErrorCode;
 import katecam.hyuswim.post.domain.Post;
 import katecam.hyuswim.post.dto.PageResponse;
 import katecam.hyuswim.post.repository.PostRepository;
-import katecam.hyuswim.user.User;
+import katecam.hyuswim.user.domain.User;
 import lombok.RequiredArgsConstructor;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -23,18 +30,23 @@ public class CommentService {
 
   private final CommentRepository commentRepository;
   private final PostRepository postRepository;
+  private final AuthorTagResolver authorTagResolver;
+  private final OpenAiClient openAiClient;
+  private final AiUserService aiUserService;
 
   @Transactional
-  public CommentDetailResponse createComment(CommentRequest request, User user, Long postId) {
+  public CommentDetailResponse createComment(User user, Long postId, CommentRequest request) {
     Post post =
         postRepository
             .findById(postId)
             .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
+    AuthorTag authorTag = authorTagResolver.resolve(user,post);
 
     Comment comment =
         Comment.builder()
             .user(user)
             .post(post)
+            .authorTag(authorTag)
             .content(request.getContent())
             .isAnonymous(request.getIsAnonymous())
             .build();
@@ -44,9 +56,75 @@ public class CommentService {
     return CommentDetailResponse.from(saved);
   }
 
-  public PageResponse<CommentListResponse> getComments(Pageable pageable) {
+  @Transactional
+  public void createAiComment(Post post){
+
+      String aiReply = openAiClient.generateReply(
+              post.getTitle(),
+              post.getContent()
+      );
+
+      User aiUser = aiUserService.getAiUser();
+
+      AuthorTag authorTag = authorTagResolver.resolve(aiUser,post);
+
+      Comment aiComment =
+              Comment.builder()
+                      .user(aiUser)
+                      .post(post)
+                      .authorTag(authorTag)
+                      .content(aiReply)
+                      .isAnonymous(false)
+                      .build();
+
+      commentRepository.save(aiComment);
+
+      CommentDetailResponse.from(aiComment);
+  }
+
+
+  @Transactional
+  public CommentTreeResponse createReplyComment(User user, Long parentId, CommentRequest request){
+
+      Comment parent = commentRepository.findById(parentId)
+              .orElseThrow(()-> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
+
+      Post post = parent.getPost();
+      if (post.getIsDeleted()) {
+          throw new CustomException(ErrorCode.POST_DELETED);
+      }
+
+      AuthorTag authorTag = authorTagResolver.resolve(user,post);
+
+      Comment reply = Comment.builder()
+              .user(user)
+              .post(post)
+              .authorTag(authorTag)
+              .content(request.getContent())
+              .isAnonymous(request.getIsAnonymous())
+              .build();
+
+      reply.assignParent(parent);
+
+      commentRepository.save(reply);
+
+      return CommentTreeResponse.from(reply);
+  }
+
+  public PageResponse<CommentListResponse> getComments(Long postId, Pageable pageable) {
     return new PageResponse<>(
-        commentRepository.findAllByIsDeletedFalse(pageable).map(CommentListResponse::from));
+        commentRepository.findByPostIdAndParentIsNull(postId,pageable).map(comment -> CommentListResponse.from(
+                comment,
+                commentRepository.existsByParentIdAndIsDeletedFalse(comment.getId())
+        ))
+    );
+  }
+
+  public List<CommentTreeResponse> getReplies(Long parentId){
+      List<Comment> children = commentRepository.findByParentIdAndIsDeletedFalse(parentId);
+      return children.stream()
+              .map(CommentTreeResponse::from)
+              .toList();
   }
 
   public CommentDetailResponse getComment(Long id) {

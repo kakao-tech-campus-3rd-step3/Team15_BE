@@ -1,10 +1,12 @@
 package katecam.hyuswim.post.controller;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,7 +15,7 @@ import katecam.hyuswim.auth.login.LoginUser;
 import katecam.hyuswim.post.domain.PostCategory;
 import katecam.hyuswim.post.dto.*;
 import katecam.hyuswim.post.service.PostService;
-import katecam.hyuswim.user.User;
+import katecam.hyuswim.user.domain.User;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -45,9 +47,15 @@ public class PostController {
 
   @GetMapping("/search")
   public ResponseEntity<PageResponse<PostListResponse>> searchPosts(
-      PostSearchRequest request,
+      @RequestParam(required = false) String keyword,
+      @RequestParam(required = false) PostCategory category,
+      @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+          LocalDate startDate,
+      @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+          LocalDate endDate,
       @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC, size = 10)
           Pageable pageable) {
+    PostSearchRequest request = new PostSearchRequest(keyword, category, startDate, endDate);
     return ResponseEntity.ok(postService.searchPosts(request, pageable));
   }
 

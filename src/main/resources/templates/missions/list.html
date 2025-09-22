@@ -4,30 +4,125 @@
     <meta charset="UTF-8"/>
     <title>오늘의 미션</title>
     <style>
-        body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; margin: 24px; }
+        :root{
+            --green:#16a34a;
+            --green-weak:#eaf9f0;
+            --ink:#111;
+            --muted:#6b7280;
+            --border:#e5e7eb;
+        }
+        body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; margin: 24px; color: var(--ink); }
         .grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
-        .card { border: 1px solid #e5e7eb; border-radius: 12px; padding: 14px; box-shadow: 0 1px 3px rgba(0,0,0,.05); }
-        .muted { opacity: .7; font-size: 12px; }
+        .cards-3 { display:grid; gap:12px; grid-template-columns: repeat(3, minmax(0,1fr)); }
+        .card { border: 1px solid var(--border); border-radius: 14px; padding: 14px; box-shadow: 0 1px 3px rgba(0,0,0,.04); background:#fff; }
+        .stat { background: var(--green-weak); border-color: #c8efd7; }
+        .muted { opacity: .8; font-size: 12px; color: var(--muted); }
         .row { display:flex; align-items:center; justify-content:space-between; gap:8px; }
-        .btn { padding: 8px 10px; border-radius: 10px; border:1px solid #111; background:#111; color:#fff; cursor:pointer; }
-        .btn.outline { background:#fff; color:#111; }
+        .btn { padding: 8px 10px; border-radius: 10px; border:1px solid var(--ink); background:var(--ink); color:#fff; cursor:pointer; }
+        .btn.outline { background:#fff; color:var(--ink); }
         .btn[disabled] { opacity:.5; cursor:not-allowed; }
+        h1 { margin: 8px 0 4px; font-size: 28px; color: var(--green); text-align: center; }
         h2 { margin: 18px 0 10px; }
         .kicker { font-weight:700; font-size: 13px; letter-spacing: .02em; text-transform: uppercase; }
         .space-y > * + * { margin-top: 1rem; }
+        nav a { text-decoration: none; }
+        .btn.active { border-color:var(--ink); background:var(--ink); color:#fff; }
+        .hero-sub { text-align:center; margin-bottom: 18px; }
+        .stat-num { font-weight:800; font-size: 28px; color: var(--green); }
+        .stat-label { font-size: 12px; color: var(--muted); margin-top: 4px; }
     </style>
 </head>
 <body>
 
-<h1>오늘의 미션</h1>
-<p class="muted">레벨별로 오늘 수행 가능한 미션을 확인하고 시작/완료하세요.</p>
+<h1>미션</h1>
+<div class="hero-sub muted">작은 실천으로 큰 변화를 만들어보세요</div>
+
+<!-- 상단 통계 카드 3개 -->
+<section class="cards-3" style="margin-bottom: 16px;">
+    <div class="card stat" style="text-align:center;">
+        <div class="stat-num" th:text="${completedCount}">0</div>
+        <div class="stat-label">완료한 미션</div>
+    </div>
+    <div class="card stat" style="text-align:center;">
+        <div class="stat-num" th:text="${inProgressCount}">0</div>
+        <div class="stat-label">진행 중</div>
+    </div>
+    <div class="card stat" style="text-align:center;">
+        <div class="stat-num" th:text="${earnedPoints}">0</div>
+        <div class="stat-label">획득 포인트</div>
+    </div>
+</section>
+
+<!-- 오늘의 추천 미션 -->
+<section th:if="${recos != null and !recos.isEmpty()}">
+    <div class="kicker">오늘의 추천 미션</div>
+    <div class="grid">
+        <div class="card" th:each="m : ${recos}">
+            <div class="row">
+                <div><strong th:text="${m.title}">제목</strong></div>
+                <div class="muted" th:text="${m.category + ' · ' + m.level}">카테고리·레벨</div>
+            </div>
+
+            <div th:text="${m.content}">설명</div>
+            <div class="muted">포인트: <span th:text="${m.point != null ? m.point : 0}">0</span></div>
+            <div class="muted">
+                오늘 참여 <span th:text="${m.todayStartedCount}">0</span> ·
+                완료 <span th:text="${m.todayCompletedCount}">0</span>
+            </div>
+
+            <div style="margin-top:8px;">
+                <form th:if="${m.state.name() == 'NOT_STARTED'}"
+                      th:action="@{|/missions/${m.id}/start|}" method="post" style="display:inline;">
+                    <div th:if="${_csrf != null}">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                    </div>
+                    <button class="btn outline" th:disabled="${hasPickedToday}" type="submit">시작</button>
+                </form>
+
+                <form th:if="${m.state.name() == 'IN_PROGRESS'}"
+                      th:action="@{|/missions/${m.id}/complete|}" method="post" style="display:inline;">
+                    <div th:if="${_csrf != null}">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                    </div>
+                    <button class="btn" type="submit">완료 가능 → 완료하기</button>
+                </form>
+
+                <button th:if="${m.state.name() == 'COMPLETED'}" class="btn outline" disabled>완료됨</button>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 카테고리 메뉴 -->
+<nav style="margin:16px 0;"
+     th:with="
+       ROUTINE=${T(katecam.hyuswim.mission.MissionCategory).ROUTINE},
+       ACTIVITY=${T(katecam.hyuswim.mission.MissionCategory).ACTIVITY},
+       COMM=${T(katecam.hyuswim.mission.MissionCategory).COMMUNICATION},
+       ETC=${T(katecam.hyuswim.mission.MissionCategory).ETC}">
+    <a class="btn outline" th:href="@{/missions}"
+       th:classappend="${activeCat == null} ? ' active' : ''">전체</a>
+
+    <a class="btn outline" th:href="@{/missions(cat=${ROUTINE})}"
+       th:classappend="${activeCat == ROUTINE} ? ' active' : ''" style="margin-left:6px;">마음챙김</a>
+
+    <a class="btn outline" th:href="@{/missions(cat=${ACTIVITY})}"
+       th:classappend="${activeCat == ACTIVITY} ? ' active' : ''" style="margin-left:6px;">운동</a>
+
+    <a class="btn outline" th:href="@{/missions(cat=${COMM})}"
+       th:classappend="${activeCat == COMM} ? ' active' : ''" style="margin-left:6px;">소통</a>
+
+    <a class="btn outline" th:href="@{/missions(cat=${ETC})}"
+       th:classappend="${activeCat == ETC} ? ' active' : ''" style="margin-left:6px;">취미</a>
+</nav>
 
 <div class="space-y">
-    <!-- 초급 -->
-    <section th:if="${(missions.?[level.name() == 'BEGINNER']).size() > 0}">
+    <!-- BEGINNER -->
+    <section th:if="${(missions.?[level.name() == 'BEGINNER' and (#vars.activeCat == null or category == #vars.activeCat)]).size() > 0}">
         <div class="kicker">초급 (BEGINNER)</div>
         <div class="grid">
-            <div class="card" th:each="m : ${missions.?[level.name() == 'BEGINNER']}">
+            <div class="card"
+                 th:each="m : ${missions.?[level.name() == 'BEGINNER' and (#vars.activeCat == null or category == #vars.activeCat)]}">
                 <div class="row">
                     <div><strong th:text="${m.title}">제목</strong></div>
                     <div class="muted" th:text="${m.category + ' · ' + m.level}">카테고리·레벨</div>
@@ -41,7 +136,6 @@
                 </div>
 
                 <div style="margin-top:8px;">
-                    <!-- 상태별 버튼 -->
                     <form th:if="${m.state.name() == 'NOT_STARTED'}"
                           th:action="@{|/missions/${m.id}/start|}" method="post" style="display:inline;">
                         <div th:if="${_csrf != null}">
@@ -64,80 +158,58 @@
         </div>
     </section>
 
-    <!-- 중급 -->
-    <section th:if="${(missions.?[level.name() == 'INTERMEDIATE']).size() > 0}">
+    <!-- INTERMEDIATE -->
+    <section th:if="${(missions.?[level.name() == 'INTERMEDIATE' and (#vars.activeCat == null or category == #vars.activeCat)]).size() > 0}">
         <h2>중급 (INTERMEDIATE)</h2>
         <div class="grid">
-            <div class="card" th:each="m : ${missions.?[level.name() == 'INTERMEDIATE']}">
+            <div class="card"
+                 th:each="m : ${missions.?[level.name() == 'INTERMEDIATE' and (#vars.activeCat == null or category == #vars.activeCat)]}">
+                <!-- 동일 카드 내용 -->
                 <div class="row">
                     <div><strong th:text="${m.title}">제목</strong></div>
                     <div class="muted" th:text="${m.category + ' · ' + m.level}">카테고리·레벨</div>
                 </div>
-
                 <div th:text="${m.content}">설명</div>
                 <div class="muted">포인트: <span th:text="${m.point != null ? m.point : 0}">0</span></div>
-                <div class="muted">
-                    오늘 참여 <span th:text="${m.todayStartedCount}">0</span> ·
-                    완료 <span th:text="${m.todayCompletedCount}">0</span>
-                </div>
-
+                <div class="muted">오늘 참여 <span th:text="${m.todayStartedCount}">0</span> · 완료 <span th:text="${m.todayCompletedCount}">0</span></div>
                 <div style="margin-top:8px;">
-                    <form th:if="${m.state.name() == 'NOT_STARTED'}"
-                          th:action="@{|/missions/${m.id}/start|}" method="post" style="display:inline;">
-                        <div th:if="${_csrf != null}">
-                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-                        </div>
+                    <form th:if="${m.state.name() == 'NOT_STARTED'}" th:action="@{|/missions/${m.id}/start|}" method="post" style="display:inline;">
+                        <div th:if="${_csrf != null}"><input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" /></div>
                         <button class="btn outline" th:disabled="${hasPickedToday}" type="submit">시작</button>
                     </form>
-
-                    <form th:if="${m.state.name() == 'IN_PROGRESS'}"
-                          th:action="@{|/missions/${m.id}/complete|}" method="post" style="display:inline;">
-                        <div th:if="${_csrf != null}">
-                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-                        </div>
+                    <form th:if="${m.state.name() == 'IN_PROGRESS'}" th:action="@{|/missions/${m.id}/complete|}" method="post" style="display:inline;">
+                        <div th:if="${_csrf != null}"><input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" /></div>
                         <button class="btn" type="submit">완료 가능 → 완료하기</button>
                     </form>
-
                     <button th:if="${m.state.name() == 'COMPLETED'}" class="btn outline" disabled>완료됨</button>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- 고급 -->
-    <section th:if="${(missions.?[level.name() == 'ADVANCED']).size() > 0}">
+    <!-- ADVANCED -->
+    <section th:if="${(missions.?[level.name() == 'ADVANCED' and (#vars.activeCat == null or category == #vars.activeCat)]).size() > 0}">
         <h2>고급 (ADVANCED)</h2>
         <div class="grid">
-            <div class="card" th:each="m : ${missions.?[level.name() == 'ADVANCED']}">
+            <div class="card"
+                 th:each="m : ${missions.?[level.name() == 'ADVANCED' and (#vars.activeCat == null or category == #vars.activeCat)]}">
+                <!-- 동일 카드 내용 -->
                 <div class="row">
                     <div><strong th:text="${m.title}">제목</strong></div>
                     <div class="muted" th:text="${m.category + ' · ' + m.level}">카테고리·레벨</div>
                 </div>
-
                 <div th:text="${m.content}">설명</div>
                 <div class="muted">포인트: <span th:text="${m.point != null ? m.point : 0}">0</span></div>
-                <div class="muted">
-                    오늘 참여 <span th:text="${m.todayStartedCount}">0</span> ·
-                    완료 <span th:text="${m.todayCompletedCount}">0</span>
-                </div>
-
+                <div class="muted">오늘 참여 <span th:text="${m.todayStartedCount}">0</span> · 완료 <span th:text="${m.todayCompletedCount}">0</span></div>
                 <div style="margin-top:8px;">
-                    <form th:if="${m.state.name() == 'NOT_STARTED'}"
-                          th:action="@{|/missions/${m.id}/start|}" method="post" style="display:inline;">
-                        <div th:if="${_csrf != null}">
-                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-                        </div>
+                    <form th:if="${m.state.name() == 'NOT_STARTED'}" th:action="@{|/missions/${m.id}/start|}" method="post" style="display:inline;">
+                        <div th:if="${_csrf != null}"><input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" /></div>
                         <button class="btn outline" th:disabled="${hasPickedToday}" type="submit">시작</button>
                     </form>
-
-                    <form th:if="${m.state.name() == 'IN_PROGRESS'}"
-                          th:action="@{|/missions/${m.id}/complete|}" method="post" style="display:inline;">
-                        <div th:if="${_csrf != null}">
-                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-                        </div>
+                    <form th:if="${m.state.name() == 'IN_PROGRESS'}" th:action="@{|/missions/${m.id}/complete|}" method="post" style="display:inline;">
+                        <div th:if="${_csrf != null}"><input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" /></div>
                         <button class="btn" type="submit">완료 가능 → 완료하기</button>
                     </form>
-
                     <button th:if="${m.state.name() == 'COMPLETED'}" class="btn outline" disabled>완료됨</button>
                 </div>
             </div>

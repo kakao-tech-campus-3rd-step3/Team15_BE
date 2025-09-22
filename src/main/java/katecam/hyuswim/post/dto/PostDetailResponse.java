@@ -19,6 +19,7 @@ public class PostDetailResponse {
   private String title;
   private String content;
   private String author;
+  private String handle;
   private Boolean isAnonymous;
   private Boolean isDeleted;
   private Boolean isLiked;
@@ -28,22 +29,23 @@ public class PostDetailResponse {
   private LocalDateTime createdAt;
   private LocalDateTime updatedAt;
 
-  public static PostDetailResponse from(Post entity) {
+  public static PostDetailResponse from(Post post) {
     return PostDetailResponse.builder()
-        .id(entity.getId())
-        .postCategory(entity.getPostCategory().name())
-        .postCategoryName(entity.getPostCategory().getDisplayName())
-        .title(entity.getTitle())
-        .content(entity.getContent())
-        .author(entity.getUser().getEmail())
-        .isAnonymous(entity.getIsAnonymous())
-        .isDeleted(entity.getIsDeleted())
+        .id(post.getId())
+        .postCategory(post.getPostCategory().name())
+        .postCategoryName(post.getPostCategory().getDisplayName())
+        .title(post.getTitle())
+        .content(post.getContent())
+        .author(post.getUser().getDisplayName())
+        .handle(post.getUser().getHandle())
+        .isAnonymous(post.getIsAnonymous())
+        .isDeleted(post.getIsDeleted())
         .isLiked(false)
-        .viewCount(entity.getViewCount())
-        .likeCount((long) entity.getPostLikes().size())
-        .commentCount((long) entity.getComments().size())
-        .createdAt(entity.getCreatedAt())
-        .updatedAt(entity.getUpdatedAt())
+        .viewCount(post.getViewCount())
+        .likeCount((long) post.getPostLikes().size())
+        .commentCount((long) post.getComments().size())
+        .createdAt(post.getCreatedAt())
+        .updatedAt(post.getUpdatedAt())
         .build();
   }
 }

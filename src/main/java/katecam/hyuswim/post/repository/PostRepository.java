@@ -23,13 +23,13 @@ public interface PostRepository extends JpaRepository<Post, Long> {
   @Query(
       "SELECT p FROM Post p "
           + "WHERE p.isDeleted = false "
-          + "AND (:category IS NULL OR p.postCategory = :category) "
           + "AND (:keyword IS NULL OR p.title LIKE CONCAT('%', :keyword, '%') OR p.content LIKE CONCAT('%', :keyword, '%')) "
+          + "AND (:category IS NULL OR p.postCategory = :category) "
           + "AND (:startDate IS NULL OR p.createdAt >= :startDate) "
           + "AND (:endDate IS NULL OR p.createdAt <= :endDate)")
   Page<Post> searchByCategoryAndKeywordAndPeriod(
-      @Param("category") PostCategory category,
       @Param("keyword") String keyword,
+      @Param("category") PostCategory category,
       @Param("startDate") LocalDateTime startDate,
       @Param("endDate") LocalDateTime endDate,
       Pageable pageable);

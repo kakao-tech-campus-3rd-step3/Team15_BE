@@ -1,44 +1,55 @@
 package katecam.hyuswim.admin.controller;
 
-import org.springframework.http.ResponseEntity;
+import java.util.List;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import katecam.hyuswim.admin.dto.BlockRequest;
-import katecam.hyuswim.admin.dto.BlockResponse;
-import katecam.hyuswim.admin.dto.UserResponse;
+import katecam.hyuswim.admin.dto.UserListResponse;
 import katecam.hyuswim.admin.service.AdminUserService;
 
-@RestController
-@RequestMapping("/api/admin/users")
+@Controller
+@RequestMapping("/admin/users")
 public class AdminUserController {
 
-  private final AdminUserService adminUserService;
+    private final AdminUserService adminUserService;
 
-  public AdminUserController(AdminUserService adminUserService) {
-    this.adminUserService = adminUserService;
-  }
+    public AdminUserController(AdminUserService adminUserService) {
+        this.adminUserService = adminUserService;
+    }
 
-  @GetMapping("/{userId}")
-  public ResponseEntity<UserResponse> getUser(@PathVariable Long userId) {
-    return ResponseEntity.ok(adminUserService.getUserWithActivities(userId));
-  }
+    @GetMapping
+    public String listUsers(Model model) {
+        List<UserListResponse> users = adminUserService.findAll();
+        model.addAttribute("users", users);
+        model.addAttribute("content", "admin/users :: content");
+        return "admin/layout";
+    }
 
-  @PostMapping("/users/{userId}/block")
-  public String block(
-      @PathVariable Long userId, @ModelAttribute BlockRequest request, RedirectAttributes ra) {
-    adminUserService.blockUser(userId, request);
-    ra.addAttribute("msg", "사용자 차단 완료: " + userId);
-    return "redirect:/admin";
-  }
+    @PostMapping("/{userId}/block")
+    public String block(@PathVariable Long userId,
+                        @ModelAttribute BlockRequest request,
+                        RedirectAttributes ra) {
+        var resp = adminUserService.blockUser(userId, request);
+        ra.addFlashAttribute("msg", resp.getMessage());
+        return "redirect:/admin/users";
+    }
 
-  @PostMapping("/{userId}:unblock")
-  public ResponseEntity<BlockResponse> unblockUser(@PathVariable Long userId) {
-    return ResponseEntity.ok(adminUserService.unblockUser(userId));
-  }
+    @PostMapping("/{userId}/unblock")
+    public String unblock(@PathVariable Long userId, RedirectAttributes ra) {
+        var resp = adminUserService.unblockUser(userId);
+        ra.addFlashAttribute("msg", resp.getMessage());
+        return "redirect:/admin/users";
+    }
 
-  @PostMapping("/{userId}:ban")
-  public ResponseEntity<BlockResponse> banUser(@PathVariable Long userId) {
-    return ResponseEntity.ok(adminUserService.banUser(userId));
-  }
+    @PostMapping("/{userId}/ban")
+    public String ban(@PathVariable Long userId, RedirectAttributes ra) {
+        var resp = adminUserService.banUser(userId);
+        ra.addFlashAttribute("msg", resp.getMessage());
+        return "redirect:/admin/users";
+    }
 }
+

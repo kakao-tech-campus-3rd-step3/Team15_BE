@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 
+import katecam.hyuswim.comment.service.CommentService;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,7 +15,7 @@ import katecam.hyuswim.post.domain.Post;
 import katecam.hyuswim.post.domain.PostCategory;
 import katecam.hyuswim.post.dto.*;
 import katecam.hyuswim.post.repository.PostRepository;
-import katecam.hyuswim.user.User;
+import katecam.hyuswim.user.domain.User;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -23,6 +24,7 @@ import lombok.RequiredArgsConstructor;
 public class PostService {
 
   private final PostRepository postRepository;
+  private final CommentService commentService;
 
   @Transactional
   public PostDetailResponse createPost(PostRequest request, User user) {
@@ -35,6 +37,9 @@ public class PostService {
             request.getIsAnonymous());
 
     Post saved = postRepository.save(post);
+
+    commentService.createAiComment(saved);
+
     return PostDetailResponse.from(saved);
   }
 
@@ -48,21 +53,34 @@ public class PostService {
         postRepository
             .findByIdAndIsDeletedFalse(id)
             .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
+
+    post.increaseViewCount();
+    postRepository.save(post);
+
     return PostDetailResponse.from(post);
   }
 
   public PageResponse<PostListResponse> searchPosts(PostSearchRequest request, Pageable pageable) {
-    LocalDateTime startDateTime =
-        (request.getStartDate() != null) ? request.getStartDate().atStartOfDay() : null;
-    LocalDateTime endDateTime =
-        (request.getEndDate() != null)
-            ? request.getEndDate().plusDays(1).atStartOfDay().minusNanos(1)
-            : null;
+    String keyword = request.getKeyword();
+    LocalDateTime startDateTime = null;
+    LocalDateTime endDateTime = null;
+
+    if (keyword == null || keyword.isBlank()) {
+      keyword = null;
+    }
+
+    if (request.getStartDate() != null) {
+      startDateTime = request.getStartDate().atStartOfDay();
+    }
+
+    if (request.getEndDate() != null) {
+      endDateTime = request.getEndDate().plusDays(1).atStartOfDay().minusNanos(1);
+    }
 
     return new PageResponse<>(
         postRepository
             .searchByCategoryAndKeywordAndPeriod(
-                request.getCategory(), request.getKeyword(), startDateTime, endDateTime, pageable)
+                keyword, request.getCategory(), startDateTime, endDateTime, pageable)
             .map(PostListResponse::from));
   }
 
