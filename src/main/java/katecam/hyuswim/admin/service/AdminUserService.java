@@ -3,6 +3,7 @@ package katecam.hyuswim.admin.service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import katecam.hyuswim.user.domain.UserRole;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -45,7 +46,7 @@ public class AdminUserService {
                 .map(c -> new UserDetailResponse.CommentSummary(c.getId(), c.getContent(), c.getCreatedAt()))
                 .collect(Collectors.toList());
 
-        return new UserDetailResponse(u.getId(), u.getEmail(), u.getStatus(), posts, comments);
+        return new UserDetailResponse(u.getId(), u.getStatus(), posts, comments);
     }
 
     @Transactional
@@ -95,9 +96,8 @@ public class AdminUserService {
     }
 
     public List<UserListResponse> findAll() {
-        return userRepository.findAll().stream()
-                .filter(u -> !"admin@domain.com".equalsIgnoreCase(u.getEmail()))
-                .map(u -> new UserListResponse(u.getId(), u.getEmail(), u.getStatus()))
+        return userRepository.findByRoleNot(UserRole.ADMIN).stream()
+                .map(u -> new UserListResponse(u.getId(), u.getStatus()))
                 .collect(Collectors.toList());
     }
 }
