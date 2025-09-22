@@ -14,6 +14,7 @@ import katecam.hyuswim.admin.dto.UserListResponse;
 import katecam.hyuswim.comment.repository.CommentRepository;
 import katecam.hyuswim.post.repository.PostRepository;
 import katecam.hyuswim.user.domain.User;
+import katecam.hyuswim.user.domain.UserBlockHistory;
 import katecam.hyuswim.user.domain.UserStatus;
 import katecam.hyuswim.user.repository.UserRepository;
 
@@ -54,12 +55,15 @@ public class AdminUserService {
         User u = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found: " + userId));
 
-        u.blockUntil(request.getUntil(), request.getReason());
+        UserBlockHistory history = new UserBlockHistory(u, UserStatus.BLOCKED, request.getUntil(), request.getReason());
+        u.getBlockHistories().add(history);
+
+        u.setStatus(UserStatus.BLOCKED);
 
         return new BlockResponse(
                 u.getId(),
                 UserStatus.BLOCKED,
-                request.getUntil(), // until 있으면 임시 차단
+                request.getUntil(),
                 request.getReason(),
                 "사용자 " + userId + "번을 " + request.getUntil() + "까지 차단했습니다."
         );
@@ -70,7 +74,11 @@ public class AdminUserService {
         User u = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found: " + userId));
 
-        u.unblock();
+        UserBlockHistory history = new UserBlockHistory(u, UserStatus.ACTIVE, null, null);
+        u.getBlockHistories().add(history);
+
+        u.setStatus(UserStatus.ACTIVE);
+
         return new BlockResponse(
                 u.getId(),
                 UserStatus.ACTIVE,
@@ -85,12 +93,17 @@ public class AdminUserService {
         User u = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found: " + userId));
 
-        u.ban("관리자에 의한 영구 차단");
+        String reason = "관리자에 의한 영구 차단";
+        UserBlockHistory history = new UserBlockHistory(u, UserStatus.BANNED, null, reason);
+        u.getBlockHistories().add(history);
+
+        u.setStatus(UserStatus.BANNED);
+
         return new BlockResponse(
                 u.getId(),
                 UserStatus.BANNED,
-                null, // until 없음 → 영구 차단
-                "관리자에 의한 영구 차단",
+                null,
+                reason,
                 "사용자 " + userId + "번을 영구 차단했습니다."
         );
     }
