@@ -1,6 +1,7 @@
 package katecam.hyuswim.user.domain;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.data.annotation.CreatedDate;
@@ -43,10 +44,6 @@ public class User {
     @Column(name = "is_deleted", nullable = false)
     private Boolean isDeleted = false;
 
-    private LocalDateTime blockedUntil;
-
-    private String blockReason;
-
     @Column(name = "comment_notification_enabled", nullable = false)
     private Boolean commentNotificationEnabled = true;
 
@@ -71,6 +68,9 @@ public class User {
     @OneToMany(mappedBy = "user")
     private List<MissionProgress> missionProgresses;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<UserBlockHistory> blockHistories = new ArrayList<>();
+
     @Column(name = "last_active_date")
     @CreatedDate
     private LocalDateTime lastActiveDate;
@@ -92,24 +92,6 @@ public class User {
         this.introduction = introduction;
         this.role = role;
         this.handle = "@" + generateHandle();
-    }
-
-    public void blockUntil(LocalDateTime until, String reason) {
-        this.status = UserStatus.BLOCKED;
-        this.blockedUntil = until;
-        this.blockReason = reason;
-    }
-
-    public void unblock() {
-        this.status = UserStatus.ACTIVE;
-        this.blockedUntil = null;
-        this.blockReason = null;
-    }
-
-    public void ban(String reason) {
-        this.status = UserStatus.BANNED;
-        this.blockedUntil = null;
-        this.blockReason = reason;
     }
 
     public void delete() {
@@ -144,7 +126,7 @@ public class User {
         }
         return sb.toString();
     }
-  
+
     public void addPoints(long points) {
         if (points > 0) {
             this.points += points;
@@ -154,4 +136,9 @@ public class User {
     public void updateLastActiveDate() {
         this.lastActiveDate = LocalDateTime.now();
     }
+
+    public void setStatus(UserStatus status) {
+        this.status = status;
+    }
+
 }
