@@ -1,6 +1,8 @@
 package katecam.hyuswim.auth.service;
 
+import katecam.hyuswim.auth.domain.UserAuth;
 import katecam.hyuswim.auth.dto.*;
+import katecam.hyuswim.auth.repository.UserAuthRepository;
 import katecam.hyuswim.auth.util.CookieUtil;
 import katecam.hyuswim.auth.util.JwtUtil;
 import katecam.hyuswim.common.error.CustomException;
@@ -12,6 +14,7 @@ import katecam.hyuswim.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,19 +26,27 @@ import java.util.Optional;
 public class AuthService {
 
     private final JwtUtil jwtUtil;
-    private final BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
+    private final PasswordEncoder passwordEncoder;
     private final RefreshTokenService refreshTokenService;
     private final UserRepository userRepository;
+    private final UserAuthRepository userAuthRepository;
 
     @Transactional
     public User signup(SignupRequest request) {
         String email = request.getEmail();
-        AuthProvider provider = AuthProvider.LOCAL;
 
-        userRepository.findByEmailAndProvider(email, provider)
-                .ifPresent(this::validateReSignup);;
+        userAuthRepository.findByEmailAndProvider(email, AuthProvider.LOCAL)
+                .ifPresent(auth -> validateReSignup(auth.getUser()));
 
-        return registerUser(request, provider);
+        User user = User.createDefault();
+        userRepository.save(user);
+
+        String encodedPassword = passwordEncoder.encode(request.getPassword());
+        ;
+        UserAuth auth = UserAuth.createLocal(user, request, encodedPassword);
+        userAuthRepository.save(auth);
+
+        return user;
     }
 
     private void validateReSignup(User user) {
@@ -47,21 +58,16 @@ public class AuthService {
         }
     }
 
-    private User registerUser(SignupRequest request, AuthProvider provider) {
-        String encPassword = bCryptPasswordEncoder.encode(request.getPassword());
-        return userRepository.save(new User(request.getEmail(), encPassword, provider));
-    }
-
-
     @Transactional
     public LoginTokens login(LoginRequest request) {
-        User user = userRepository.findByEmailAndProviderAndIsDeletedFalse(
-                        request.getEmail(), AuthProvider.LOCAL)
+        UserAuth userAuth = userAuthRepository.findByEmailAndProviderAndUser_IsDeletedFalse(request.getEmail(), AuthProvider.LOCAL)
                 .orElseThrow(() -> new CustomException(ErrorCode.LOGIN_FAILED));
 
-        if (!bCryptPasswordEncoder.matches(request.getPassword(), user.getPassword())) {
+        if (!passwordEncoder.matches(request.getPassword(), userAuth.getPassword())) {
             throw new CustomException(ErrorCode.LOGIN_FAILED);
         }
+
+        User user = userAuth.getUser();
 
         String accessToken = jwtUtil.generateAccessToken(user.getId(), user.getRole());
         String refreshToken = jwtUtil.generateRefreshToken(user.getId(), user.getRole());
