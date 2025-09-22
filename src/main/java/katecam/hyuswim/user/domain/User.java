@@ -94,13 +94,6 @@ public class User {
       return new User("새싹이", null, UserRole.USER);
   }
 
-  public User(String email, String nickname, String introduction, UserRole role) {
-      this.nickname = nickname;
-      this.role = role;
-      this.handle = "@ai-" +generateHandle();
-      this.introduction = introduction;
-    }
-
     public void blockUntil(LocalDateTime until, String reason) {
         this.status = UserStatus.BLOCKED;
         this.blockedUntil = until;
