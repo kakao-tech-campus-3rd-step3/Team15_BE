@@ -43,3 +43,6 @@ out/
 
 # MySQL local volume
 mysql-data/
+
+# test.html
+counsel-test.html

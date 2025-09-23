@@ -3,6 +3,7 @@ package katecam.hyuswim.ai.client;
 import katecam.hyuswim.ai.dto.ChatRequest;
 import katecam.hyuswim.ai.dto.Message;
 import katecam.hyuswim.ai.util.JsonUtils;
+import katecam.hyuswim.counseling.domain.CounselingStep;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -10,6 +11,7 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Component
@@ -63,7 +65,47 @@ public class OpenAiClient {
 
         return JsonUtils.parseContent(responseBody);
     }
+
+    public String generateCounselingReply(List<Message> conversation, CounselingStep step) {
+        if (apiKey == null || apiKey.isBlank()) {
+            return "[AI 상담 비활성화 상태]";
+        }
+
+        String systemPrompt = """
+        너는 따뜻하게 이야기를 들어주는 상담자야.
+        AI라는 말은 절대 하지 마.
+        친근한 반말 톤으로 먼저 인사를 건네고, 자연스럽게 대화를 이어가.
+        너무 빨리 대화를 마무리하지 말고, 사용자가 충분히 속마음을 나눈 뒤에만 마무리 멘트를 해.
+        사용자가 '오늘은 여기까지 하자'라고 말하거나,
+        대화가 충분히 길어졌다고 판단되면 마지막 답변을 줄 때 반드시 [END_SESSION] 토큰을 포함해 마무리 멘트를 해.
+        [END_SESSION] 토큰은 오직 상담을 종료할 때만 사용해야 해.
+        """;
+
+        ChatRequest request = new ChatRequest(
+                "gpt-4o-mini",
+                buildMessages(systemPrompt, conversation),
+                200
+        );
+
+        String responseBody = webClientBuilder
+                .baseUrl("https://api.openai.com")
+                .defaultHeader(HttpHeaders.AUTHORIZATION, "Bearer " + apiKey)
+                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .build()
+                .post()
+                .uri("/v1/chat/completions")
+                .bodyValue(request)
+                .retrieve()
+                .bodyToMono(String.class)
+                .block();
+
+        return JsonUtils.parseContent(responseBody);
+    }
+
+    private List<Message> buildMessages(String systemPrompt, List<Message> conversation) {
+        List<Message> messages = new ArrayList<>();
+        messages.add(new Message("system", systemPrompt));
+        messages.addAll(conversation);
+        return messages;
+    }
 }
-
-
-

@@ -16,13 +16,12 @@ services:
 
   redis:
     image: redis:7.2
-    container_name: hyuswim-redis
+    container_name: redis
     restart: always
     ports:
-      - "6379:6379"
+      - "${REDIS_PORT:-6379}:6379"
     volumes:
-      - redis-data:/data
-    profiles: ["dev","prod"]
+      - redis_data:/data
 
 volumes:
   redis-data:
