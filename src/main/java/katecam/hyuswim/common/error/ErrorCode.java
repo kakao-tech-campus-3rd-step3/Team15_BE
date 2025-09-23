@@ -44,6 +44,10 @@ public enum ErrorCode {
     REDIS_OPERATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Redis 작업 처리 중 오류가 발생했습니다."),
     SESSION_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 상담 세션입니다."),
 
+    // Support
+    SUPPORT_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 지원 사업입니다."),
+    INVALID_SUPPORT_TYPE(HttpStatus.BAD_REQUEST, "유효하지 않은 지원 사업 카테고리입니다."),
+
     //Common
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "예상치 못한 오류가 발생했습니다.");
 
