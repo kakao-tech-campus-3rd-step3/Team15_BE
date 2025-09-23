@@ -1,5 +1,7 @@
 package katecam.hyuswim.support.controller;
 
+import katecam.hyuswim.common.error.CustomException;
+import katecam.hyuswim.common.error.ErrorCode;
 import katecam.hyuswim.support.domain.SupportType;
 import katecam.hyuswim.support.dto.SupportResponse;
 import katecam.hyuswim.support.dto.SupportDetailResponse;
@@ -23,13 +25,18 @@ public class SupportController {
     }
 
     // 지원 사업 카테고리 조회
-    @GetMapping("/{type}")
-    public List<SupportResponse> getSupportsByType(@PathVariable SupportType type) {
-        return supportService.getSupportsByType(type);
+    @GetMapping("/type/{type}")
+    public List<SupportResponse> getSupportsByType(@PathVariable String type) {
+        try {
+            SupportType supportType = SupportType.valueOf(type.toUpperCase());
+            return supportService.getSupportsByType(supportType);
+        } catch (IllegalArgumentException e) {
+            throw new CustomException(ErrorCode.INVALID_SUPPORT_TYPE);
+        }
     }
 
     // 지원 사업 상세 조회
-    @GetMapping("/{programId}/detail")
+    @GetMapping("/{programId}")
     public SupportDetailResponse getSupportDetail(@PathVariable Long programId) {
         return supportService.getSupportDetail(programId);
     }
