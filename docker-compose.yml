@@ -21,7 +21,7 @@ services:
     ports:
       - "${REDIS_PORT:-6379}:6379"
     volumes:
-      - redis_data:/data   # ← 여기서 redis_data
+      - redis_data:/data
     profiles: [ "dev" ]
 
 volumes:
