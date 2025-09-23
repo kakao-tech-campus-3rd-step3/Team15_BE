@@ -46,3 +46,6 @@ mysql-data/
 
 # test.html
 counsel-test.html
+
+#docker-example
+docker-compose-example.yml
