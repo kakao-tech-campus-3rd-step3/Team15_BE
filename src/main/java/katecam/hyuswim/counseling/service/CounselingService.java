@@ -31,13 +31,15 @@ public class CounselingService {
         CounselingSession session = new CounselingSession(CounselingStep.ACTIVE);
 
         String greeting = openAiClient.generateCounselingReply(List.of(), CounselingStep.ACTIVE);
+        String cleanGreeting = sanitizeReply(greeting);
+
         List<Message> messages = new ArrayList<>();
-        messages.add(new Message("assistant", greeting));
+        messages.add(new Message("assistant", cleanGreeting));
 
         session.updateMessages(toJson(messages));
         sessionRepository.save(session);
 
-        return new CounselingResponse(session.getId(), greeting, session.getStep().name());
+        return new CounselingResponse(session.getId(), cleanGreeting, session.getStep().name());
     }
 
     public CounselingResponse processMessage(String sessionId, String userMessage) {
@@ -55,7 +57,9 @@ public class CounselingService {
         }
 
         String reply = openAiClient.generateCounselingReply(history, session.getStep());
-        history.add(new Message("assistant", reply));
+        String cleanReply = sanitizeReply(reply);
+
+        history.add(new Message("assistant", cleanReply));
         session.updateMessages(toJson(history));
 
         if (isClosingReply(reply)) {
@@ -66,7 +70,7 @@ public class CounselingService {
 
         sessionRepository.save(session);
 
-        return new CounselingResponse(session.getId(), reply, session.getStep().name());
+        return new CounselingResponse(session.getId(), cleanReply, session.getStep().name());
     }
 
     public void endSession(String sessionId) {
@@ -77,16 +81,22 @@ public class CounselingService {
     }
 
     private CounselingResponse closeSession(CounselingSession session, List<Message> history, String closingReply) {
-        history.add(new Message("assistant", closingReply));
+        String cleanReply = sanitizeReply(closingReply);
+
+        history.add(new Message("assistant", cleanReply));
         session.updateMessages(toJson(history));
         session.end();
         sessionRepository.save(session);
 
-        return new CounselingResponse(session.getId(), closingReply, CounselingStep.CLOSED.name());
+        return new CounselingResponse(session.getId(), cleanReply, CounselingStep.CLOSED.name());
     }
 
     private boolean isClosingReply(String reply) {
         return reply.contains(END_TOKEN);
+    }
+
+    private String sanitizeReply(String reply) {
+        return reply.replace(END_TOKEN, "").trim();
     }
 
     private String toJson(List<Message> messages) {
