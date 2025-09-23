@@ -38,6 +38,12 @@ public enum ErrorCode {
     REPORT_REASON_REQUIRED(HttpStatus.BAD_REQUEST, "기타 사유 선택 시 내용은 필수입니다."),
     REPORT_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 신고 내역입니다."),
 
+    //Counseling
+    JSON_SERIALIZATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "메시지 직렬화에 실패했습니다."),
+    JSON_DESERIALIZATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "메시지 역직렬화에 실패했습니다."),
+    REDIS_OPERATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "Redis 작업 처리 중 오류가 발생했습니다."),
+    SESSION_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 상담 세션입니다."),
+
     //Common
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "예상치 못한 오류가 발생했습니다.");
 
