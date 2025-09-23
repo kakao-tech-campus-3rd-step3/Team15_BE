@@ -1,4 +1,3 @@
-version: '3.8'
 services:
   mysql:
     image: mysql:8.0
@@ -13,3 +12,17 @@ services:
     volumes:
       - ./mysql-data:/var/lib/mysql
     command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    profiles: ["local","dev"]
+
+  redis:
+    image: redis:7.2
+    container_name: hyuswim-redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    profiles: ["dev","prod"]
+
+volumes:
+  redis-data:
