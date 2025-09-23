@@ -1,4 +1,4 @@
-package katecam.hyuswim.support;
+package katecam.hyuswim.support.domain;
 
 public enum SupportType {
   TEMP
