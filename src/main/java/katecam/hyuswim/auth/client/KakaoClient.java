@@ -7,14 +7,15 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
-import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.BodyInserters;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestClient;
 
 @Component
 @RequiredArgsConstructor
 public class KakaoClient {
 
-    private final WebClient webClient = WebClient.builder().build();
+    private final RestClient.Builder restClientBuilder;
 
     @Value("${kakao.client-id}")
     private String clientId;
@@ -29,25 +30,31 @@ public class KakaoClient {
     private String userInfoUri;
 
     public KakaoTokenResponse getToken(String code) {
-        return webClient.post()
-                .uri(tokenUri)
+        MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
+        formData.add("grant_type", "authorization_code");
+        formData.add("client_id", clientId);
+        formData.add("redirect_uri", redirectUri);
+        formData.add("code", code);
+
+        return restClientBuilder
+                .baseUrl(tokenUri)
+                .build()
+                .post()
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                .body(BodyInserters.fromFormData("grant_type", "authorization_code")
-                        .with("client_id", clientId)
-                        .with("redirect_uri", redirectUri)
-                        .with("code", code))
+                .body(formData)
                 .retrieve()
-                .bodyToMono(KakaoTokenResponse.class)
-                .block();
+                .body(KakaoTokenResponse.class);
     }
 
     public KakaoUserResponse getUser(String accessToken) {
-        return webClient.post()
-                .uri(userInfoUri)
+        return restClientBuilder
+                .baseUrl(userInfoUri)
+                .build()
+                .post()
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
                 .retrieve()
-                .bodyToMono(KakaoUserResponse.class)
-                .block();
+                .body(KakaoUserResponse.class);
     }
 }
+
 
