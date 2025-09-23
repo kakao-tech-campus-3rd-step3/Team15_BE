@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.client.RestClient;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +18,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class OpenAiClient {
 
-    private final WebClient.Builder webClientBuilder;
+    private final RestClient.Builder restClientBuilder;
 
     @Value("${openai.api-key:}")
     private String apiKey;
@@ -51,17 +51,16 @@ public class OpenAiClient {
                 100
         );
 
-        String responseBody = webClientBuilder
+        String responseBody = restClientBuilder
                 .baseUrl("https://api.openai.com")
                 .defaultHeader(HttpHeaders.AUTHORIZATION, "Bearer " + apiKey)
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .build()
                 .post()
                 .uri("/v1/chat/completions")
-                .bodyValue(request)
+                .body(request)
                 .retrieve()
-                .bodyToMono(String.class)
-                .block();
+                .body(String.class);
 
         return JsonUtils.parseContent(responseBody);
     }
@@ -87,17 +86,16 @@ public class OpenAiClient {
                 200
         );
 
-        String responseBody = webClientBuilder
+        String responseBody = restClientBuilder
                 .baseUrl("https://api.openai.com")
                 .defaultHeader(HttpHeaders.AUTHORIZATION, "Bearer " + apiKey)
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .build()
                 .post()
                 .uri("/v1/chat/completions")
-                .bodyValue(request)
+                .body(request)
                 .retrieve()
-                .bodyToMono(String.class)
-                .block();
+                .body(String.class);
 
         return JsonUtils.parseContent(responseBody);
     }
