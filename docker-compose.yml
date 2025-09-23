@@ -22,7 +22,7 @@ services:
       - "${REDIS_PORT:-6379}:6379"
     volumes:
       - redis_data:/data
-    profiles: [ "dev" ]
+    profiles: ["local", "dev"]
 
 volumes:
   redis_data:
