@@ -1,6 +1,6 @@
 package katecam.hyuswim;
 
-import katecam.hyuswim.auth.config.AppProperties;
+import katecam.hyuswim.common.config.AppProperties;
 import katecam.hyuswim.auth.config.CookieProperties;
 import katecam.hyuswim.auth.config.GoogleProperties;
 import katecam.hyuswim.auth.config.KakaoProperties;

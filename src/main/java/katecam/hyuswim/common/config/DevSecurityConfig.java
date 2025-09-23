@@ -1,4 +1,4 @@
-package katecam.hyuswim.auth.config;
+package katecam.hyuswim.common.config;
 
 import jakarta.servlet.http.HttpServletResponse;
 import katecam.hyuswim.auth.jwt.JwtFilter;
