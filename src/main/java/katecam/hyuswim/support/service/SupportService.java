@@ -37,4 +37,10 @@ public class SupportService {
                 .orElseThrow(() -> new CustomException(ErrorCode.SUPPORT_NOT_FOUND));
         return SupportDetailResponse.from(support);
     }
+
+    public long getActiveSupportCount() {
+        return supportRepository.countActiveSupports();
+    }
+
+    
 }
