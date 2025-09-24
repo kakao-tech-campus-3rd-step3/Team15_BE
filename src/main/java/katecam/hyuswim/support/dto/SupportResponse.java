@@ -19,6 +19,7 @@ public class SupportResponse {
     private SupportType supportType;
     private String supportTypeName;
     private LocalDate endDate;
+    private String url;
 
     public static SupportResponse from(Support support) {
         return SupportResponse.builder()
@@ -28,6 +29,7 @@ public class SupportResponse {
                 .supportType(support.getSupportType())
                 .supportTypeName(support.getSupportType().getDisplayName())
                 .endDate(support.getEndDate())
+                .url(support.getUrl())
                 .build();
     }
 }
