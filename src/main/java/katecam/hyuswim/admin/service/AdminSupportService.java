@@ -30,7 +30,7 @@ public class AdminSupportService {
                 updateRequest.getCompany(),
                 updateRequest.getContent(),
                 updateRequest.getPlace(),
-                updateRequest.getEndPoint(),
+                updateRequest.getEndDate(),
                 updateRequest.getSupportType()
         );
 

@@ -10,6 +10,7 @@ import katecam.hyuswim.support.repository.SupportRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -43,7 +44,9 @@ public class SupportService {
 
     // 진행 중인 개수 조회
     public long getActiveSupportCount() {
-        return supportRepository.countActiveSupports();
+        return supportRepository.countByEndDateAfter(LocalDate.now());
     }
+
+
 }
 

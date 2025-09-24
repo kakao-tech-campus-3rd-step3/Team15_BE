@@ -16,11 +16,11 @@ public class SupportDetailResponse {
     private Long id;
     private String name;
     private String company;
-    private SupportType supportType;    
+    private SupportType supportType;
     private String supportTypeName;
     private String content;
     private String place;
-    private LocalDate endPoint;
+    private LocalDate endDate;
 
     public static SupportDetailResponse from(Support support) {
         return SupportDetailResponse.builder()
@@ -31,7 +31,7 @@ public class SupportDetailResponse {
                 .supportTypeName(support.getSupportType().getDisplayName())
                 .content(support.getContent())
                 .place(support.getPlace())
-                .endPoint(support.getEndPoint())
+                .endDate(support.getEndDate())
                 .build();
     }
 }

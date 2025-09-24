@@ -18,7 +18,7 @@ public class SupportResponse {
     private String company;
     private SupportType supportType;
     private String supportTypeName;
-    private LocalDate endPoint;
+    private LocalDate endDate;
 
     public static SupportResponse from(Support support) {
         return SupportResponse.builder()
@@ -27,7 +27,7 @@ public class SupportResponse {
                 .company(support.getCompany())
                 .supportType(support.getSupportType())
                 .supportTypeName(support.getSupportType().getDisplayName())
-                .endPoint(support.getEndPoint())
+                .endDate(support.getEndDate())
                 .build();
     }
 }
