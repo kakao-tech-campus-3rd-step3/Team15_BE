@@ -41,4 +41,14 @@ public class Support {
     @LastModifiedDate
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    public void update(String name, String company, String content, String place, LocalDate endPoint, SupportType type) {
+        if (name != null) this.name = name;
+        if (company != null) this.company = company;
+        if (content != null) this.content = content;
+        if (place != null) this.place = place;
+        if (endPoint != null) this.endPoint = endPoint;
+        if (type != null) this.supportType = type;
+    }
+
 }
