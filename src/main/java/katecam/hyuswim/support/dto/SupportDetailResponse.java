@@ -21,6 +21,7 @@ public class SupportDetailResponse {
     private String content;
     private String place;
     private LocalDate endDate;
+    private String url;
 
     public static SupportDetailResponse from(Support support) {
         return SupportDetailResponse.builder()
@@ -32,6 +33,7 @@ public class SupportDetailResponse {
                 .content(support.getContent())
                 .place(support.getPlace())
                 .endDate(support.getEndDate())
+                .url(support.getUrl())
                 .build();
     }
 }
