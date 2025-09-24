@@ -1,15 +1,15 @@
 package katecam.hyuswim.support.controller;
 
-import katecam.hyuswim.common.error.CustomException;
-import katecam.hyuswim.common.error.ErrorCode;
 import katecam.hyuswim.support.domain.SupportType;
 import katecam.hyuswim.support.dto.SupportResponse;
 import katecam.hyuswim.support.dto.SupportDetailResponse;
 import katecam.hyuswim.support.service.SupportService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -18,26 +18,24 @@ public class SupportController {
 
     private final SupportService supportService;
 
-    // 지원 사업 목록 조회
     @GetMapping
-    public List<SupportResponse> getAllSupports() {
-        return supportService.getAllSupports();
+    public ResponseEntity<List<SupportResponse>> getAllSupports() {
+        return ResponseEntity.ok(supportService.getAllSupports());
     }
 
-    // 지원 사업 카테고리 조회
     @GetMapping("/type/{type}")
-    public List<SupportResponse> getSupportsByType(@PathVariable String type) {
-        try {
-            SupportType supportType = SupportType.valueOf(type.toUpperCase());
-            return supportService.getSupportsByType(supportType);
-        } catch (IllegalArgumentException e) {
-            throw new CustomException(ErrorCode.INVALID_SUPPORT_TYPE);
-        }
+    public ResponseEntity<List<SupportResponse>> getSupportsByType(@PathVariable SupportType type) {
+        return ResponseEntity.ok(supportService.getSupportsByType(type));
     }
 
-    // 지원 사업 상세 조회
-    @GetMapping("/{programId}")
-    public SupportDetailResponse getSupportDetail(@PathVariable Long programId) {
-        return supportService.getSupportDetail(programId);
+    @GetMapping("/{id}")
+    public ResponseEntity<SupportDetailResponse> getSupportDetail(@PathVariable Long id) {
+        return ResponseEntity.ok(supportService.getSupportDetail(id));
+    }
+
+    @GetMapping("/count")
+    public ResponseEntity<Map<String, Long>> getActiveSupportCount() {
+        return ResponseEntity.ok(Map.of("count", supportService.getActiveSupportCount()));
     }
 }
+
