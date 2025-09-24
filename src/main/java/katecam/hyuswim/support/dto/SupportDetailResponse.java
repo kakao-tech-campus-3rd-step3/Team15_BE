@@ -16,7 +16,8 @@ public class SupportDetailResponse {
     private Long id;
     private String name;
     private String company;
-    private SupportType supportType;
+    private SupportType supportType;    
+    private String supportTypeName;
     private String content;
     private String place;
     private LocalDate endPoint;
@@ -27,6 +28,7 @@ public class SupportDetailResponse {
                 .name(support.getName())
                 .company(support.getCompany())
                 .supportType(support.getSupportType())
+                .supportTypeName(support.getSupportType().getDisplayName())
                 .content(support.getContent())
                 .place(support.getPlace())
                 .endPoint(support.getEndPoint())
