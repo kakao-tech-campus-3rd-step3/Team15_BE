@@ -1,13 +1,11 @@
 package katecam.hyuswim.auth.controller;
 
 import jakarta.servlet.http.HttpServletResponse;
-import katecam.hyuswim.auth.dto.AccessTokenResponse;
 import katecam.hyuswim.auth.dto.LoginTokens;
 import katecam.hyuswim.auth.service.GoogleAuthService;
 import katecam.hyuswim.auth.util.CookieUtil;
 import katecam.hyuswim.auth.util.RedirectUrlBuilder;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpHeaders;

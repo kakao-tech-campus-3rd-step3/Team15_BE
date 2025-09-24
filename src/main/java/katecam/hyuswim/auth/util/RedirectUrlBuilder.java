@@ -14,4 +14,8 @@ public class RedirectUrlBuilder {
     public String buildGoogleRedirectUrl(String accessToken) {
         return frontendUrls[1] + "/oauth/callback/google#accessToken=" + accessToken;
     }
+
+    public String buildKakaoRedirectUrl(String accessToken) {
+        return frontendUrls[1] + "/oauth/callback/kakao#accessToken=" + accessToken;
+    }
 }
