@@ -42,5 +42,24 @@ public class SupportService {
         return supportRepository.countActiveSupports();
     }
 
+    public SupportDetailResponse createSupport(Support support) {
+        Support saved = supportRepository.save(support);
+        return SupportDetailResponse.from(saved);
+    }
     
+    public SupportDetailResponse updateSupport(Long id, Support updateRequest) {
+        Support support = supportRepository.findById(id)
+                .orElseThrow(() -> new CustomException(ErrorCode.SUPPORT_NOT_FOUND));
+
+        if (updateRequest.getName() != null) support.setName(updateRequest.getName());
+        if (updateRequest.getCompany() != null) support.setCompany(updateRequest.getCompany());
+        if (updateRequest.getContent() != null) support.setContent(updateRequest.getContent());
+        if (updateRequest.getPlace() != null) support.setPlace(updateRequest.getPlace());
+        if (updateRequest.getEndPoint() != null) support.setEndPoint(updateRequest.getEndPoint());
+        if (updateRequest.getSupportType() != null) support.setSupportType(updateRequest.getSupportType());
+
+        Support updated = supportRepository.save(support);
+        return SupportDetailResponse.from(updated);
+    }
+
 }
