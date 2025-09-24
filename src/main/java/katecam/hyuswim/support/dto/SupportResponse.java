@@ -17,6 +17,7 @@ public class SupportResponse {
     private String name;
     private String company;
     private SupportType supportType;
+    private String supportTypeName;
     private LocalDate endPoint;
 
     public static SupportResponse from(Support support) {
@@ -25,6 +26,7 @@ public class SupportResponse {
                 .name(support.getName())
                 .company(support.getCompany())
                 .supportType(support.getSupportType())
+                .supportTypeName(support.getSupportType().getDisplayName())
                 .endPoint(support.getEndPoint())
                 .build();
     }
