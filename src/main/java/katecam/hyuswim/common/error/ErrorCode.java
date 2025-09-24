@@ -13,6 +13,12 @@ public enum ErrorCode {
     LOGIN_FAILED(HttpStatus.UNAUTHORIZED, "아이디 또는 비밀번호가 잘못되었습니다"),
     WITHDRAWAL_FAILED(HttpStatus.BAD_REQUEST, "회원탈퇴에 실패했습니다."),
 
+    //Email
+    EMAIL_SEND_FAILED(HttpStatus.INTERNAL_SERVER_ERROR,"이메일 발송에 실패했습니다."),
+    EMAIL_CODE_EXPIRED(HttpStatus.BAD_REQUEST, "인증번호가 만료되었거나 존재하지 않습니다."),
+    EMAIL_CODE_MISMATCH(HttpStatus.BAD_REQUEST, "인증번호가 올바르지 않습니다."),
+
+
     //Auth
     GOOGLE_TOKEN_REQUEST_FAILED(HttpStatus.BAD_REQUEST, "구글 토큰 요청에 실패했습니다."),
     GOOGLE_ID_TOKEN_INVALID(HttpStatus.UNAUTHORIZED, "구글 ID 토큰이 유효하지 않습니다."),
