@@ -41,7 +41,7 @@ public class DevSecurityConfig {
                     return config;
                 }))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/signup", "/api/auth/login","/api/auth/refresh","/api/counsel/**").permitAll()
+                        .requestMatchers("/api/auth/signup", "/api/auth/login","/api/auth/refresh","/api/counsel/**","/api/auth/email/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/**").permitAll()
                         .anyRequest().authenticated()
                 )
