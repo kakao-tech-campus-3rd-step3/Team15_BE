@@ -1,5 +1,6 @@
 package katecam.hyuswim.post.controller;
 
+import katecam.hyuswim.post.dto.PostCountResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,6 +16,11 @@ import lombok.RequiredArgsConstructor;
 public class PostStatController {
 
   private final PostStatService postStatService;
+
+  @GetMapping("/count")
+  public ResponseEntity<PostCountResponse> getPostcount(){
+      return ResponseEntity.ok(postStatService.getPostCount());
+  }
 
   @GetMapping("/stats")
   public ResponseEntity<PostStatsResponse> getPostStats() {
