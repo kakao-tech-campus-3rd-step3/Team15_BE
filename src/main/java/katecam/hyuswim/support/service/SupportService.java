@@ -46,7 +46,7 @@ public class SupportService {
         Support saved = supportRepository.save(support);
         return SupportDetailResponse.from(saved);
     }
-    
+
     public SupportDetailResponse updateSupport(Long id, Support updateRequest) {
         Support support = supportRepository.findById(id)
                 .orElseThrow(() -> new CustomException(ErrorCode.SUPPORT_NOT_FOUND));
@@ -61,5 +61,12 @@ public class SupportService {
         Support updated = supportRepository.save(support);
         return SupportDetailResponse.from(updated);
     }
+
+    public void deleteSupport(Long id) {
+        Support support = supportRepository.findById(id)
+                .orElseThrow(() -> new CustomException(ErrorCode.SUPPORT_NOT_FOUND));
+        supportRepository.delete(support);
+    }
+
 
 }
