@@ -18,6 +18,7 @@ public class SupportService {
 
     private final SupportRepository supportRepository;
 
+    // 전체 조회
     public List<SupportResponse> getAllSupports() {
         return supportRepository.findAll()
                 .stream()
@@ -25,6 +26,7 @@ public class SupportService {
                 .toList();
     }
 
+    // 카테고리별 조회
     public List<SupportResponse> getSupportsByType(SupportType type) {
         return supportRepository.findBySupportType(type)
                 .stream()
@@ -32,44 +34,16 @@ public class SupportService {
                 .toList();
     }
 
+    // 상세 조회
     public SupportDetailResponse getSupportDetail(Long id) {
         Support support = supportRepository.findById(id)
                 .orElseThrow(() -> new CustomException(ErrorCode.SUPPORT_NOT_FOUND));
         return SupportDetailResponse.from(support);
     }
 
+    // 진행 중인 개수 조회
     public long getActiveSupportCount() {
         return supportRepository.countActiveSupports();
     }
-
-    public SupportDetailResponse createSupport(Support support) {
-        Support saved = supportRepository.save(support);
-        return SupportDetailResponse.from(saved);
-    }
-
-    public SupportDetailResponse updateSupport(Long id, Support updateRequest) {
-        Support support = supportRepository.findById(id)
-                .orElseThrow(() -> new CustomException(ErrorCode.SUPPORT_NOT_FOUND));
-
-        support.update(
-                updateRequest.getName(),
-                updateRequest.getCompany(),
-                updateRequest.getContent(),
-                updateRequest.getPlace(),
-                updateRequest.getEndPoint(),
-                updateRequest.getSupportType()
-        );
-
-
-        Support updated = supportRepository.save(support);
-        return SupportDetailResponse.from(updated);
-    }
-
-    public void deleteSupport(Long id) {
-        Support support = supportRepository.findById(id)
-                .orElseThrow(() -> new CustomException(ErrorCode.SUPPORT_NOT_FOUND));
-        supportRepository.delete(support);
-    }
-
-
 }
+
