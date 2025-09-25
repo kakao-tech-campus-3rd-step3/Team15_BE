@@ -36,5 +36,10 @@ public class NotificationService {
         }
         notification.markAsRead();
     }
+
+    @Transactional
+    public void markAllAsRead(User receiver){
+        notificationRepository.markAllAsRead(receiver);
+    }
 }
 
