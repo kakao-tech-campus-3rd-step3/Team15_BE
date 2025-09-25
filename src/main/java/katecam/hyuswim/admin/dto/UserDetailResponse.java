@@ -3,28 +3,22 @@ package katecam.hyuswim.admin.dto;
 import java.time.LocalDateTime;
 import java.util.List;
 import katecam.hyuswim.user.domain.UserStatus;
+import lombok.Getter;
 
+@Getter
 public class UserDetailResponse {
     private final Long userId;
-    private final String email;
     private final UserStatus status;
     private final List<PostSummary> posts;
     private final List<CommentSummary> comments;
 
-    public UserDetailResponse(Long userId, String email, UserStatus status,
+    public UserDetailResponse(Long userId, UserStatus status,
                               List<PostSummary> posts, List<CommentSummary> comments) {
         this.userId = userId;
-        this.email = email;
         this.status = status;
         this.posts = posts;
         this.comments = comments;
     }
-
-    public Long getUserId() { return userId; }
-    public String getEmail() { return email; }
-    public UserStatus getStatus() { return status; }
-    public List<PostSummary> getPosts() { return posts; }
-    public List<CommentSummary> getComments() { return comments; }
 
     public static class PostSummary {
         private final Long postId;

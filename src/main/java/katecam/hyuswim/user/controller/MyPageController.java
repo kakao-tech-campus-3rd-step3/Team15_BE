@@ -19,13 +19,13 @@ public class MyPageController {
 
   private final MyPageService myPageService;
 
-  @GetMapping("/overview")
+  @GetMapping("/me/stats")
   public ResponseEntity<MyOverviewResponse> myOverview(@LoginUser User loginUser) {
     return ResponseEntity.ok(myPageService.selectMyOverview(loginUser));
   }
 
   @GetMapping("/me/posts")
-  public ResponseEntity<List<MyPostListReponse>> myPostList(@LoginUser User loginUser) {
+  public ResponseEntity<List<MyPostListResponse>> myPostList(@LoginUser User loginUser) {
     return ResponseEntity.ok(myPageService.selectMyPostList(loginUser));
   }
 
@@ -34,7 +34,7 @@ public class MyPageController {
     return ResponseEntity.ok(myPageService.selectMyCommentList(loginUser));
   }
 
-  @GetMapping("/me/liked-posts")
+  @GetMapping("/me/likes")
   public ResponseEntity<List<MyLikedPostResponse>> myLikedPostList(@LoginUser User loginUser) {
     return ResponseEntity.ok(myPageService.selectMyLikedPostList(loginUser));
   }
@@ -55,5 +55,10 @@ public class MyPageController {
     public ResponseEntity<Void> updateLikeNotification(@LoginUser User loginUser, @RequestBody Map<String, Boolean> requestMap) {
       myPageService.updateLikeNotification(loginUser, requestMap.get("enabled"));
       return ResponseEntity.ok().build();
+  }
+
+  @GetMapping("/me/profile")
+    public ResponseEntity<MyProfileReponse> myProfile(@LoginUser User loginUser) {
+      return ResponseEntity.ok(myPageService.selectMyProfile(loginUser));
   }
 }

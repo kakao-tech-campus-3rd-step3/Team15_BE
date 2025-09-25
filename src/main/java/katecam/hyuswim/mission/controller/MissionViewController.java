@@ -63,4 +63,10 @@ public class MissionViewController {
     missionService.completeMission(currentUserId(), missionId);
     return "redirect:/missions";
   }
+
+    @PostMapping("/{missionId}/cancel")
+    public String cancel(@PathVariable Long missionId) {
+        missionService.cancelMission(currentUserId(), missionId);
+        return "redirect:/missions";
+    }
 }

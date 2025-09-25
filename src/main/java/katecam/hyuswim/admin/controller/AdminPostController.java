@@ -30,4 +30,22 @@ public class AdminPostController {
         model.addAttribute("post", post);
         return "admin/posts/detail";
     }
+
+    @PostMapping("/{postId}/hide")
+    public String hidePost(@PathVariable Long postId) {
+        adminPostService.hidePost(postId);
+        return "redirect:/admin/posts";
+    }
+
+    @PostMapping("/{postId}/unhide")
+    public String unhidePost(@PathVariable Long postId) {
+        adminPostService.unhidePost(postId);
+        return "redirect:/admin/posts";
+    }
+
+    @DeleteMapping("/{postId}")
+    public String deletePost(@PathVariable Long postId) {
+        adminPostService.deletePost(postId);
+        return "redirect:/admin/posts";
+    }
 }

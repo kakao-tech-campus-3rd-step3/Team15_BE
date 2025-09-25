@@ -1,0 +1,95 @@
+<!-- src/main/resources/templates/challenges/list.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+    <meta charset="UTF-8"/>
+    <title>도전과제</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <style>
+        :root { --radius: 14px; }
+        body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; margin: 24px; }
+        h1 { margin: 0 0 8px 0; }
+        .muted { color:#666; font-size: 14px; }
+        .wrap { display: grid; gap: 14px; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); }
+        .card { border:1px solid #e5e7eb; border-radius: var(--radius); padding:16px; background:#fff; }
+        .row { display:flex; align-items:center; gap:8px; flex-wrap: wrap; }
+        .row-right { margin-left:auto; }
+        .pill { display:inline-block; padding:2px 10px; border-radius:999px; border:1px solid #ddd; font-size:12px; background:#fafafa; }
+        .title { font-weight: 600; font-size: 18px; margin:10px 0 6px; }
+        .desc { color:#555; font-size:14px; margin:0 0 10px 0; line-height:1.5; }
+        .progress { height:10px; background:#eee; border-radius:999px; overflow:hidden; }
+        .bar { height:100%; background:#222; width:0; }
+        .meta { font-size: 12px; color:#666; display:flex; gap:8px; }
+        .btn { padding:8px 12px; border-radius:10px; border:1px solid #d1d5db; background:#f9fafb; cursor:pointer; }
+        .btn.primary { background:#111827; color:#fff; border-color:#111827; }
+        .btn:disabled { opacity:.5; cursor:not-allowed; }
+        img.icon { width: 28px; height: 28px; border-radius:8px; object-fit: cover; border:1px solid #eee; }
+        .topbar { display:flex; align-items:center; gap:8px; margin-bottom:16px; }
+    </style>
+</head>
+<body>
+<h1>도전과제</h1>
+<div class="topbar">
+    <span class="pill" th:text="'달성: ' + ${achievedCount}"></span>
+    <span class="pill" th:text="'수령 가능: ' + ${claimableCount}"></span>
+    <span class="muted">도전과제를 달성하면 추가 포인트를 받을 수 있어요.</span>
+</div>
+
+<div class="wrap">
+    <div class="card"
+         th:each="c : ${challenges}"
+         th:with="p=${progressMap[c.id]},
+              cur=${p != null ? p.currentValue : 0},
+              ach=${p != null ? p.achieved : false},
+              clm=${p != null ? p.claimed : false},
+              tgt=${c.targetValue},
+              pct=${tgt > 0 ? (cur * 100.0 / tgt) : 0},
+              pctFmt=${#numbers.formatDecimal(pct, 0, 0)}">
+        <div class="row">
+            <img class="icon" th:if="${c.iconUrl != null}" th:src="${c.iconUrl}" alt="icon"/>
+            <span class="pill" th:text="${c.ruleType}">RULE</span>
+            <span class="pill" th:if="${c.requiredLevel != null}" th:text="${c.requiredLevel}">LEVEL</span>
+            <span class="pill" th:if="${c.requiredCategory != null}" th:text="${c.requiredCategory}">CATEGORY</span>
+            <span class="pill" th:if="${!c.active}">비활성</span>
+            <span class="row-right pill" th:if="${ach && clm}">보상 수령 완료</span>
+            <span class="row-right pill" th:if="${ach && !clm}">수령 대기</span>
+        </div>
+
+        <div class="title" th:text="${c.title}">도전과제 제목</div>
+        <p class="desc" th:text="${c.description}">설명</p>
+
+        <div class="meta" style="margin:6px 0 8px 0;">
+            <span th:text="'진행도: ' + ${cur} + ' / ' + ${tgt}"></span>
+            <span th:text="'보상: ' + ${c.rewardPoints} + 'P'"></span>
+        </div>
+
+        <div class="progress" aria-hidden="true">
+            <!-- ✅ 리터럴 치환 사용 -->
+            <div class="bar" th:style="|width: ${pctFmt}%;|"></div>
+        </div>
+
+        <div class="row" style="margin-top:10px;">
+            <!-- 달성 + 미수령: 수령 버튼 -->
+            <form th:if="${ach and !clm}" th:action="@{|/challenges/${c.id}/claim|}" method="post">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <button class="btn primary">보상 수령</button>
+            </form>
+
+            <!-- 미달성: 진행중 표시 -->
+            <button th:if="${!ach}" class="btn" disabled>진행 중</button>
+
+            <!-- 달성+수령됨 -->
+            <span th:if="${ach and clm}" class="pill">완료됨</span>
+
+            <!-- 기간 표시(옵션: extras-java8time 없을 수 있어 toString) -->
+            <span class="row-right muted"
+                  th:if="${c.timeWindowStart != null or c.timeWindowEnd != null}"
+                  th:text="'기간: ' + (${c.timeWindowStart} != null ? ${c.timeWindowStart} : '시작무관')
+                               + ' ~ ' +
+                               (${c.timeWindowEnd} != null ? ${c.timeWindowEnd} : '상시')">
+        </span>
+        </div>
+    </div>
+</div>
+</body>
+</html>

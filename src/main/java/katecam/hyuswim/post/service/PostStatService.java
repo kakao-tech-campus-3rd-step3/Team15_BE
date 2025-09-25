@@ -4,6 +4,7 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+import katecam.hyuswim.post.dto.PostCountResponse;
 import org.springframework.stereotype.Service;
 
 import katecam.hyuswim.post.dto.PostStatsResponse;
@@ -31,4 +32,11 @@ public class PostStatService {
 
     return new PostStatsResponse(totalCount, weekCount, todayCount);
   }
+
+  public PostCountResponse getPostCount(){
+      long totalCount = postRepository.countByIsDeletedFalse();
+
+      return new PostCountResponse(totalCount);
+  }
+
 }

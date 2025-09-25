@@ -12,7 +12,7 @@
             <th>제목</th>
             <th>작성자</th>
             <th>작성일</th>
-            <th>상세</th>
+            <th>관리</th>
         </tr>
         </thead>
         <tbody>
@@ -23,6 +23,23 @@
             <td th:text="${#temporals.format(post.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
             <td>
                 <a th:href="@{|/admin/posts/${post.id}|}" class="btn btn-sm btn-primary">보기</a>
+
+                <!-- 숨김 -->
+                <form th:action="@{|/admin/posts/${post.id}/hide|}" method="post" style="display:inline;">
+                    <button type="submit" class="btn btn-sm btn-warning">숨김</button>
+                </form>
+
+                <!-- 숨김 해제 -->
+                <form th:action="@{|/admin/posts/${post.id}/unhide|}" method="post" style="display:inline;">
+                    <button type="submit" class="btn btn-sm btn-success">숨김 해제</button>
+                </form>
+
+                <!-- 삭제 -->
+                <form th:action="@{|/admin/posts/${post.id}|}" method="post" style="display:inline;"
+                      onsubmit="return confirm('정말 삭제하시겠습니까?');">
+                    <input type="hidden" name="_method" value="delete"/>
+                    <button type="submit" class="btn btn-sm btn-danger">삭제</button>
+                </form>
             </td>
         </tr>
         </tbody>
