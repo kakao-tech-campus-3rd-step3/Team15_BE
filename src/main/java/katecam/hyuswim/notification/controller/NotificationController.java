@@ -18,6 +18,11 @@ public class NotificationController {
     private final NotificationService notificationService;
 
     @GetMapping
+    public ResponseEntity<Long> getUnreadCount(@LoginUser User user){
+        return ResponseEntity.ok(notificationService.getUnreadCount(user));
+    }
+
+    @GetMapping
     public ResponseEntity<List<NotificationResponse>> getNotifications(@LoginUser User loginUser) {
         return ResponseEntity.ok(notificationService.getNotifications(loginUser));
     }
