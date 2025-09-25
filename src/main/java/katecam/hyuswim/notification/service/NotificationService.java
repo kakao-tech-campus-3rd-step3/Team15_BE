@@ -21,6 +21,11 @@ public class NotificationService {
     private final NotificationRepository notificationRepository;
 
     @Transactional(readOnly = true)
+    public long getUnreadCount(User receiver){
+        return notificationRepository.countByReceiverAndIsReadFalse(receiver);
+    }
+
+    @Transactional(readOnly = true)
     public List<NotificationResponse> getNotifications(User receiver) {
         return notificationRepository.findByReceiverOrderByCreatedAtDesc(receiver)
                 .stream()
@@ -42,9 +47,9 @@ public class NotificationService {
         notificationRepository.markAllAsRead(receiver);
     }
 
-    @Transactional(readOnly = true)
-    public long getUnreadCount(User receiver){
-        return notificationRepository.countByReceiverAndIsReadFalse(receiver);
+    @Transactional
+    public void deleteNotification(Long notificationId, User receiver) {
+        notificationRepository.deleteByIdAndReceiver(notificationId,receiver);
     }
 }
 

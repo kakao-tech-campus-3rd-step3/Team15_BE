@@ -17,4 +17,7 @@ public interface NotificationRepository extends JpaRepository<Notification,Long>
     void markAllAsRead(@Param("receiver") User receiver);
 
     long countByReceiverAndIsReadFalse(User receiver);
+
+    void deleteByIdAndReceiver(Long id, User receiver);
+
 }
