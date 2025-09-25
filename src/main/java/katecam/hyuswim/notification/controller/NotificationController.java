@@ -39,5 +39,11 @@ public class NotificationController {
         return ResponseEntity.noContent().build();
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteNotification(@PathVariable Long id, @LoginUser User user
+    ) {
+        notificationService.deleteNotification(id, user);
+        return ResponseEntity.noContent().build();
+    }
 }
 
