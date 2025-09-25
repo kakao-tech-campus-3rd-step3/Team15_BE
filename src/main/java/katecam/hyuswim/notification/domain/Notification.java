@@ -47,4 +47,8 @@ public class Notification {
   @CreatedDate
   @Column(name = "created_at", updatable = false)
   private LocalDateTime createdAt;
+
+  public void markAsRead(){
+        this.isRead = true;
+  }
 }
