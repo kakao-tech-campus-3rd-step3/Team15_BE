@@ -1,7 +1,7 @@
 package katecam.hyuswim.common.config;
 
 import jakarta.servlet.http.HttpServletResponse;
-import katecam.hyuswim.auth.jwt.JwtFilter;
+import katecam.hyuswim.auth.filter.JwtFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
