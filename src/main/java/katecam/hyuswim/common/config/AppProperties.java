@@ -5,7 +5,6 @@ import org.springframework.context.annotation.Configuration;
 
 import java.util.List;
 
-@Configuration
 @ConfigurationProperties(prefix = "app")
 public record AppProperties(List<String> frontendUrls) {}
 
