@@ -3,7 +3,7 @@ package katecam.hyuswim.like.controller;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import katecam.hyuswim.auth.login.LoginUser;
+import katecam.hyuswim.auth.annotation.LoginUser;
 import katecam.hyuswim.like.service.PostLikeService;
 import katecam.hyuswim.user.domain.User;
 import lombok.RequiredArgsConstructor;

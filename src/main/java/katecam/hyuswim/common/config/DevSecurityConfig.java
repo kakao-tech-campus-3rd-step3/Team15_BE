@@ -1,7 +1,7 @@
 package katecam.hyuswim.common.config;
 
 import jakarta.servlet.http.HttpServletResponse;
-import katecam.hyuswim.auth.jwt.JwtFilter;
+import katecam.hyuswim.auth.filter.JwtFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
@@ -41,7 +41,7 @@ public class DevSecurityConfig {
                     return config;
                 }))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/signup", "/api/auth/login","/api/auth/refresh","/api/counsel/**").permitAll()
+                        .requestMatchers("/api/auth/signup", "/api/auth/login","/api/auth/refresh","/api/counsel/**","/api/auth/email/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/**").permitAll()
                         .anyRequest().authenticated()
                 )

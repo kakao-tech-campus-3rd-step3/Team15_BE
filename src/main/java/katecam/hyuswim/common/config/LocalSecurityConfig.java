@@ -16,7 +16,7 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
 import jakarta.servlet.http.HttpServletResponse;
-import katecam.hyuswim.auth.jwt.JwtFilter;
+import katecam.hyuswim.auth.filter.JwtFilter;
 
 @Configuration
 @Profile("local")
@@ -42,7 +42,7 @@ public class LocalSecurityConfig {
   public SecurityFilterChain apiChain(HttpSecurity http, JwtFilter jwtFilter) throws Exception {
       http.securityMatcher("/api/**")
               .authorizeHttpRequests(auth -> auth
-                      .requestMatchers("/api/auth/signup", "/api/auth/login","/api/auth/refresh","/api/counsel/**").permitAll()
+                      .requestMatchers("/api/auth/signup", "/api/auth/login","/api/auth/refresh","/api/counsel/**","/api/auth/email/**").permitAll()
                       .requestMatchers("/api/admin/**").hasRole("ADMIN")
                       .requestMatchers(HttpMethod.GET, "/api/**").permitAll()
                       .anyRequest().authenticated()
