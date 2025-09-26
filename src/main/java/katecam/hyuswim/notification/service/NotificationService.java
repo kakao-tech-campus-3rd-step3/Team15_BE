@@ -1,7 +1,9 @@
 package katecam.hyuswim.notification.service;
 
 import katecam.hyuswim.common.error.CustomException;
+import katecam.hyuswim.notification.domain.NotiType;
 import katecam.hyuswim.notification.domain.Notification;
+import katecam.hyuswim.notification.domain.TargetType;
 import katecam.hyuswim.notification.repository.NotificationRepository;
 import katecam.hyuswim.notification.dto.NotificationResponse;
 import katecam.hyuswim.user.domain.User;
