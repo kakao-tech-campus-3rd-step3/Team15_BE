@@ -164,7 +164,7 @@ jobs:
             --spring.datasource.password=${{ secrets.DB_PASSWORD }} \
             --jwt.secret=${{ secrets.JWT_SECRET }} \
             --openai.api-key=${{ secrets.OPENAI_API_KEY }} \
-            --app.frontend-urls=${{ secrets.FRONTEND_URLS }} \
+            --app.frontend-urls=${{ secrets.FRONTEND_URL }} \
             --kakao.client-id=${{ secrets.KAKAO_CLIENT_ID }} \
             --kakao.redirect-uri=${{ secrets.KAKAO_REDIRECT_URI }} \
             --google.client-id=${{ secrets.GOOGLE_CLIENT_ID }} \
