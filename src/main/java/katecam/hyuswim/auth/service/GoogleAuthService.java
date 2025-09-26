@@ -52,8 +52,8 @@ public class GoogleAuthService {
 
     @Transactional
     public LoginTokens loginWithGoogle(String code) {
-        GoogleTokenResponse tokenResponse = requestToken(code);
-        GoogleIdTokenPayload payload = extractPayload(tokenResponse.idToken());
+        GoogleTokenResponse tokenResponse = requestGoogleToken(code);
+        GoogleIdTokenPayload payload = parseIdTokenPayload(tokenResponse.idToken());
         String sub = payload.sub();
 
         UserAuth userAuth = userAuthRepository.findByProviderAndProviderIdAndUser_IsDeletedFalse(AuthProvider.GOOGLE, sub)
@@ -69,7 +69,7 @@ public class GoogleAuthService {
         return new LoginTokens(accessToken, refreshToken);
     }
 
-    private GoogleTokenResponse requestToken(String code) {
+    private GoogleTokenResponse requestGoogleToken(String code) {
         URI uri = URI.create(googleProperties.tokenUri());
 
         MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
@@ -92,7 +92,7 @@ public class GoogleAuthService {
     }
 
 
-    private GoogleIdTokenPayload extractPayload(String idToken) {
+    private GoogleIdTokenPayload parseIdTokenPayload(String idToken) {
         try {
             String[] parts = idToken.split("\\.");
             if (parts.length < 2) {

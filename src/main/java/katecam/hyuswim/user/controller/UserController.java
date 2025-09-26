@@ -1,6 +1,6 @@
 package katecam.hyuswim.user.controller;
 
-import katecam.hyuswim.auth.login.LoginUser;
+import katecam.hyuswim.auth.annotation.LoginUser;
 import katecam.hyuswim.user.domain.User;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

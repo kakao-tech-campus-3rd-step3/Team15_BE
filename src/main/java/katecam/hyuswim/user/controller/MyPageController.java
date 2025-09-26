@@ -7,7 +7,7 @@ import katecam.hyuswim.user.dto.mypage.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import katecam.hyuswim.auth.login.LoginUser;
+import katecam.hyuswim.auth.annotation.LoginUser;
 import katecam.hyuswim.user.domain.User;
 import katecam.hyuswim.user.service.MyPageService;
 import lombok.RequiredArgsConstructor;

@@ -5,6 +5,8 @@ on:
     branches: [develop]
   pull_request:
     branches: [develop]
+  workflow_dispatch:
+
 
 jobs:
   build-and-deploy:
@@ -164,12 +166,17 @@ jobs:
             --spring.data.redis.port=${{ secrets.REDIS_PORT }} \
             --jwt.secret=${{ secrets.JWT_SECRET }} \
             --openai.api-key=${{ secrets.OPENAI_API_KEY }} \
-            --app.frontend-urls=${{ secrets.FRONTEND_URLS }} \
+            --app.frontend-urls=\"${{ secrets.FRONTEND_URL }}\" \
             --kakao.client-id=${{ secrets.KAKAO_CLIENT_ID }} \
             --kakao.redirect-uri=${{ secrets.KAKAO_REDIRECT_URI }} \
             --google.client-id=${{ secrets.GOOGLE_CLIENT_ID }} \
             --google.client-secret=${{ secrets.GOOGLE_CLIENT_SECRET }} \
-            --google.redirect-uri=${{ secrets.GOOGLE_REDIRECT_URI }}"
+            --google.redirect-uri=${{ secrets.GOOGLE_REDIRECT_URI }} \
+            --spring.data.redis.host=${{ secrets.REDIS_HOST }} \
+            --spring.data.redis.port=${{ secrets.REDIS_PORT }} \
+            --MAIL_USERNAME=${{ secrets.MAIL_USERNAME }} \
+            --MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}"
+
 
             # 백그라운드 실행
             nohup java -Dspring.profiles.active=dev -jar "${APP_JAR}" $JAVA_OPTS > "${LOG_FILE_PATH}" 2>&1 &
