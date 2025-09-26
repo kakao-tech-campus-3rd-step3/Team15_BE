@@ -176,7 +176,7 @@ jobs:
             --MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}"
 
 
-  # 백그라운드 실행
+            # 백그라운드 실행
             nohup java -Dspring.profiles.active=dev -jar "${APP_JAR}" $JAVA_OPTS > "${LOG_FILE_PATH}" 2>&1 &
 
             # 기동 확인 (백그라운드 프로세스 PID 기준)
