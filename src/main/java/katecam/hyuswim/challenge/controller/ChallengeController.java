@@ -5,7 +5,7 @@ import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import katecam.hyuswim.auth.login.LoginUser;
+import katecam.hyuswim.auth.annotation.LoginUser;
 import katecam.hyuswim.challenge.dto.ChallengeProgressResponse;
 import katecam.hyuswim.challenge.dto.ChallengeResponse;
 import katecam.hyuswim.challenge.service.ChallengeService;

@@ -1,4 +1,4 @@
-package katecam.hyuswim.auth.jwt;
+package katecam.hyuswim.auth.filter;
 
 import java.io.IOException;
 

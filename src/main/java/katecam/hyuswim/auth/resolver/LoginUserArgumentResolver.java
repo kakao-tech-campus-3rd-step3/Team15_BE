@@ -1,5 +1,6 @@
-package katecam.hyuswim.auth.login;
+package katecam.hyuswim.auth.resolver;
 
+import katecam.hyuswim.auth.annotation.LoginUser;
 import katecam.hyuswim.auth.principal.UserPrincipal;
 import org.springframework.core.MethodParameter;
 import org.springframework.security.core.Authentication;
