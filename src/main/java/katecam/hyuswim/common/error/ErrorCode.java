@@ -44,6 +44,10 @@ public enum ErrorCode {
     REPORT_REASON_REQUIRED(HttpStatus.BAD_REQUEST, "기타 사유 선택 시 내용은 필수입니다."),
     REPORT_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 신고 내역입니다."),
 
+    //Notification
+    NOTIFICATION_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 알림 입니다."),
+    NOTIFICATION_ACCESS_DENIED(HttpStatus.FORBIDDEN, "알림 수신자만 접근할 수 있습니다."),
+
     //Counseling
     JSON_SERIALIZATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "메시지 직렬화에 실패했습니다."),
     JSON_DESERIALIZATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "메시지 역직렬화에 실패했습니다."),
