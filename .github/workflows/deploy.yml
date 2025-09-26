@@ -163,7 +163,6 @@ jobs:
             --spring.datasource.username=${{ secrets.DB_USER }} \
             --spring.datasource.password=${{ secrets.DB_PASSWORD }} \
             --spring.data.redis.host=127.0.0.1 \
-            --spring.data.redis.port=${{ secrets.REDIS_PORT }} \
             --jwt.secret=${{ secrets.JWT_SECRET }} \
             --openai.api-key=${{ secrets.OPENAI_API_KEY }} \
             --app.frontend-urls=\"${{ secrets.FRONTEND_URL }}\" \
