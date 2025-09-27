@@ -45,19 +45,19 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew build -x test
 
-      # 6) 빌드 산출물(JAR) 파일명 추출 (최신 파일만)
+      # 6) 빌드 산출물(JAR) 파일명 추출 (최신 실행용 JAR만)
       - name: Find and export latest JAR file name
         id: find_jar
         shell: bash
         run: |
           set -euo pipefail
-          FILE=$(ls -t build/libs/*.jar | head -n1)
+          FILE=$(ls -t build/libs/*-SNAPSHOT.jar | grep -v 'plain' | head -n1)
           if [ -z "$FILE" ]; then
-            echo "::error::No JAR file found in build/libs/"
+            echo "::error::No executable JAR file found in build/libs/"
             exit 1
           fi
           JAR_FILE_NAME="$(basename "$FILE")"
-          echo "Found latest JAR file: $JAR_FILE_NAME"
+          echo "Found executable JAR file: $JAR_FILE_NAME"
           echo "JAR_NAME=$JAR_FILE_NAME" >> "$GITHUB_OUTPUT"
 
       # (디버그) 빌드 산출물 확인
