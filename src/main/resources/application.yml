@@ -6,7 +6,7 @@ openai:
   api-key: ${OPENAI_API_KEY}
 
 app:
-  frontend-urls: ${FRONTEND_URL}
+  frontend-urls: ${FRONTEND_URLS}
 
 kakao:
   client-id: ${KAKAO_CLIENT_ID}
