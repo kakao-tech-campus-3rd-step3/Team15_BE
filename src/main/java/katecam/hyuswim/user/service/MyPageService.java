@@ -6,11 +6,14 @@ import java.util.stream.Collectors;
 
 import katecam.hyuswim.auth.domain.UserAuth;
 import katecam.hyuswim.auth.repository.UserAuthRepository;
+import katecam.hyuswim.common.error.CustomException;
+import katecam.hyuswim.common.error.ErrorCode;
 import katecam.hyuswim.mission.progress.MissionProgress;
 import katecam.hyuswim.user.domain.AuthProvider;
 import katecam.hyuswim.user.dto.mypage.*;
 import katecam.hyuswim.user.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,10 +30,11 @@ import lombok.RequiredArgsConstructor;
 public class MyPageService {
 
   private final PostLikeRepository postLikeRepository;
-  private final UserRepository userRepository;
   private final UserAuthRepository userAuthRepository;
+  private final PasswordEncoder passwordEncoder;
 
-  @Transactional
+
+    @Transactional
   public MyOverviewResponse selectMyOverview(User loginUser) {
     Long userId = loginUser.getId();
     int postCount = loginUser.getPosts().size();
@@ -211,6 +215,24 @@ public class MyPageService {
     @Transactional
     public MyProfileEditResponse selectMyProfileEdit(User loginUser) {
       return new MyProfileEditResponse(loginUser.getNickname(), loginUser.getIntroduction());
+    }
+
+    @Transactional
+    public void updatePassword(User user, PasswordUpdateRequest passwordUpdateRequest) {
+
+        UserAuth userAuth = userAuthRepository.findByUser(user)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        if (!passwordEncoder.matches(passwordUpdateRequest.getCurrentPassword(), userAuth.getPassword())) {
+            throw new CustomException(ErrorCode.INVALID_PASSWORD);
+        }
+
+        if(!passwordUpdateRequest.getNewPassword().equals(passwordUpdateRequest.getConfirmPassword())){
+            throw new CustomException(ErrorCode.PASSWORD_MISMATCH);
+        }
+
+        String encodedPassword = passwordEncoder.encode(passwordUpdateRequest.getNewPassword());
+        userAuth.updatePassword(encodedPassword);
     }
 
 

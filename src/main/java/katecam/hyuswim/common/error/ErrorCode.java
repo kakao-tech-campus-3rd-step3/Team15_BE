@@ -12,6 +12,8 @@ public enum ErrorCode {
     DUPLICATE_EMAIL(HttpStatus.CONFLICT, "이미 사용 중인 이메일입니다."),
     LOGIN_FAILED(HttpStatus.UNAUTHORIZED, "아이디 또는 비밀번호가 잘못되었습니다"),
     WITHDRAWAL_FAILED(HttpStatus.BAD_REQUEST, "회원탈퇴에 실패했습니다."),
+    INVALID_PASSWORD(HttpStatus.UNAUTHORIZED, "비밀번호가 올바르지 않습니다."),
+    PASSWORD_MISMATCH(HttpStatus.BAD_REQUEST, "비밀번호 확인이 일치하지 않습니다."),
 
     //Email
     EMAIL_SEND_FAILED(HttpStatus.INTERNAL_SERVER_ERROR,"이메일 발송에 실패했습니다."),

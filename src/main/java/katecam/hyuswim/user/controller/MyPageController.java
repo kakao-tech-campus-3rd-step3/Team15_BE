@@ -66,4 +66,10 @@ public class MyPageController {
     public ResponseEntity<MyProfileReponse> myProfile(@LoginUser User loginUser) {
       return ResponseEntity.ok(myPageService.selectMyProfile(loginUser));
   }
+
+  @PutMapping("/me/password")
+    public ResponseEntity<Void> updatePassword(@LoginUser User loginUser, @RequestBody PasswordUpdateRequest passwordUpdateRequest) {
+      myPageService.updatePassword(loginUser, passwordUpdateRequest);
+      return ResponseEntity.ok().build();
+  }
 }
