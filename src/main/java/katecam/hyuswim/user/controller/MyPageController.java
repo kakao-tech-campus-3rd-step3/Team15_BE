@@ -72,4 +72,9 @@ public class MyPageController {
       myPageService.updatePassword(loginUser, passwordUpdateRequest);
       return ResponseEntity.ok().build();
   }
+
+  @GetMapping("/me/email")
+    public ResponseEntity<Map<String,String>> myEmail(@LoginUser User loginUser) {
+      return ResponseEntity.ok(myPageService.selectEmail(loginUser));
+  }
 }

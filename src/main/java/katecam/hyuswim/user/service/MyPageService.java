@@ -1,7 +1,6 @@
 package katecam.hyuswim.user.service;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import katecam.hyuswim.auth.domain.UserAuth;
@@ -233,6 +232,15 @@ public class MyPageService {
 
         String encodedPassword = passwordEncoder.encode(passwordUpdateRequest.getNewPassword());
         userAuth.updatePassword(encodedPassword);
+    }
+
+    @Transactional
+    public Map<String, String> selectEmail(User user) {
+        UserAuth userAuth = userAuthRepository.findByUser(user)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        Map<String, String> map = new HashMap<>();
+        map.put("email",userAuth.getEmail());
+        return map;
     }
 
 
