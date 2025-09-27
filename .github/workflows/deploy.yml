@@ -33,9 +33,9 @@ jobs:
           path: |
             ~/.gradle/caches
             ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          key: ${{runner.os}}-gradle-${{hashFiles('**/*.gradle*', '**/gradle-wrapper.properties')}}
           restore-keys: |
-            ${{ runner.os }}-gradle-
+            ${{runner.os}}-gradle-
 
       # 4) gradlew 실행권한
       - name: Grant execute permission for gradlew
@@ -68,9 +68,9 @@ jobs:
       - name: Ensure target dir on EC2
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_PEM_KEY }}
+          host: ${{secrets.EC2_HOST}}
+          username: ${{secrets.EC2_USER}}
+          key: ${{secrets.EC2_PEM_KEY}}
           script: |
             set -e
             mkdir -p /home/${USER}/Team15_BE
@@ -79,13 +79,13 @@ jobs:
       - name: Copy files to EC2
         uses: appleboy/scp-action@master
         with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_PEM_KEY }}
+          host: ${{secrets.EC2_HOST}}
+          username: ${{secrets.EC2_USER}}
+          key: ${{secrets.EC2_PEM_KEY}}
           source: |
-            build/libs/${{ steps.find_jar.outputs.JAR_NAME }}
+            build/libs/${{steps.find_jar.outputs.JAR_NAME}}
             docker-compose.yml
-          target: "/home/${{ secrets.EC2_USER }}/Team15_BE"
+          target: "/home/${{secrets.EC2_USER}}/Team15_BE"
           overwrite: true
           strip_components: 2
 
@@ -93,25 +93,25 @@ jobs:
       - name: Verify files on EC2
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_PEM_KEY }}
+          host: ${{secrets.EC2_HOST}}
+          username: ${{secrets.EC2_USER}}
+          key: ${{secrets.EC2_PEM_KEY}}
           script: |
             set -euo pipefail
             APP_DIR="/home/${USER}/Team15_BE"
             echo "--- Full listing of ${APP_DIR} ---"
             ls -al "${APP_DIR}"
             echo "--- Verifying specific files ---"
-            ls -l "${APP_DIR}/${{ steps.find_jar.outputs.JAR_NAME }}"
+            ls -l "${APP_DIR}/${{steps.find_jar.outputs.JAR_NAME}}"
             ls -l "${APP_DIR}/docker-compose.yml"
 
       # 10) Docker Compose 실행 (DB/Redis 반영)
       - name: Run Docker Compose on EC2
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_PEM_KEY }}
+          host: ${{secrets.EC2_HOST}}
+          username: ${{secrets.EC2_USER}}
+          key: ${{secrets.EC2_PEM_KEY}}
           script: |
             cd ~/Team15_BE
             echo "===> Docker Compose 실행"
@@ -127,14 +127,14 @@ jobs:
       - name: Deploy and Run on EC2
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_PEM_KEY }}
+          host: ${{secrets.EC2_HOST}}
+          username: ${{secrets.EC2_USER}}
+          key: ${{secrets.EC2_PEM_KEY}}
           script: |
             set -Eeuo pipefail
 
             APP_DIR="/home/${USER}/Team15_BE"
-            JAR_NAME="${{ steps.find_jar.outputs.JAR_NAME }}"
+            JAR_NAME="${{steps.find_jar.outputs.JAR_NAME}}"
             APP_JAR="app.jar"
             LOG_DIR="${APP_DIR}/logs"
 
@@ -166,21 +166,21 @@ jobs:
             LOG_FILE_PATH="${LOG_DIR}/${LOG_FILE_NAME}"
 
             echo "Starting new application (${APP_JAR})... Logging to ${LOG_FILE_PATH}"
-            JAVA_OPTS="--spring.datasource.url=jdbc:mysql://${{ secrets.DB_HOST }}:${{ secrets.DB_PORT }}/${{ secrets.DB_NAME }}?useSSL=false&serverTimezone=Asia/Seoul&characterEncoding=UTF-8 \
-            --spring.datasource.username=${{ secrets.DB_USER }} \
-            --spring.datasource.password=${{ secrets.DB_PASSWORD }} \
-            --spring.data.redis.host=${{ secrets.REDIS_HOST }} \
-            --spring.data.redis.port=${{ secrets.REDIS_PORT }} \
-            --jwt.secret=${{ secrets.JWT_SECRET }} \
-            --openai.api-key=${{ secrets.OPENAI_API_KEY }} \
-            --app.frontend-urls=\"${{ secrets.FRONTEND_URLS }}\" \
-            --kakao.client-id=${{ secrets.KAKAO_CLIENT_ID }} \
-            --kakao.redirect-uri=${{ secrets.KAKAO_REDIRECT_URI }} \
-            --google.client-id=${{ secrets.GOOGLE_CLIENT_ID }} \
-            --google.client-secret=${{ secrets.GOOGLE_CLIENT_SECRET }} \
-            --google.redirect-uri=${{ secrets.GOOGLE_REDIRECT_URI }} \
-            --MAIL_USERNAME=${{ secrets.MAIL_USERNAME }} \
-            --MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}"
+            JAVA_OPTS="--spring.datasource.url=jdbc:mysql://${{secrets.DB_HOST}}:${{secrets.DB_PORT}}/${{secrets.DB_NAME}}?useSSL=false&serverTimezone=Asia/Seoul&characterEncoding=UTF-8 \
+            --spring.datasource.username=${{secrets.DB_USER}} \
+            --spring.datasource.password=${{secrets.DB_PASSWORD}} \
+            --spring.data.redis.host=${{secrets.REDIS_HOST}} \
+            --spring.data.redis.port=${{secrets.REDIS_PORT}} \
+            --jwt.secret=${{secrets.JWT_SECRET}} \
+            --openai.api-key=${{secrets.OPENAI_API_KEY}} \
+            --app.frontend-urls=\"${{secrets.FRONTEND_URLS}}\" \
+            --kakao.client-id=${{secrets.KAKAO_CLIENT_ID}} \
+            --kakao.redirect-uri=${{secrets.KAKAO_REDIRECT_URI}} \
+            --google.client-id=${{secrets.GOOGLE_CLIENT_ID}} \
+            --google.client-secret=${{secrets.GOOGLE_CLIENT_SECRET}} \
+            --google.redirect-uri=${{secrets.GOOGLE_REDIRECT_URI}} \
+            --MAIL_USERNAME=${{secrets.MAIL_USERNAME}} \
+            --MAIL_PASSWORD=${{secrets.MAIL_PASSWORD}}"
 
             nohup java -Dspring.profiles.active=dev -jar "${APP_JAR}" $JAVA_OPTS > "${LOG_FILE_PATH}" 2>&1 &
             sleep 15
