@@ -208,6 +208,11 @@ public class MyPageService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
+    public MyProfileEditResponse selectMyProfileEdit(User loginUser) {
+      return new MyProfileEditResponse(loginUser.getNickname(), loginUser.getIntroduction());
+    }
+
 
 
 

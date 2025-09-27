@@ -39,6 +39,11 @@ public class MyPageController {
     return ResponseEntity.ok(myPageService.selectMyLikedPostList(loginUser));
   }
 
+  @GetMapping("/me/profile/edit")
+  public ResponseEntity<MyProfileEditResponse> selectMyProfileEdit(@LoginUser User loginUser) {
+      return ResponseEntity.ok(myPageService.selectMyProfileEdit(loginUser));
+  }
+
   @PatchMapping("/me/profile/edit/info")
   public ResponseEntity<Void> updateMyProfile(@LoginUser User loginUser, @RequestBody ProfileUpdate profileUpdate) {
     myPageService.updateUserProfile(loginUser, profileUpdate);
