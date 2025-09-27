@@ -41,7 +41,7 @@ public class Notification {
 
   private boolean isRead = false;
 
-  @Column(columnDefinition = "TEXT")
+  @Lob
   private String payload;
 
   @CreatedDate
