@@ -45,20 +45,19 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew build -x test
 
-      # 6) 빌드 산출물(SNAPSHOT) 파일명 추출
-      - name: Find and export JAR file name
+      # 6) 빌드 산출물(JAR) 파일명 추출 (최신 파일만)
+      - name: Find and export latest JAR file name
         id: find_jar
         shell: bash
         run: |
           set -euo pipefail
-          mapfile -t FILES < <(find build/libs -maxdepth 1 -type f -name "*-SNAPSHOT.jar" | sort)
-          if [ ${#FILES[@]} -eq 0 ]; then
-            echo "::error::No SNAPSHOT JAR file found in build/libs/"
+          FILE=$(ls -t build/libs/*.jar | head -n1)
+          if [ -z "$FILE" ]; then
+            echo "::error::No JAR file found in build/libs/"
             exit 1
           fi
-          JAR_FILE_PATH="${FILES[0]}"
-          JAR_FILE_NAME="$(basename "$JAR_FILE_PATH")"
-          echo "Found JAR file: $JAR_FILE_NAME"
+          JAR_FILE_NAME="$(basename "$FILE")"
+          echo "Found latest JAR file: $JAR_FILE_NAME"
           echo "JAR_NAME=$JAR_FILE_NAME" >> "$GITHUB_OUTPUT"
 
       # (디버그) 빌드 산출물 확인
