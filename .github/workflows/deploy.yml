@@ -67,7 +67,7 @@ jobs:
           source: "."
           target: "~/Team15_BE"
 
-      # EC2에서 Docker Compose 실행 (Secrets -> .env 주입)
+      # EC2에서 Build + Docker Compose 실행
       - name: Run Docker Compose on EC2
         uses: appleboy/ssh-action@v1.2.0
         with:
@@ -78,6 +78,11 @@ jobs:
           script: |
             cd ~/Team15_BE
 
+            echo "===== Gradle Build ====="
+            chmod +x ./gradlew
+            ./gradlew clean build -x test
+
+            echo "===== Generate .env ====="
             echo "SPRING_PROFILE=${SPRING_PROFILE}" > .env
             echo "DB_HOST=${DB_HOST}" >> .env
             echo "DB_PORT=${DB_PORT}" >> .env
@@ -99,10 +104,13 @@ jobs:
             echo "FRONTEND_URLS=${FRONTEND_URLS}" >> .env
             echo "APP_PORT=${APP_PORT}" >> .env
 
-            echo "==== GENERATED .env ===="
-            cat .env
-
+            echo "===== Docker Compose Restart ====="
             docker compose down
             docker compose --env-file .env up -d --build
 
+            echo "===== Container Status ====="
+            docker compose ps
+            docker logs --tail=50 hyuswim-app
+
+            echo "===== Clean up .env ====="
             rm -f .env
