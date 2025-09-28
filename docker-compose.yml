@@ -9,6 +9,7 @@ services:
     depends_on:
       - mysql
       - redis
+
     environment:
       SPRING_PROFILES_ACTIVE: ${SPRING_PROFILE}
       DB_HOST: ${DB_HOST}
@@ -30,7 +31,6 @@ services:
       FRONTEND_URLS: ${FRONTEND_URLS}
     restart: always
 
-
   mysql:
     image: mysql:8.0
     container_name: hyuswim-mysql
@@ -45,7 +45,6 @@ services:
       - mysql_data:/var/lib/mysql
     command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
     restart: always
-    profiles: ["dev"]
 
   redis:
     image: redis:7.2
@@ -55,7 +54,6 @@ services:
       - "${REDIS_PORT:-6379}:6379"
     volumes:
       - redis_data:/data
-    profiles: ["dev"]
 
 volumes:
   mysql_data:
