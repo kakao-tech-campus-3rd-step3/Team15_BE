@@ -2,10 +2,12 @@
 FROM gradle:8.7.0-jdk21 AS builder
 WORKDIR /app
 
-# 빌드에 필요한 최소한의 파일만 복사
 COPY build.gradle settings.gradle gradlew gradlew.bat /app/
 COPY gradle /app/gradle
 COPY src /app/src
+
+# gradlew 실행 권한 추가
+RUN chmod +x gradlew
 
 RUN ./gradlew clean build -x test
 
