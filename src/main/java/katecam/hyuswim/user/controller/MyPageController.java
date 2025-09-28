@@ -3,6 +3,8 @@ package katecam.hyuswim.user.controller;
 import java.util.List;
 import java.util.Map;
 
+import katecam.hyuswim.auth.dto.EmailSendRequest;
+import katecam.hyuswim.auth.dto.EmailVerifyRequest;
 import katecam.hyuswim.user.dto.mypage.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -77,4 +79,20 @@ public class MyPageController {
     public ResponseEntity<Map<String,String>> myEmail(@LoginUser User loginUser) {
       return ResponseEntity.ok(myPageService.selectEmail(loginUser));
   }
+
+  @PostMapping("/me/email/send")
+    public ResponseEntity<Void> sendEmailCode(@RequestBody EmailSendRequest emailSendRequest) {
+      myPageService.sendEmailCode(emailSendRequest);
+      return ResponseEntity.ok().build();
+  }
+
+
+  @PutMapping("/me/email")
+    public ResponseEntity<Void> updateEmail(@LoginUser User loginUser, @RequestBody EmailVerifyRequest emailVerifyRequest) {
+      myPageService.verifyEmailCode(emailVerifyRequest);
+      myPageService.updateEmail(loginUser, emailVerifyRequest.getEmail());
+      return ResponseEntity.ok().build();
+  }
+
+
 }

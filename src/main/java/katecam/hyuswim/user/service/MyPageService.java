@@ -4,7 +4,10 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import katecam.hyuswim.auth.domain.UserAuth;
+import katecam.hyuswim.auth.dto.EmailSendRequest;
+import katecam.hyuswim.auth.dto.EmailVerifyRequest;
 import katecam.hyuswim.auth.repository.UserAuthRepository;
+import katecam.hyuswim.auth.service.AuthEmailService;
 import katecam.hyuswim.common.error.CustomException;
 import katecam.hyuswim.common.error.ErrorCode;
 import katecam.hyuswim.mission.progress.MissionProgress;
@@ -31,6 +34,8 @@ public class MyPageService {
   private final PostLikeRepository postLikeRepository;
   private final UserAuthRepository userAuthRepository;
   private final PasswordEncoder passwordEncoder;
+  private final AuthEmailService authEmailService;
+
 
 
     @Transactional
@@ -241,6 +246,23 @@ public class MyPageService {
         Map<String, String> map = new HashMap<>();
         map.put("email",userAuth.getEmail());
         return map;
+    }
+
+    @Transactional
+    public void sendEmailCode(EmailSendRequest emailSendRequest) {
+        authEmailService.sendCode(emailSendRequest);
+    }
+
+    @Transactional
+    public void verifyEmailCode(EmailVerifyRequest emailVerifyRequest) {
+        authEmailService.verifyCode(emailVerifyRequest.getEmail(), emailVerifyRequest.getCode());
+    }
+
+    @Transactional
+    public void updateEmail(User user, String email) {
+        UserAuth userAuth = userAuthRepository.findByUser(user)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        userAuth.updateEmail(email);
     }
 
 
