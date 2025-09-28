@@ -162,11 +162,14 @@ public class MyPageService {
     }
 
     private List<MyProfileReponse.BadgeInfo> selectBadgeInfo(User loginUser) {
-        return loginUser.getBadges().stream()
-                .map(badge -> MyProfileReponse.BadgeInfo.builder()
-                        .name(badge.getName().toString())
-                        .iconUrl(badge.getIconUrl())
-                        .build())
+        return loginUser.getUserBadges().stream()
+                .map(userBadge -> {
+                    var badge = userBadge.getBadge();
+                    return MyProfileReponse.BadgeInfo.builder()
+                            .name(badge.getName())
+                            .iconUrl(badge.getIconUrl())
+                            .build();
+                })
                 .collect(Collectors.toList());
     }
 
