@@ -1,4 +1,4 @@
-name: CI/CD with Docker Compose
+name: CI/CD with Docker Compose (rsync)
 
 on:
   push:
@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  # 1. Pull Request 빌드 검증 (CI)
+  # 1. PR 빌드 검증
   build-validation:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
@@ -57,16 +57,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      # EC2로 프로젝트 동기화 (rsync, delete 옵션)
-      - name: Sync files to EC2
-        uses: appleboy/rsync-action@v0.1.7
+      # EC2로 rsync 전송 (원격 잔여 파일 자동 삭제)
+      - name: Sync files to EC2 with rsync
+        uses: burnett01/rsync-deployments@5.2.1
         with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_PEM_KEY }}
-          source: "./"
-          target: "~/Team15_BE"
-          delete: true   # 원격 서버에서 없는 파일은 자동 삭제
+          switches: -avzr --delete
+          path: ./
+          remote_path: ~/Team15_BE
+          remote_host: ${{ secrets.EC2_HOST }}
+          remote_user: ${{ secrets.EC2_USER }}
+          remote_key: ${{ secrets.EC2_PEM_KEY }}
 
       # EC2에서 Docker Compose 실행
       - name: Run Docker Compose on EC2
