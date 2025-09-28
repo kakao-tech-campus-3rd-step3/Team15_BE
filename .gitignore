@@ -37,7 +37,8 @@ out/
 .vscode/
 
 ### env ###
-.env
+.env.dev
+.env.local
 
 # MySQL local volume
 mysql-data/
