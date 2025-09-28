@@ -2,6 +2,8 @@ package katecam.hyuswim.comment.service;
 
 import katecam.hyuswim.ai.client.OpenAiClient;
 import katecam.hyuswim.ai.service.AiUserService;
+import katecam.hyuswim.badge.domain.BadgeKind;
+import katecam.hyuswim.badge.service.BadgeService;
 import katecam.hyuswim.comment.domain.AuthorTag;
 import katecam.hyuswim.comment.domain.AuthorTagResolver;
 import katecam.hyuswim.comment.dto.CommentTreeResponse;
@@ -33,6 +35,7 @@ public class CommentService {
   private final AuthorTagResolver authorTagResolver;
   private final OpenAiClient openAiClient;
   private final AiUserService aiUserService;
+  private final BadgeService badgeService;
 
   @Transactional
   public CommentDetailResponse createComment(User user, Long postId, CommentRequest request) {
@@ -52,6 +55,8 @@ public class CommentService {
             .build();
 
     Comment saved = commentRepository.save(comment);
+
+    badgeService.checkAndGrant(user.getId(), BadgeKind.DILIGENT_COMMENTER);
 
     return CommentDetailResponse.from(saved);
   }
@@ -107,6 +112,8 @@ public class CommentService {
       reply.assignParent(parent);
 
       commentRepository.save(reply);
+
+      badgeService.checkAndGrant(user.getId(), BadgeKind.DILIGENT_COMMENTER);
 
       return CommentTreeResponse.from(reply);
   }

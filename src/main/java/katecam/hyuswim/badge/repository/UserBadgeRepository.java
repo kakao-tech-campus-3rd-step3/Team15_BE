@@ -12,6 +12,4 @@ public interface UserBadgeRepository extends JpaRepository<UserBadge, Long> {
 
     @Query("select ub from UserBadge ub where ub.user.id = :userId")
     List<UserBadge> findAllByUserId(Long userId);
-
-    boolean existsByUser_IdAndBadge_Id(Long userId, Long badgeId);
 }
