@@ -67,7 +67,7 @@ jobs:
           source: "."
           target: "~/Team15_BE"
 
-      # EC2에서 Build + Docker Compose 실행
+      # EC2에서 Docker Compose 실행
       - name: Run Docker Compose on EC2
         uses: appleboy/ssh-action@v1.2.0
         with:
@@ -77,10 +77,6 @@ jobs:
           envs: SPRING_PROFILE,DB_HOST,DB_PORT,DB_NAME,DB_USER,DB_PASSWORD,DB_ROOT_PASSWORD,REDIS_HOST,REDIS_PORT,JWT_SECRET,OPENAI_API_KEY,KAKAO_CLIENT_ID,KAKAO_REDIRECT_URI,GOOGLE_CLIENT_ID,GOOGLE_CLIENT_SECRET,GOOGLE_REDIRECT_URI,MAIL_USERNAME,MAIL_PASSWORD,FRONTEND_URLS,APP_PORT
           script: |
             cd ~/Team15_BE
-
-            echo "===== Gradle Build ====="
-            chmod +x ./gradlew
-            ./gradlew clean build -x test
 
             echo "===== Generate .env ====="
             echo "SPRING_PROFILE=${SPRING_PROFILE}" > .env
