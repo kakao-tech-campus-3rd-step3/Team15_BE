@@ -35,7 +35,7 @@ public class DevSecurityConfig {
                 .cors(cors -> cors.configurationSource(request -> {
                     CorsConfiguration config = new CorsConfiguration();
                     config.setAllowCredentials(true);
-                    config.setAllowedOrigins(appProperties.frontendUrls());
+                    config.setAllowedOrigins(appProperties.frontendUrlList());
                     config.addAllowedHeader("*");
                     config.addAllowedMethod("*");
                     return config;
