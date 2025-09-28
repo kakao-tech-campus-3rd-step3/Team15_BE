@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import katecam.hyuswim.badge.domain.UserBadge;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -57,7 +58,7 @@ public class User {
     private int level;
 
     @OneToMany(mappedBy = "user")
-    private List<Badge> badges;
+    private List<UserBadge> userBadges = new ArrayList<>();
 
     @OneToMany(mappedBy = "user")
     private List<Post> posts;
