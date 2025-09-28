@@ -11,10 +11,10 @@ public class RedirectUrlBuilder {
     private final AppProperties appProperties;
 
     public String buildGoogleRedirectUrl(String accessToken) {
-        return appProperties.frontendUrls().get(1) + "/oauth/callback/google#accessToken=" + accessToken;
+        return appProperties.frontendUrlList().get(1) + "/oauth/callback/google#accessToken=" + accessToken;
     }
 
     public String buildKakaoRedirectUrl(String accessToken) {
-        return appProperties.frontendUrls().get(1) + "/oauth/callback/kakao#accessToken=" + accessToken;
+        return appProperties.frontendUrlList().get(1) + "/oauth/callback/kakao#accessToken=" + accessToken;
     }
 }
