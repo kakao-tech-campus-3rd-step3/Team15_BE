@@ -102,7 +102,7 @@ jobs:
 
             echo "===== Docker Compose Restart ====="
             docker compose down
-            docker compose --env-file .env.dev up -d --build
+            docker compose --env-file .env up -d --build
 
 
             echo "===== Container Status ====="
@@ -110,4 +110,4 @@ jobs:
             docker logs --tail=50 hyuswim-app
 
             echo "===== Clean up .env ====="
-            rm -f .env.dev
+            rm -f .env
