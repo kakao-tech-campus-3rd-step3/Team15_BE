@@ -1,4 +1,4 @@
-name: Deploy to EC2 with GitHub Actions
+name: CI/CD with Docker Compose
 
 on:
   push:
@@ -8,255 +8,54 @@ on:
   workflow_dispatch:
 
 jobs:
-  # =================================================================
-  # 1. 빌드 검증 Job (Pull Request 발생 시 실행)
-  #    - PR이 develop으로 머지되기 전에 빌드만 수행하여 코드 유효성을 검증합니다.
-  # =================================================================
+  # 1. Pull Request 빌드 검증 (CI)
   build-validation:
-    # Pull Request 이벤트일 때만 실행
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
-
-      - name: Set up JDK 21
-        uses: actions/setup-java@v3
+      - uses: actions/checkout@v3
+      - uses: actions/setup-java@v3
         with:
           java-version: '21'
           distribution: 'corretto'
-
-      - name: Cache Gradle packages
-        uses: actions/cache@v3
+      - uses: actions/cache@v3
         with:
           path: |
             ~/.gradle/caches
             ~/.gradle/wrapper
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
+      - run: chmod +x ./gradlew
+      - run: ./gradlew clean build -x test
 
-      - name: Grant execute permission for gradlew
-        run: chmod +x ./gradlew
-
-      # CI 환경에서는 DB 연결 오류 방지를 위해 테스트를 건너뛰고 빌드만 진행합니다.
-      - name: Build with Gradle (Skip Tests)
-        run: ./gradlew clean build -x test
-
-      - name: Notify successful validation (Optional)
-        run: echo "✅ Pull Request Build Validation Successful!"
-
-
-  # =================================================================
-  # 2. 배포 Job (develop으로 Push/Merge 발생 시 실행)
-  #    - 실제 EC2로 파일 전송 및 애플리케이션을 배포합니다.
-  # =================================================================
+  # 2. 배포 (develop 브랜치 push 시)
   deploy:
-    # Push 이벤트일 때만 실행 (Merge 포함)
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-
     steps:
-      # 1) 코드 체크아웃
       - name: Checkout
         uses: actions/checkout@v3
 
-      # 2) JDK 21 설치 (빌드용)
-      - name: Set up JDK 21
-        uses: actions/setup-java@v3
-        with:
-          java-version: '21'
-          distribution: 'corretto'
-
-      # 3) Gradle 캐시
-      - name: Cache Gradle packages
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
-
-      # 4) gradlew 실행권한
-      - name: Grant execute permission for gradlew
-        run: chmod +x ./gradlew
-
-      # 5) 빌드 (테스트 제외)
-      - name: Build with Gradle
-        run: ./gradlew build -x test
-
-      # 6) 빌드 산출물(JAR) 파일명 추출
-      - name: Find and export latest executable JAR file name
-        id: find_jar
-        shell: bash
-        run: |
-          set -euo pipefail
-          FILE=$(ls -t build/libs/*-SNAPSHOT.jar 2>/dev/null | grep -v 'plain' | head -n1)
-
-          if [ -z "$FILE" ]; then
-            echo "::error::No executable JAR file found in build/libs/. Check build output."
-            ls -al build/libs/ || echo "build/libs directory is empty or not found."
-            exit 1 # 파일이 없으면 전체 워크플로우를 중단 (SCP 오류 방지)
-          fi
-
-          JAR_FILE_NAME="$(basename "$FILE")"
-          echo "Found executable JAR file: $JAR_FILE_NAME"
-          echo "JAR_NAME=$JAR_FILE_NAME" >> "$GITHUB_OUTPUT"
-
-      # (디버그) 추출된 JAR 이름과 전송 파일 존재 여부 최종 확인
-      - name: Debug - Verify all source files exist before SCP
-        shell: bash
-        run: |
-          set -euo pipefail
-          JAR_NAME=${{ steps.find_jar.outputs.JAR_NAME }}
-          JAR_PATH="build/libs/$JAR_NAME"
-
-          if [ -z "$JAR_NAME" ]; then
-            echo "::error::JAR_NAME variable is empty. This is a critical error."
-            exit 1
-          fi
-
-          if [ ! -f "$JAR_PATH" ]; then
-            echo "❌ ERROR: JAR file DOES NOT exist at $JAR_PATH"
-            ls -al build/libs/
-            exit 1
-          fi
-
-          if [ ! -f "docker-compose.yml" ]; then
-            echo "❌ ERROR: docker-compose.yml file DOES NOT exist in the root directory."
-            exit 1
-          fi
-          echo "✅ All source files confirmed to exist. Proceeding to SCP."
-
-
-      # 7) 원격 디렉토리 준비
-      - name: Ensure target dir on EC2
-        uses: appleboy/ssh-action@master
+      # EC2로 프로젝트 전송
+      - name: Copy files to EC2
+        uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_PEM_KEY }}
-          script: |
-            set -e
-            mkdir -p /home/${{ secrets.EC2_USER }}/Team15_BE
+          source: "."
+          target: "~/Team15_BE"
 
-      # 8) JAR + docker-compose.yml 전송 (scp-action 사용)
-      - name: Copy files to EC2 (use scp-action)
-        uses: appleboy/scp-action@master
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_PEM_KEY }}
-          source: "build/libs/${{ steps.find_jar.outputs.JAR_NAME }} docker-compose.yml"
-          target: "/home/${{ secrets.EC2_USER }}/Team15_BE"
-          overwrite: true
-
-      # 9) 파일 확인
-      - name: Verify files on EC2
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_PEM_KEY }}
-          script: |
-            set -euo pipefail
-            APP_DIR="/home/${{ secrets.EC2_USER }}/Team15_BE"
-            JAR_NAME="${{steps.find_jar.outputs.JAR_NAME}}"
-            echo "--- Full listing of ${APP_DIR} ---"
-            ls -al "${APP_DIR}"
-            echo "--- Verifying specific files ---"
-            ls -l "${APP_DIR}/${JAR_NAME}"
-            ls -l "${APP_DIR}/docker-compose.yml"
-
-      # 10) Docker Compose 실행 (DB/Redis 반영)
+      # EC2에서 Docker Compose 실행 (Secrets 직접 주입)
       - name: Run Docker Compose on EC2
-        uses: appleboy/ssh-action@master
+        uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_PEM_KEY }}
+          envs: SPRING_PROFILE,DB_HOST,DB_PORT,DB_NAME,DB_USER,DB_PASSWORD,DB_ROOT_PASSWORD,REDIS_HOST,REDIS_PORT,JWT_SECRET,OPENAI_API_KEY,KAKAO_CLIENT_ID,KAKAO_REDIRECT_URI,GOOGLE_CLIENT_ID,GOOGLE_CLIENT_SECRET,GOOGLE_REDIRECT_URI,MAIL_USERNAME,MAIL_PASSWORD,FRONTEND_URLS
           script: |
-            cd /home/${{ secrets.EC2_USER }}/Team15_BE
-            echo "===> Docker Compose 실행"
-            docker compose --profile dev up -d
+            cd ~/Team15_BE
+            docker compose down
+            docker compose up -d --build
 
-            echo "⏳ Waiting for MySQL to be ready..."
-            until docker exec hyuswim-mysql mysqladmin ping -h"localhost" --silent; do
-              sleep 3
-            done
-            echo "✅ MySQL is ready!"
 
-      # 11) 애플리케이션 배포 & 실행
-      - name: Deploy and Run on EC2
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_PEM_KEY }}
-          script: |
-            set -Eeuo pipefail
-
-            APP_DIR="/home/${{ secrets.EC2_USER }}/Team15_BE"
-            JAR_NAME="${{steps.find_jar.outputs.JAR_NAME}}"
-            APP_JAR="app.jar"
-            LOG_DIR="${APP_DIR}/logs"
-
-            cd "${APP_DIR}"
-
-            # 심볼릭 링크 연결
-            ln -sfn "${JAR_NAME}" "${APP_JAR}"
-            echo "Linked ${JAR_NAME} -> ${APP_JAR}"
-
-            # 포트 8080 프로세스 종료
-            EXISTING_PID=$(lsof -t -i:8080 || ss -tulpn | grep :8080 | awk '{print $NF}' | grep -oP '(?<=\,)\d+(?=\,)' || true)
-            if [ -n "$EXISTING_PID" ]; then
-              echo "Stopping PID=$EXISTING_PID"
-              kill -15 "$EXISTING_PID" || true
-              sleep 5
-              if ps -p "$EXISTING_PID" > /dev/null 2>&1; then
-                kill -9 "$EXISTING_PID" || true
-              fi
-            fi
-
-            mkdir -p "${LOG_DIR}"
-            LOG_FILE_NAME="$(date +'%Y-%m-%d_%H-%M-%S').log"
-            LOG_FILE_PATH="${LOG_DIR}/${LOG_FILE_NAME}"
-
-            # Spring Profile 및 환경 변수 설정
-            JAVA_OPTS="--spring.datasource.url=jdbc:mysql://${{secrets.DB_HOST}}:${{secrets.DB_PORT}}/${{secrets.DB_NAME}}?useSSL=false&serverTimezone=Asia/Seoul&characterEncoding=UTF-8 \
-            --spring.datasource.username=${{secrets.DB_USER}} \
-            --spring.datasource.password=${{secrets.DB_PASSWORD}} \
-            --spring.data.redis.host=${{secrets.REDIS_HOST}} \
-            --spring.data.redis.port=${{secrets.REDIS_PORT}} \
-            --jwt.secret=${{secrets.JWT_SECRET}} \
-            --openai.api-key=${{secrets.OPENAI_API_KEY}} \
-            --app.frontend-urls=\"${{secrets.FRONTEND_URLS}}\" \
-            --kakao.client-id=${{secrets.KAKAO_CLIENT_ID}} \
-            --kakao.redirect-uri=${{secrets.KAKAO_REDIRECT_URI}} \
-            --google.client-id=${{secrets.GOOGLE_CLIENT_ID}} \
-            --google.client-secret=${{secrets.GOOGLE_CLIENT_SECRET}} \
-            --google.redirect-uri=${{secrets.GOOGLE_REDIRECT_URI}} \
-            --MAIL_USERNAME=${{secrets.MAIL_USERNAME}} \
-            --MAIL_PASSWORD=${{secrets.MAIL_PASSWORD}}"
-
-            echo "Starting new application (${APP_JAR})... Logging to ${LOG_FILE_PATH}"
-            nohup java -Dspring.profiles.active=dev -jar "${APP_JAR}" $JAVA_OPTS > "${LOG_FILE_PATH}" 2>&1 &
-
-            sleep 15
-
-            if ! pgrep -f "java.*${APP_JAR}" > /dev/null 2>&1; then
-              echo "❌ ERROR: Application failed to start or is not running."
-              echo "Last 120 log lines:"
-              tail -n 120 "${LOG_FILE_PATH}" || true
-              exit 1
-            else
-              APP_PID=$(pgrep -f "java.*${APP_JAR}" | head -n1)
-              echo "✅ Application started successfully. PID=$APP_PID"
-            fi

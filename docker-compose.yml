@@ -1,4 +1,36 @@
+version: "3.9"
+
 services:
+  app:
+    build: .
+    container_name: hyuswim-app
+    ports:
+      - "${APP_PORT}:8080"
+    depends_on:
+      - mysql
+      - redis
+    environment:
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILE}
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      REDIS_HOST: ${REDIS_HOST}
+      REDIS_PORT: ${REDIS_PORT}
+      JWT_SECRET: ${JWT_SECRET}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      KAKAO_CLIENT_ID: ${KAKAO_CLIENT_ID}
+      KAKAO_REDIRECT_URI: ${KAKAO_REDIRECT_URI}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+      GOOGLE_REDIRECT_URI: ${GOOGLE_REDIRECT_URI}
+      MAIL_USERNAME: ${MAIL_USERNAME}
+      MAIL_PASSWORD: ${MAIL_PASSWORD}
+      FRONTEND_URLS: ${FRONTEND_URLS}
+    restart: always
+
+
   mysql:
     image: mysql:8.0
     container_name: hyuswim-mysql
