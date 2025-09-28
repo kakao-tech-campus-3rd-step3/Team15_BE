@@ -5,6 +5,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import katecam.hyuswim.badge.domain.BadgeKind;
+import katecam.hyuswim.badge.service.BadgeService;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -29,14 +31,17 @@ public class MissionService {
   private final MissionRepository missionRepository;
   private final MissionProgressRepository missionProgressRepository;
   private final UserRepository userRepository;
+  private final BadgeService badgeService;
 
   public MissionService(
       MissionRepository missionRepository,
       MissionProgressRepository missionProgressRepository,
-      UserRepository userRepository) {
+      UserRepository userRepository,
+      BadgeService badgeService) {
     this.missionRepository = missionRepository;
     this.missionProgressRepository = missionProgressRepository;
     this.userRepository = userRepository;
+    this.badgeService = badgeService;
   }
 
   // ===== Commands =====
@@ -60,6 +65,8 @@ public class MissionService {
 
     try {
       missionProgressRepository.save(p);
+
+      badgeService.checkAndGrant(userId, BadgeKind.MISSION_KILLER);
     } catch (DataIntegrityViolationException e) {
       // 동시 요청으로 동일 미션 중복/일일 한도 위반 등
       throw new ResponseStatusException(HttpStatus.CONFLICT, "CONCURRENT_LIMIT_BREACH", e);

@@ -23,16 +23,16 @@ public class Badge {
     private String name;      // 노출명: “사랑 전도사 1단계” 등
 
     @Column(nullable = false)
-    private String imageUrl;  // 단계별 이미지
+    private String IconUrl;  // 단계별 이미지
 
     @Column(nullable = false)
     private int threshold;    // 기준치(1/7/15/30)
 
-    public Badge(BadgeKind kind, BadgeTier tier, String name, String imageUrl) {
+    public Badge(BadgeKind kind, BadgeTier tier, String name, String IconUrl) {
         this.kind = kind;
         this.tier = tier;
         this.name = name;
-        this.imageUrl = imageUrl;
+        this.IconUrl = IconUrl;
         this.threshold = tier.getThreshold();
     }
 }
