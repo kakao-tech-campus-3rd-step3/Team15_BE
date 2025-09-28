@@ -1,4 +1,4 @@
-name: CI/CD with Docker Compose
+name: CI/CD with Docker Hub
 
 on:
   push:
@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  # 1. Pull Request 빌드 검증 (CI)
+  # 1. PR 빌드 검증
   build-validation:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
@@ -27,87 +27,69 @@ jobs:
       - run: chmod +x ./gradlew
       - run: ./gradlew clean build -x test
 
-  # 2. 배포 (develop 브랜치 push 시)
-  deploy:
+  # 2. Docker 이미지 빌드 & 푸시
+  docker-build:
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
-    env:
-      SPRING_PROFILE: ${{ secrets.SPRING_PROFILE }}
-      DB_HOST: ${{ secrets.DB_HOST }}
-      DB_PORT: ${{ secrets.DB_PORT }}
-      DB_NAME: ${{ secrets.DB_NAME }}
-      DB_USER: ${{ secrets.DB_USER }}
-      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-      DB_ROOT_PASSWORD: ${{ secrets.DB_ROOT_PASSWORD }}
-      REDIS_HOST: ${{ secrets.REDIS_HOST }}
-      REDIS_PORT: ${{ secrets.REDIS_PORT }}
-      JWT_SECRET: ${{ secrets.JWT_SECRET }}
-      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-      KAKAO_CLIENT_ID: ${{ secrets.KAKAO_CLIENT_ID }}
-      KAKAO_REDIRECT_URI: ${{ secrets.KAKAO_REDIRECT_URI }}
-      GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
-      GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
-      GOOGLE_REDIRECT_URI: ${{ secrets.GOOGLE_REDIRECT_URI }}
-      MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
-      MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
-      FRONTEND_URLS: ${{ secrets.FRONTEND_URLS }}
-      APP_PORT: ${{ secrets.APP_PORT }}
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-      # EC2로 프로젝트 전송
-      - name: Copy files to EC2
-        uses: appleboy/scp-action@v0.1.7
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
         with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_PEM_KEY }}
-          source: "."
-          target: "~/Team15_BE"
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_TOKEN }}
 
-      # EC2에서 Docker Compose 실행
-      - name: Run Docker Compose on EC2
+      - name: Build and push Docker image
+        run: |
+          IMAGE_NAME=${{ secrets.DOCKER_HUB_USERNAME }}/hyuswim-app
+          docker build -t $IMAGE_NAME:latest .
+          docker push $IMAGE_NAME:latest
+
+  # 3. EC2에서 Docker Hub pull & 재시작
+  deploy:
+    needs: docker-build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to EC2
         uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_PEM_KEY }}
-          envs: SPRING_PROFILE,DB_HOST,DB_PORT,DB_NAME,DB_USER,DB_PASSWORD,DB_ROOT_PASSWORD,REDIS_HOST,REDIS_PORT,JWT_SECRET,OPENAI_API_KEY,KAKAO_CLIENT_ID,KAKAO_REDIRECT_URI,GOOGLE_CLIENT_ID,GOOGLE_CLIENT_SECRET,GOOGLE_REDIRECT_URI,MAIL_USERNAME,MAIL_PASSWORD,FRONTEND_URLS,APP_PORT
+          envs: SPRING_PROFILE,DB_HOST,DB_PORT,DB_NAME,DB_USER,DB_PASSWORD,DB_ROOT_PASSWORD,REDIS_HOST,REDIS_PORT,JWT_SECRET,OPENAI_API_KEY,KAKAO_CLIENT_ID,KAKAO_REDIRECT_URI,GOOGLE_CLIENT_ID,GOOGLE_CLIENT_SECRET,GOOGLE_REDIRECT_URI,MAIL_USERNAME,MAIL_PASSWORD,FRONTEND_URLS,APP_PORT,DOCKER_HUB_USERNAME
           script: |
             cd ~/Team15_BE
 
             echo "===== Generate .env ====="
-            echo "SPRING_PROFILE=${SPRING_PROFILE}" > .env
-            echo "DB_HOST=${DB_HOST}" >> .env
-            echo "DB_PORT=${DB_PORT}" >> .env
-            echo "DB_NAME=${DB_NAME}" >> .env
-            echo "DB_USER=${DB_USER}" >> .env
-            echo "DB_PASSWORD=${DB_PASSWORD}" >> .env
-            echo "DB_ROOT_PASSWORD=${DB_ROOT_PASSWORD}" >> .env
-            echo "REDIS_HOST=${REDIS_HOST}" >> .env
-            echo "REDIS_PORT=${REDIS_PORT}" >> .env
-            echo "JWT_SECRET=${JWT_SECRET}" >> .env
-            echo "OPENAI_API_KEY=${OPENAI_API_KEY}" >> .env
-            echo "KAKAO_CLIENT_ID=${KAKAO_CLIENT_ID}" >> .env
-            echo "KAKAO_REDIRECT_URI=${KAKAO_REDIRECT_URI}" >> .env
-            echo "GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}" >> .env
-            echo "GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}" >> .env
-            echo "GOOGLE_REDIRECT_URI=${GOOGLE_REDIRECT_URI}" >> .env
-            echo "MAIL_USERNAME=${MAIL_USERNAME}" >> .env
-            echo "MAIL_PASSWORD=${MAIL_PASSWORD}" >> .env
-            echo "FRONTEND_URLS=${FRONTEND_URLS}" >> .env
-            echo "APP_PORT=${APP_PORT}" >> .env
+            cat > .env <<EOF
+            SPRING_PROFILE=${SPRING_PROFILE}
+            DB_HOST=${DB_HOST}
+            DB_PORT=${DB_PORT}
+            DB_NAME=${DB_NAME}
+            DB_USER=${DB_USER}
+            DB_PASSWORD=${DB_PASSWORD}
+            DB_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
+            REDIS_HOST=${REDIS_HOST}
+            REDIS_PORT=${REDIS_PORT}
+            JWT_SECRET=${JWT_SECRET}
+            OPENAI_API_KEY=${OPENAI_API_KEY}
+            KAKAO_CLIENT_ID=${KAKAO_CLIENT_ID}
+            KAKAO_REDIRECT_URI=${KAKAO_REDIRECT_URI}
+            GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+            GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+            GOOGLE_REDIRECT_URI=${GOOGLE_REDIRECT_URI}
+            MAIL_USERNAME=${MAIL_USERNAME}
+            MAIL_PASSWORD=${MAIL_PASSWORD}
+            FRONTEND_URLS=${FRONTEND_URLS}
+            APP_PORT=${APP_PORT}
+            EOF
 
             echo "===== Docker Compose Restart ====="
             docker compose down
-            docker compose --env-file .env up -d --build
-
+            docker compose pull
+            docker compose --env-file .env up -d
 
             echo "===== Container Status ====="
             docker compose ps
-            docker logs --tail=50 hyuswim-app
-
-            echo "===== Clean up .env ====="
-            rm -f .env
+            docker logs --tail=200 hyuswim-app
