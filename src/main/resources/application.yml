@@ -3,7 +3,7 @@ server:
 
 spring:
   profiles:
-    active: local
+    active: ${SPRING_PROFILE:local}
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
