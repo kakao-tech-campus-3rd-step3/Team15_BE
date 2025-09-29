@@ -3,6 +3,7 @@ package katecam.hyuswim.badge.service;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import katecam.hyuswim.badge.dto.EarnedBadgeResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -33,9 +34,6 @@ public class BadgeService {
     private final MissionProgressRepository missionProgressRepository;
     private final UserVisitRepository userVisitRepository;
 
-    // ----------------- 지급 -----------------
-
-    /** 특정 종류만 점검/지급 */
     @Transactional
     public List<UserBadge> checkAndGrant(Long userId, BadgeKind kind) {
         int current = currentProgress(userId, kind);
@@ -61,7 +59,6 @@ public class BadgeService {
         return newlyGranted;
     }
 
-    /** 모든 종류 한 번에 점검/지급 (컬렉션 페이지 진입 시 보정용으로 유용) */
     @Transactional
     public void checkAndGrantAll(Long userId) {
         for (BadgeKind kind : BadgeKind.values()) {
@@ -69,7 +66,12 @@ public class BadgeService {
         }
     }
 
-    // ----------------- 조회(분류 뷰) -----------------
+    @Transactional(readOnly = true)
+    public List<EarnedBadgeResponse> getEarnedBadges(Long userId) {
+        return userBadgeRepository.findAllByUserId(userId).stream()
+                .map(EarnedBadgeResponse::from)
+                .toList();
+    }
 
     @Transactional(readOnly = true)
     public BadgeCollectionVM getMyBadgeCollection(Long userId) {
@@ -138,7 +140,6 @@ public class BadgeService {
                 .build();
     }
 
-    // ----------------- 내부 유틸 -----------------
 
     private int currentProgress(Long userId, BadgeKind kind) {
         return switch (kind) {
