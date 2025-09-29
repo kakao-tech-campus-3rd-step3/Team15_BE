@@ -64,7 +64,7 @@ public class MissionService {
     MissionProgress p = MissionProgress.startOf(user, mission, today, LocalDateTime.now());
 
     try {
-      missionProgressRepository.save(p);
+        missionProgressRepository.saveAndFlush(p);
 
       badgeService.checkAndGrant(userId, BadgeKind.MISSION_KILLER);
     } catch (DataIntegrityViolationException e) {
