@@ -54,11 +54,12 @@ public class CommentService {
             .isAnonymous(request.getIsAnonymous())
             .build();
 
-    Comment saved = commentRepository.save(comment);
+    Comment saved = commentRepository.saveAndFlush(comment);
 
     badgeService.checkAndGrant(user.getId(), BadgeKind.DILIGENT_COMMENTER);
 
     return CommentDetailResponse.from(saved);
+
   }
 
   @Transactional

@@ -1,5 +1,8 @@
 package katecam.hyuswim.like.service;
 
+import katecam.hyuswim.badge.domain.BadgeKind;
+import katecam.hyuswim.badge.service.BadgeService;
+import katecam.hyuswim.user.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
 import jakarta.transaction.Transactional;
@@ -18,6 +21,7 @@ public class PostLikeService {
 
   private final PostLikeRepository postLikeRepository;
   private final PostRepository postRepository;
+  private final BadgeService badgeService;
 
   @Transactional
   public void addLike(Long postId, User user) {
@@ -26,7 +30,9 @@ public class PostLikeService {
             .findById(postId)
             .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
-    postLikeRepository.save(new PostLike(post, user));
+    postLikeRepository.saveAndFlush(new PostLike(post, user));
+
+      badgeService.checkAndGrant(user.getId(), BadgeKind.LOVE_EVANGELIST);
   }
 
   @Transactional
