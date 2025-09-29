@@ -2,8 +2,7 @@ package katecam.hyuswim.badge.controller;
 
 import katecam.hyuswim.auth.annotation.LoginUser;
 import katecam.hyuswim.badge.domain.Badge;
-import katecam.hyuswim.badge.domain.BadgeKind;
-import katecam.hyuswim.badge.domain.UserBadge;
+import katecam.hyuswim.badge.dto.EarnedBadgeResponse;
 import katecam.hyuswim.badge.repository.BadgeRepository;
 import katecam.hyuswim.badge.repository.UserBadgeRepository;
 import katecam.hyuswim.badge.service.BadgeService;
@@ -13,7 +12,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -36,7 +34,7 @@ public class BadgeController {
     }
 
     // 전체 배지 목록
-    @GetMapping("/master")
+    @GetMapping("/all")
     public ResponseEntity<List<Badge>> getMaster() {
         return ResponseEntity.ok(badgeRepository.findAll());
     }
@@ -44,25 +42,7 @@ public class BadgeController {
     // 내가 획득한 배지 목록
     @GetMapping("/me")
     public ResponseEntity<List<EarnedBadgeResponse>> getMyBadges(@LoginUser User loginUser) {
-        List<UserBadge> list = userBadgeRepository.findAllByUserId(loginUser.getId());
-        return ResponseEntity.ok(
-                list.stream().map(ub -> new EarnedBadgeResponse(
-                        ub.getBadge().getId(),
-                        ub.getBadge().getName(),
-                        ub.getBadge().getKind(),
-                        ub.getBadge().getTier().name(),
-                        ub.getBadge().getThreshold(),
-                        ub.getEarnedAt()
-                )).toList()
-        );
+        return ResponseEntity.ok(badgeService.getEarnedBadges(loginUser.getId()));
     }
 
-    public record EarnedBadgeResponse(
-            Long badgeId,
-            String name,
-            BadgeKind kind,
-            String tier,
-            Integer threshold,
-            LocalDateTime earnedAt
-    ) {}
 }
