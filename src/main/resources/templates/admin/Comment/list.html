@@ -1,64 +1,249 @@
-<!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>댓글 관리</title>
+<meta charset="UTF-8">
+<div th:fragment="content">
+    <!-- 통계 카드 -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-label">전체 댓글</div>
+            <div class="stat-value" th:text="${comments.size()}">0</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">노출 중</div>
+            <div class="stat-value" th:text="${comments.stream().filter(c -> !c.deleted).count()}">0</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">삭제됨</div>
+            <div class="stat-value" th:text="${comments.stream().filter(c -> c.deleted).count()}">0</div>
+        </div>
+    </div>
+
+    <!-- 필터 및 검색 영역 -->
+    <div class="card" style="margin-bottom: 20px;">
+        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+            <select class="filter-select" onchange="filterComments(this.value)">
+                <option value="all">전체 상태</option>
+                <option value="active">노출 중</option>
+                <option value="deleted">삭제됨</option>
+            </select>
+            <input type="text" class="search-input" placeholder="작성자 또는 내용 검색" onkeyup="searchComments(this.value)">
+            <select class="filter-select" onchange="sortComments(this.value)">
+                <option value="recent">최근 작성순</option>
+                <option value="oldest">오래된 순</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- 댓글 목록 테이블 -->
+    <div class="card">
+        <div class="card-header">
+            <h3>댓글 목록</h3>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                <tr>
+                    <th style="width: 60px;">ID</th>
+                    <th style="width: 300px;">내용</th>
+                    <th style="width: 150px;">작성자</th>
+                    <th style="width: 160px;">작성일</th>
+                    <th style="width: 100px;">상태</th>
+                    <th style="width: 150px;">관리</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="comment : ${comments}"
+                    th:attr="data-status=${comment.deleted ? 'deleted' : 'active'},
+                                 data-writer=${comment.writerEmail},
+                                 data-content=${comment.content}">
+                    <td th:text="${comment.id}">1</td>
+                    <td>
+                        <div class="comment-content">
+                            <p th:text="${comment.content}">댓글 내용이 표시됩니다.</p>
+                        </div>
+                    </td>
+                    <td>
+                        <div style="display: flex; align-items: center; gap: 8px; justify-content: center;">
+                            <div class="user-avatar-small">
+                                <span th:text="${comment.writerEmail != null ? comment.writerEmail.substring(0,1).toUpperCase() : 'U'}">U</span>
+                            </div>
+                            <span th:text="${comment.writerEmail}">user@example.com</span>
+                        </div>
+                    </td>
+                    <td th:text="${#temporals.format(comment.createdAt, 'yyyy-MM-dd HH:mm')}">2024-01-01 12:00</td>
+                    <td>
+                            <span class="badge"
+                                  th:classappend="${comment.deleted ? 'badge-danger' : 'badge-success'}"
+                                  th:text="${comment.deleted ? '삭제됨' : '노출중'}">
+                                노출중
+                            </span>
+                    </td>
+                    <td>
+                        <div style="display: flex; gap: 5px; justify-content: center;">
+                            <form th:if="${!comment.deleted}"
+                                  th:action="@{/admin/comments/{id}/hide(id=${comment.id})}"
+                                  method="post"
+                                  style="display: inline;">
+                                <button type="submit" class="btn-small btn-warning" onclick="return confirm('이 댓글을 숨기시겠습니까?')">
+                                    숨김
+                                </button>
+                            </form>
+                            <form th:action="@{/admin/comments/{id}/delete(id=${comment.id})}"
+                                  method="post"
+                                  style="display: inline;">
+                                <button type="submit" class="btn-small btn-danger" onclick="return confirm('이 댓글을 삭제하시겠습니까?')">
+                                    삭제
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                <tr th:if="${comments.isEmpty()}">
+                    <td colspan="6" style="text-align: center; padding: 40px; color: #868e96;">
+                        등록된 댓글이 없습니다.
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
     <style>
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
+        .filter-select {
+            padding: 10px 15px;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #495057;
+            background-color: white;
+            cursor: pointer;
+            transition: border-color 0.2s;
         }
-        th, td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: center;
+
+        .filter-select:hover,
+        .filter-select:focus {
+            border-color: #5CB85C;
+            outline: none;
         }
-        th {
-            background-color: #f2f2f2;
+
+        .search-input {
+            padding: 10px 15px;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #495057;
+            flex: 1;
+            min-width: 200px;
+            transition: border-color 0.2s;
         }
-        form {
-            display: inline;
+
+        .search-input:focus {
+            border-color: #5CB85C;
+            outline: none;
         }
-        button {
-            padding: 4px 10px;
-            margin: 2px;
+
+        .comment-content {
+            text-align: left;
+            max-width: 300px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .comment-content p {
+            margin: 0;
+            color: #495057;
+            font-size: 14px;
+        }
+
+        .user-avatar-small {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #5CB85C, #4CAF50);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 12px;
+            flex-shrink: 0;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge-success {
+            background-color: #d1e7dd;
+            color: #0f5132;
+        }
+
+        .badge-danger {
+            background-color: #f8d7da;
+            color: #842029;
+        }
+
+        .btn-small {
+            padding: 5px 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+
+        .btn-warning {
+            background-color: #ffc107;
+            color: #000;
+        }
+
+        .btn-warning:hover {
+            background-color: #ffb300;
+        }
+
+        .btn-danger {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #c82333;
         }
     </style>
-</head>
-<body>
-<div class="container">
-    <h1>댓글 관리</h1>
 
-    <table>
-        <thead>
-        <tr>
-            <th>ID</th>
-            <th>내용</th>
-            <th>작성자</th>
-            <th>작성일</th>
-            <th>상태</th>
-            <th>액션</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="comment : ${comments}">
-            <td th:text="${comment.id}"></td>
-            <td th:text="${comment.content}"></td>
-            <td th:text="${comment.writerEmail}"></td>
-            <td th:text="${#temporals.format(comment.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
-            <td th:text="${comment.deleted} ? '삭제됨' : '노출중'"></td>
-            <td>
-                <form th:action="@{/admin/comments/{id}/hide(id=${comment.id})}" method="post">
-                    <button type="submit">숨김</button>
-                </form>
-                <form th:action="@{/admin/comments/{id}/delete(id=${comment.id})}" method="post">
-                    <button type="submit">삭제</button>
-                </form>
-            </td>
-        </tr>
-        </tbody>
-    </table>
+    <script>
+        function filterComments(status) {
+            const rows = document.querySelectorAll('tbody tr[data-status]');
+            rows.forEach(row => {
+                if (status === 'all' || row.getAttribute('data-status') === status) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        function searchComments(keyword) {
+            const rows = document.querySelectorAll('tbody tr[data-status]');
+            const lowerKeyword = keyword.toLowerCase();
+            rows.forEach(row => {
+                const writer = row.getAttribute('data-writer').toLowerCase();
+                const content = row.getAttribute('data-content').toLowerCase();
+                if (writer.includes(lowerKeyword) || content.includes(lowerKeyword)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        function sortComments(type) {
+            // 정렬 기능은 서버사이드에서 처리하는 것을 권장
+            console.log('정렬:', type);
+        }
+    </script>
 </div>
-</body>
-</html>
