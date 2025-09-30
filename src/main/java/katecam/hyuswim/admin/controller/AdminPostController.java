@@ -16,11 +16,15 @@ import java.util.List;
 public class AdminPostController {
 
     private final AdminPostService adminPostService;
+    private static final String ACTIVE_MENU = "posts";
 
     @GetMapping
     public String posts(Model model) {
         List<AdminPostListResponse> posts = adminPostService.getPosts();
         model.addAttribute("posts", posts);
+        model.addAttribute("pageTitle", "게시글 관리");
+        model.addAttribute("activeMenu", ACTIVE_MENU);
+        // ✅ 이제 layout 말고 list.html 직접 반환
         return "admin/posts/list";
     }
 
@@ -28,6 +32,9 @@ public class AdminPostController {
     public String post(@PathVariable Long postId, Model model) {
         AdminPostDetailResponse post = adminPostService.getPost(postId);
         model.addAttribute("post", post);
+        model.addAttribute("pageTitle", "게시글 상세");
+        model.addAttribute("activeMenu", ACTIVE_MENU);
+        // ✅ layout 말고 detail.html 직접 반환
         return "admin/posts/detail";
     }
 
