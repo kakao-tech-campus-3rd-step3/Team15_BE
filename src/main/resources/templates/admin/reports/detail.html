@@ -1,43 +1,353 @@
 <meta charset="UTF-8">
-<!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout(~{::body})}">
-<body>
-<div class="container">
-    <h1>신고 상세</h1>
+<div th:fragment="content">
+    <!-- 성공 메시지 -->
+    <div th:if="${msg}" class="alert-success">
+        <span class="alert-icon">✓</span>
+        <span th:text="${msg}">처리가 완료되었습니다.</span>
+    </div>
 
-    <div th:if="${msg}" class="alert alert-success" th:text="${msg}"></div>
+    <!-- 상단 액션 버튼 -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+        <a th:href="@{/admin/reports}" class="btn-back">
+            ← 목록으로
+        </a>
+    </div>
 
-    <dl class="row">
-        <dt class="col-sm-2">ID</dt>
-        <dd class="col-sm-10" th:text="${report.id}"></dd>
-
-        <dt class="col-sm-2">신고자</dt>
-        <dd class="col-sm-10" th:text="${report.reporterEmail}"></dd>
-
-        <dt class="col-sm-2">게시글</dt>
-        <dd class="col-sm-10" th:text="${report.postTitle}"></dd>
-
-        <dt class="col-sm-2">사유</dt>
-        <dd class="col-sm-10" th:text="${report.reason}"></dd>
-
-        <dt class="col-sm-2">상태</dt>
-        <dd class="col-sm-10" th:text="${report.status}"></dd>
-    </dl>
-
-    <form th:action="@{|/admin/reports/${report.id}/status|}" method="post" class="mt-3">
-        <div class="form-group">
-            <label for="status">상태 변경</label>
-            <select name="status" id="status" class="form-control">
-                <option value="PENDING">대기중</option>
-                <option value="IN_PROGRESS">처리중</option>
-                <option value="RESOLVED">해결됨</option>
-                <option value="REJECTED">거절됨</option>
-            </select>
+    <!-- 신고 정보 카드 -->
+    <div class="card">
+        <div class="detail-header">
+            <div style="display: flex; justify-content: space-between; align-items: start;">
+                <h2 class="report-title">신고 상세 정보</h2>
+                <span class="badge badge-id" th:text="'ID: ' + ${report.id}">ID: 1</span>
+            </div>
         </div>
-        <button type="submit" class="btn btn-success mt-2">업데이트</button>
-    </form>
 
-    <a href="/admin/reports" class="btn btn-secondary mt-3">목록으로</a>
+        <div class="detail-divider"></div>
+
+        <!-- 신고 정보 섹션 -->
+        <div class="info-section">
+            <h3 class="section-title">신고 정보</h3>
+
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="info-label">
+                        <span class="info-icon">👤</span>
+                        신고자
+                    </div>
+                    <div class="info-value">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <div class="user-avatar-small">
+                                <span th:text="${report.reporterEmail != null ? report.reporterEmail.substring(0,1).toUpperCase() : 'U'}">U</span>
+                            </div>
+                            <span th:text="${report.reporterEmail}">reporter@example.com</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-label">
+                        <span class="info-icon">📝</span>
+                        신고 대상 게시글
+                    </div>
+                    <div class="info-value" th:text="${report.postTitle}">게시글 제목입니다</div>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-label">
+                        <span class="info-icon">📋</span>
+                        신고 유형
+                    </div>
+                    <div class="info-value">
+                        <span class="badge badge-type" th:text="${report.reportType ?: '일반'}">스팸</span>
+                    </div>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-label">
+                        <span class="info-icon">🏷️</span>
+                        현재 상태
+                    </div>
+                    <div class="info-value">
+                        <span class="badge"
+                              th:classappend="${report.status == 'PENDING' ? 'badge-pending' :
+                                             report.status == 'IN_PROGRESS' ? 'badge-progress' :
+                                             report.status == 'RESOLVED' ? 'badge-success' : 'badge-danger'}"
+                              th:text="${report.status == 'PENDING' ? '대기중' :
+                                       report.status == 'IN_PROGRESS' ? '처리중' :
+                                       report.status == 'RESOLVED' ? '해결됨' : '거절됨'}">
+                            대기중
+                        </span>
+                    </div>
+                </div>
+
+                <div class="info-item full-width" th:if="${report.createdAt != null}">
+                    <div class="info-label">
+                        <span class="info-icon">📅</span>
+                        신고 일시
+                    </div>
+                    <div class="info-value" th:text="${#temporals.format(report.createdAt, 'yyyy-MM-dd HH:mm:ss')}">2024-01-01 12:00:00</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="detail-divider"></div>
+
+        <!-- 신고 사유 섹션 -->
+        <div class="reason-section">
+            <h3 class="section-title">신고 사유</h3>
+            <div class="reason-box" th:text="${report.reason}">
+                신고 사유가 여기에 표시됩니다.
+            </div>
+        </div>
+
+        <div class="detail-divider"></div>
+
+        <!-- 상태 변경 섹션 -->
+        <div class="status-change-section">
+            <h3 class="section-title">상태 변경</h3>
+            <form th:action="@{|/admin/reports/${report.id}/status|}" method="post">
+                <div class="form-group">
+                    <label for="status" class="form-label">처리 상태 선택</label>
+                    <select name="status" id="status" class="form-select" th:value="${report.status}">
+                        <option value="PENDING" th:selected="${report.status == 'PENDING'}">대기중</option>
+                        <option value="IN_PROGRESS" th:selected="${report.status == 'IN_PROGRESS'}">처리중</option>
+                        <option value="RESOLVED" th:selected="${report.status == 'RESOLVED'}">해결됨</option>
+                        <option value="REJECTED" th:selected="${report.status == 'REJECTED'}">거절됨</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn-submit" onclick="return confirm('상태를 변경하시겠습니까?')">
+                    ✓ 상태 업데이트
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <style>
+        .alert-success {
+            background-color: #d1e7dd;
+            color: #0f5132;
+            padding: 16px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-left: 4px solid #5CB85C;
+        }
+
+        .alert-icon {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .btn-back {
+            display: inline-flex;
+            align-items: center;
+            padding: 10px 20px;
+            background-color: #ffffff;
+            color: #495057;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            border: 1px solid #dee2e6;
+            transition: all 0.2s;
+        }
+
+        .btn-back:hover {
+            background-color: #f8f9fa;
+            border-color: #5CB85C;
+            color: #5CB85C;
+        }
+
+        .detail-header {
+            margin-bottom: 20px;
+        }
+
+        .report-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #212529;
+        }
+
+        .badge-id {
+            background-color: #e9ecef;
+            color: #495057;
+            padding: 6px 14px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .detail-divider {
+            height: 1px;
+            background-color: #e9ecef;
+            margin: 24px 0;
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #212529;
+            margin-bottom: 16px;
+        }
+
+        .info-section {
+            margin-bottom: 20px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .info-item.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .info-label {
+            font-size: 13px;
+            color: #868e96;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .info-icon {
+            font-size: 16px;
+        }
+
+        .info-value {
+            font-size: 15px;
+            color: #212529;
+            font-weight: 500;
+        }
+
+        .user-avatar-small {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #5CB85C, #4CAF50);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 12px;
+            flex-shrink: 0;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge-type {
+            background-color: #e9ecef;
+            color: #495057;
+        }
+
+        .badge-pending {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .badge-progress {
+            background-color: #cfe2ff;
+            color: #084298;
+        }
+
+        .badge-success {
+            background-color: #d1e7dd;
+            color: #0f5132;
+        }
+
+        .badge-danger {
+            background-color: #f8d7da;
+            color: #842029;
+        }
+
+        .reason-section {
+            margin-bottom: 20px;
+        }
+
+        .reason-box {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            font-size: 15px;
+            line-height: 1.8;
+            color: #495057;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            border-left: 4px solid #5CB85C;
+        }
+
+        .status-change-section {
+            margin-top: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 8px;
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #495057;
+            background-color: white;
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+
+        .form-select:hover,
+        .form-select:focus {
+            border-color: #5CB85C;
+            outline: none;
+        }
+
+        .btn-submit {
+            padding: 12px 24px;
+            background-color: #5CB85C;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .btn-submit:hover {
+            background-color: #4CAF50;
+        }
+
+        @media (max-width: 768px) {
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </div>
-</body>
-</html>

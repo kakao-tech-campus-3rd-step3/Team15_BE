@@ -1,34 +1,259 @@
 <meta charset="UTF-8">
-<!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout(~{::body})}">
-<body>
-<div class="container">
-    <h1>신고 목록</h1>
+<div th:fragment="content">
+    <!-- 성공 메시지 -->
+    <div th:if="${msg}" class="alert-success">
+        <span class="alert-icon">✓</span>
+        <span th:text="${msg}">처리가 완료되었습니다.</span>
+    </div>
 
-    <div th:if="${msg}" class="alert alert-success" th:text="${msg}"></div>
+    <!-- 통계 카드 -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-label">전체 신고</div>
+            <div class="stat-value" th:text="${reports.size()}">0</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">대기 중</div>
+            <div class="stat-value" th:text="${reports.stream().filter(r -> r.status == 'PENDING').count()}">0</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">처리 중</div>
+            <div class="stat-value" th:text="${reports.stream().filter(r -> r.status == 'IN_PROGRESS').count()}">0</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">처리 완료</div>
+            <div class="stat-value" th:text="${reports.stream().filter(r -> r.status == 'RESOLVED').count()}">0</div>
+        </div>
+    </div>
 
-    <table class="table table-striped">
-        <thead>
-        <tr>
-            <th>ID</th>
-            <th>신고자</th>
-            <th>게시글</th>
-            <th>상태</th>
-            <th>상세</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="report : ${reports}">
-            <td th:text="${report.id}"></td>
-            <td th:text="${report.reporterEmail}"></td>
-            <td th:text="${report.postTitle}"></td>
-            <td th:text="${report.status}"></td>
-            <td>
-                <a th:href="@{|/admin/reports/${report.id}|}" class="btn btn-sm btn-primary">보기</a>
-            </td>
-        </tr>
-        </tbody>
-    </table>
+    <!-- 필터 영역 -->
+    <div class="card" style="margin-bottom: 20px;">
+        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+            <select class="filter-select" onchange="filterReports(this.value)">
+                <option value="all">전체 상태</option>
+                <option value="PENDING">대기 중</option>
+                <option value="IN_PROGRESS">처리 중</option>
+                <option value="RESOLVED">처리 완료</option>
+                <option value="REJECTED">반려</option>
+            </select>
+            <input type="text" class="search-input" placeholder="신고자 또는 게시글 검색" onkeyup="searchReports(this.value)">
+            <select class="filter-select" onchange="sortReports(this.value)">
+                <option value="recent">최근 신고순</option>
+                <option value="oldest">오래된 순</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- 신고 목록 테이블 -->
+    <div class="card">
+        <div class="card-header">
+            <h3>신고 목록</h3>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                <tr>
+                    <th style="width: 60px;">ID</th>
+                    <th style="width: 180px;">신고자</th>
+                    <th style="width: auto;">게시글</th>
+                    <th style="width: 120px;">상태</th>
+                    <th style="width: 100px;">관리</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="report : ${reports}"
+                    th:attr="data-status=${report.status},
+                                 data-reporter=${report.reporterEmail},
+                                 data-post=${report.postTitle}">
+                    <td th:text="${report.id}">1</td>
+                    <td>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <div class="user-avatar-small">
+                                <span th:text="${report.reporterEmail != null ? report.reporterEmail.substring(0,1).toUpperCase() : 'U'}">U</span>
+                            </div>
+                            <span th:text="${report.reporterEmail}">reporter@example.com</span>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="post-title-cell" th:text="${report.postTitle}">
+                            신고된 게시글 제목입니다
+                        </div>
+                    </td>
+                    <td>
+                            <span class="badge"
+                                  th:classappend="${report.status == 'PENDING' ? 'badge-pending' :
+                                                   report.status == 'IN_PROGRESS' ? 'badge-progress' :
+                                                   report.status == 'RESOLVED' ? 'badge-success' : 'badge-danger'}"
+                                  th:text="${report.status == 'PENDING' ? '대기중' :
+                                           report.status == 'IN_PROGRESS' ? '처리중' :
+                                           report.status == 'RESOLVED' ? '해결됨' :
+                                           report.status == 'REJECTED' ? '반려' : report.status}">
+                                대기중
+                            </span>
+                    </td>
+                    <td>
+                        <a th:href="@{|/admin/reports/${report.id}|}" class="btn-detail">상세보기</a>
+                    </td>
+                </tr>
+                <tr th:if="${reports.isEmpty()}">
+                    <td colspan="5" style="text-align: center; padding: 40px; color: #868e96;">
+                        신고 내역이 없습니다.
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <style>
+        .alert-success {
+            background-color: #d1e7dd;
+            color: #0f5132;
+            padding: 16px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-left: 4px solid #5CB85C;
+        }
+
+        .alert-icon {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .filter-select {
+            padding: 10px 15px;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #495057;
+            background-color: white;
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+
+        .filter-select:hover,
+        .filter-select:focus {
+            border-color: #5CB85C;
+            outline: none;
+        }
+
+        .search-input {
+            padding: 10px 15px;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #495057;
+            flex: 1;
+            min-width: 200px;
+            transition: border-color 0.2s;
+        }
+
+        .search-input:focus {
+            border-color: #5CB85C;
+            outline: none;
+        }
+
+        .user-avatar-small {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #5CB85C, #4CAF50);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 12px;
+            flex-shrink: 0;
+        }
+
+        .post-title-cell {
+            text-align: left;
+            max-width: 400px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            font-weight: 500;
+            color: #212529;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge-pending {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .badge-progress {
+            background-color: #cfe2ff;
+            color: #084298;
+        }
+
+        .badge-success {
+            background-color: #d1e7dd;
+            color: #0f5132;
+        }
+
+        .badge-danger {
+            background-color: #f8d7da;
+            color: #842029;
+        }
+
+        .btn-detail {
+            display: inline-block;
+            padding: 6px 14px;
+            background-color: #5CB85C;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 13px;
+            transition: background-color 0.2s;
+            font-weight: 500;
+        }
+
+        .btn-detail:hover {
+            background-color: #4CAF50;
+        }
+    </style>
+
+    <script>
+        function filterReports(status) {
+            const rows = document.querySelectorAll('tbody tr[data-status]');
+            rows.forEach(row => {
+                if (status === 'all' || row.getAttribute('data-status') === status) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        function searchReports(keyword) {
+            const rows = document.querySelectorAll('tbody tr[data-status]');
+            const lowerKeyword = keyword.toLowerCase();
+            rows.forEach(row => {
+                const reporter = row.getAttribute('data-reporter').toLowerCase();
+                const post = row.getAttribute('data-post').toLowerCase();
+                if (reporter.includes(lowerKeyword) || post.includes(lowerKeyword)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        function sortReports(type) {
+            // 정렬 기능은 서버사이드에서 처리하는 것을 권장
+            console.log('정렬:', type);
+        }
+    </script>
 </div>
-</body>
-</html>
