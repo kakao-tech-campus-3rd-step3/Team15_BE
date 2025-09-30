@@ -3,6 +3,8 @@ package katecam.hyuswim.user.controller;
 import java.util.List;
 import java.util.Map;
 
+import katecam.hyuswim.auth.dto.EmailSendRequest;
+import katecam.hyuswim.auth.dto.EmailVerifyRequest;
 import katecam.hyuswim.user.dto.mypage.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -39,6 +41,11 @@ public class MyPageController {
     return ResponseEntity.ok(myPageService.selectMyLikedPostList(loginUser));
   }
 
+  @GetMapping("/me/profile/edit")
+  public ResponseEntity<MyProfileEditResponse> selectMyProfileEdit(@LoginUser User loginUser) {
+      return ResponseEntity.ok(myPageService.selectMyProfileEdit(loginUser));
+  }
+
   @PatchMapping("/me/profile/edit/info")
   public ResponseEntity<Void> updateMyProfile(@LoginUser User loginUser, @RequestBody ProfileUpdate profileUpdate) {
     myPageService.updateUserProfile(loginUser, profileUpdate);
@@ -61,4 +68,31 @@ public class MyPageController {
     public ResponseEntity<MyProfileReponse> myProfile(@LoginUser User loginUser) {
       return ResponseEntity.ok(myPageService.selectMyProfile(loginUser));
   }
+
+  @PutMapping("/me/password")
+    public ResponseEntity<Void> updatePassword(@LoginUser User loginUser, @RequestBody PasswordUpdateRequest passwordUpdateRequest) {
+      myPageService.updatePassword(loginUser, passwordUpdateRequest);
+      return ResponseEntity.ok().build();
+  }
+
+  @GetMapping("/me/email")
+    public ResponseEntity<Map<String,String>> myEmail(@LoginUser User loginUser) {
+      return ResponseEntity.ok(myPageService.selectEmail(loginUser));
+  }
+
+  @PostMapping("/me/email/send")
+    public ResponseEntity<Void> sendEmailCode(@RequestBody EmailSendRequest emailSendRequest) {
+      myPageService.sendEmailCode(emailSendRequest);
+      return ResponseEntity.ok().build();
+  }
+
+
+  @PutMapping("/me/email")
+    public ResponseEntity<Void> updateEmail(@LoginUser User loginUser, @RequestBody EmailVerifyRequest emailVerifyRequest) {
+      myPageService.verifyEmailCode(emailVerifyRequest);
+      myPageService.updateEmail(loginUser, emailVerifyRequest.getEmail());
+      return ResponseEntity.ok().build();
+  }
+
+
 }
