@@ -56,7 +56,8 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr th:each="user : ${users}" th:attr="data-status=${user.status}, data-email=${user.email}, data-nickname=${user.nickname}">
+                <tr th:each="user : ${users}"
+                    th:attr="data-status=${user.status}, data-email=${user.email}, data-nickname=${user.nickname}">
                     <td th:text="${user.id}">1</td>
                     <td>
                         <div style="display: flex; align-items: center; gap: 8px;">
@@ -68,15 +69,15 @@
                     </td>
                     <td th:text="${user.nickname}">사용자123</td>
                     <td>
-                            <span class="badge"
-                                  th:classappend="${user.status == 'ACTIVE' ? 'badge-success' :
-                                                   user.status == 'SUSPENDED' ? 'badge-danger' :
-                                                   user.status == 'DELETED' ? 'badge-secondary' : 'badge-type'}"
-                                  th:text="${user.status == 'ACTIVE' ? '활성' :
-                                           user.status == 'SUSPENDED' ? '정지' :
-                                           user.status == 'DELETED' ? '탈퇴' : user.status}">
-                                활성
-                            </span>
+                        <span class="badge"
+                              th:classappend="${user.status == 'ACTIVE' ? 'badge-success' :
+                                               user.status == 'SUSPENDED' ? 'badge-danger' :
+                                               user.status == 'DELETED' ? 'badge-secondary' : 'badge-type'}"
+                              th:text="${user.status == 'ACTIVE' ? '활성' :
+                                       user.status == 'SUSPENDED' ? '정지' :
+                                       user.status == 'DELETED' ? '탈퇴' : user.status}">
+                            활성
+                        </span>
                     </td>
                     <td th:text="${#temporals.format(user.createdAt, 'yyyy-MM-dd HH:mm')}">2024-01-01 12:00</td>
                     <td>
@@ -105,169 +106,9 @@
         </div>
     </div>
 
-    <style>
-        .filter-select {
-            padding: 10px 15px;
-            border: 1px solid #dee2e6;
-            border-radius: 8px;
-            font-size: 14px;
-            color: #495057;
-            background-color: white;
-            cursor: pointer;
-            transition: border-color 0.2s;
-        }
+    <!-- 외부 CSS -->
+    <link rel="stylesheet" th:href="@{/css/users.css}"/>
 
-        .filter-select:hover,
-        .filter-select:focus {
-            border-color: #5CB85C;
-            outline: none;
-        }
-
-        .search-input {
-            padding: 10px 15px;
-            border: 1px solid #dee2e6;
-            border-radius: 8px;
-            font-size: 14px;
-            color: #495057;
-            flex: 1;
-            min-width: 200px;
-            transition: border-color 0.2s;
-        }
-
-        .search-input:focus {
-            border-color: #5CB85C;
-            outline: none;
-        }
-
-        .user-avatar {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #5CB85C, #4CAF50);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: 600;
-            font-size: 14px;
-        }
-
-        .badge {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-
-        .badge-type {
-            background-color: #e9ecef;
-            color: #495057;
-        }
-
-        .badge-success {
-            background-color: #d1e7dd;
-            color: #0f5132;
-        }
-
-        .badge-danger {
-            background-color: #f8d7da;
-            color: #842029;
-        }
-
-        .badge-secondary {
-            background-color: #e9ecef;
-            color: #6c757d;
-        }
-
-        .btn-small {
-            padding: 5px 12px;
-            border: none;
-            border-radius: 6px;
-            font-size: 12px;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-weight: 500;
-        }
-
-        .btn-detail {
-            background-color: #5CB85C;
-            color: white;
-        }
-
-        .btn-detail:hover {
-            background-color: #4CAF50;
-        }
-
-        .btn-warning {
-            background-color: #ffc107;
-            color: #000;
-        }
-
-        .btn-warning:hover {
-            background-color: #ffb300;
-        }
-
-        .btn-success {
-            background-color: #5CB85C;
-            color: white;
-        }
-
-        .btn-success:hover {
-            background-color: #4CAF50;
-        }
-    </style>
-
-    <script>
-        function filterUsers(status) {
-            const rows = document.querySelectorAll('tbody tr[data-status]');
-            rows.forEach(row => {
-                if (status === 'all' || row.getAttribute('data-status') === status) {
-                    row.style.display = '';
-                } else {
-                    row.style.display = 'none';
-                }
-            });
-        }
-
-        function searchUsers(keyword) {
-            const rows = document.querySelectorAll('tbody tr[data-status]');
-            const lowerKeyword = keyword.toLowerCase();
-            rows.forEach(row => {
-                const email = row.getAttribute('data-email').toLowerCase();
-                const nickname = row.getAttribute('data-nickname').toLowerCase();
-                if (email.includes(lowerKeyword) || nickname.includes(lowerKeyword)) {
-                    row.style.display = '';
-                } else {
-                    row.style.display = 'none';
-                }
-            });
-        }
-
-        function sortUsers(type) {
-            // 정렬 기능은 서버사이드에서 처리하는 것을 권장
-            console.log('정렬:', type);
-        }
-
-        function viewUser(userId) {
-            // 상세 페이지로 이동
-            window.location.href = `/admin/users/${userId}`;
-        }
-
-        function suspendUser(userId) {
-            if (confirm('이 회원을 정지하시겠습니까?')) {
-                // 정지 처리 API 호출
-                console.log('정지:', userId);
-                // TODO: 실제 API 호출
-            }
-        }
-
-        function activateUser(userId) {
-            if (confirm('이 회원을 활성화하시겠습니까?')) {
-                // 활성화 처리 API 호출
-                console.log('활성화:', userId);
-                // TODO: 실제 API 호출
-            }
-        }
-    </script>
+    <!-- 외부 JS -->
+    <script th:src="@{/js/users.js}"></script>
 </div>
