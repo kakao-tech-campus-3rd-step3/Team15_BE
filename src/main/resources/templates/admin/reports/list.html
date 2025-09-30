@@ -1,13 +1,14 @@
-<meta charset="UTF-8">
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{/admin/layout :: layout(~{::content})}">
+
 <div th:fragment="content">
 
-    <!-- 성공 메시지 -->
     <div th:if="${msg}" class="alert-success">
         <span class="alert-icon">✓</span>
         <span th:text="${msg}">처리가 완료되었습니다.</span>
     </div>
 
-    <!-- 통계 카드 -->
     <div class="stats-grid">
         <div class="stat-card">
             <div class="stat-label">전체 신고</div>
@@ -16,21 +17,20 @@
         <div class="stat-card">
             <div class="stat-label">대기 중</div>
             <div class="stat-value"
-                 th:text="${reports.stream().filter(r -> r.status == 'PENDING').count()}">0</div>
+                 th:text="${#lists.size(reports.?[status.name() == 'PENDING'])}">0</div>
         </div>
         <div class="stat-card">
             <div class="stat-label">처리 중</div>
             <div class="stat-value"
-                 th:text="${reports.stream().filter(r -> r.status == 'IN_PROGRESS').count()}">0</div>
+                 th:text="${#lists.size(reports.?[status.name() == 'IN_PROGRESS'])}">0</div>
         </div>
         <div class="stat-card">
             <div class="stat-label">처리 완료</div>
             <div class="stat-value"
-                 th:text="${reports.stream().filter(r -> r.status == 'RESOLVED').count()}">0</div>
+                 th:text="${#lists.size(reports.?[status.name() == 'RESOLVED'])}">0</div>
         </div>
     </div>
 
-    <!-- 필터 영역 -->
     <div class="card" style="margin-bottom: 20px;">
         <div class="filter-bar">
             <select class="filter-select" onchange="filterReports(this.value)">
@@ -49,7 +49,6 @@
         </div>
     </div>
 
-    <!-- 신고 목록 테이블 -->
     <div class="card">
         <div class="card-header">
             <h3>신고 목록</h3>
@@ -67,7 +66,7 @@
                 </thead>
                 <tbody>
                 <tr th:each="report : ${reports}"
-                    th:attr="data-status=${report.status},
+                    th:attr="data-status=${report.status.name()},
                              data-reporter=${report.reporterEmail},
                              data-post=${report.postTitle}">
                     <td th:text="${report.id}">1</td>
@@ -86,13 +85,13 @@
                     </td>
                     <td>
                         <span class="badge"
-                              th:classappend="${report.status == 'PENDING' ? 'badge-pending' :
-                                               report.status == 'IN_PROGRESS' ? 'badge-progress' :
-                                               report.status == 'RESOLVED' ? 'badge-success' : 'badge-danger'}"
-                              th:text="${report.status == 'PENDING' ? '대기중' :
-                                       report.status == 'IN_PROGRESS' ? '처리중' :
-                                       report.status == 'RESOLVED' ? '해결됨' :
-                                       report.status == 'REJECTED' ? '반려' : report.status}">
+                              th:classappend="${report.status.name() == 'PENDING' ? 'badge-pending' :
+                                               report.status.name() == 'IN_PROGRESS' ? 'badge-progress' :
+                                               report.status.name() == 'RESOLVED' ? 'badge-success' : 'badge-danger'}"
+                              th:text="${report.status.name() == 'PENDING' ? '대기중' :
+                                       report.status.name() == 'IN_PROGRESS' ? '처리중' :
+                                       report.status.name() == 'RESOLVED' ? '해결됨' :
+                                       report.status.name() == 'REJECTED' ? '반려' : report.status.name()}">
                             대기중
                         </span>
                     </td>
@@ -110,7 +109,7 @@
         </div>
     </div>
 
-    <!-- 전용 스타일 & 스크립트 -->
     <link rel="stylesheet" th:href="@{/css/report-list.css}"/>
     <script th:src="@{/js/report-list.js}"></script>
 </div>
+</html>

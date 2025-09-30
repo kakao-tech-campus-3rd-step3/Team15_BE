@@ -8,11 +8,11 @@
         </div>
         <div class="stat-card">
             <div class="stat-label">노출 중</div>
-            <div class="stat-value" th:text="${comments.stream().filter(c -> !c.deleted).count()}">0</div>
+            <div class="stat-value" th:text="${activeCount}">0</div>
         </div>
         <div class="stat-card">
             <div class="stat-label">삭제됨</div>
-            <div class="stat-value" th:text="${comments.stream().filter(c -> c.deleted).count()}">0</div>
+            <div class="stat-value" th:text="${deletedCount}">0</div>
         </div>
     </div>
 
@@ -24,7 +24,7 @@
                 <option value="active">노출 중</option>
                 <option value="deleted">삭제됨</option>
             </select>
-            <input type="text" class="search-input" placeholder="작성자 또는 내용 검색" onkeyup="searchComments(this.value)">
+            <input type="text" class="search-input" placeholder="내용 검색" onkeyup="searchComments(this.value)">
             <select class="filter-select" onchange="sortComments(this.value)">
                 <option value="recent">최근 작성순</option>
                 <option value="oldest">오래된 순</option>
@@ -42,8 +42,7 @@
                 <thead>
                 <tr>
                     <th style="width: 60px;">ID</th>
-                    <th style="width: 300px;">내용</th>
-                    <th style="width: 150px;">작성자</th>
+                    <th style="width: 400px;">내용</th>
                     <th style="width: 160px;">작성일</th>
                     <th style="width: 100px;">상태</th>
                     <th style="width: 150px;">관리</th>
@@ -52,20 +51,11 @@
                 <tbody>
                 <tr th:each="comment : ${comments}"
                     th:attr="data-status=${comment.deleted ? 'deleted' : 'active'},
-                             data-writer=${comment.writerEmail},
                              data-content=${comment.content}">
                     <td th:text="${comment.id}">1</td>
                     <td>
                         <div class="comment-content">
                             <p th:text="${comment.content}">댓글 내용이 표시됩니다.</p>
-                        </div>
-                    </td>
-                    <td>
-                        <div style="display: flex; align-items: center; gap: 8px; justify-content: center;">
-                            <div class="user-avatar-small">
-                                <span th:text="${comment.writerEmail != null ? comment.writerEmail.substring(0,1).toUpperCase() : 'U'}">U</span>
-                            </div>
-                            <span th:text="${comment.writerEmail}">user@example.com</span>
                         </div>
                     </td>
                     <td th:text="${#temporals.format(comment.createdAt, 'yyyy-MM-dd HH:mm')}">2024-01-01 12:00</td>
@@ -97,7 +87,7 @@
                     </td>
                 </tr>
                 <tr th:if="${comments.isEmpty()}">
-                    <td colspan="6" style="text-align: center; padding: 40px; color: #868e96;">
+                    <td colspan="5" style="text-align: center; padding: 40px; color: #868e96;">
                         등록된 댓글이 없습니다.
                     </td>
                 </tr>

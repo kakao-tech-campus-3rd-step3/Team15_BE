@@ -19,7 +19,8 @@
     <div th:replace="admin/fragments/header :: header"></div>
 
     <main class="main-content">
-        <div th:insert="${content}"></div>
+        <!-- content fragment를 삽입 -->
+        <div th:replace="${content}"></div>
     </main>
 </div>
 

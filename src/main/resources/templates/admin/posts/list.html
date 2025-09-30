@@ -1,103 +1,52 @@
-<meta charset="UTF-8">
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{admin/layout :: layout(~{::content})}">
+
 <div th:fragment="content">
-    <!-- 통계 카드 -->
-    <div class="stats-grid">
-        <div class="stat-card">
-            <div class="stat-label">전체 게시글</div>
-            <div class="stat-value" th:text="${posts.size()}">0</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-label">노출 중</div>
-            <div class="stat-value" th:text="${posts.stream().filter(p -> !p.hidden).count()}">0</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-label">숨김</div>
-            <div class="stat-value" th:text="${posts.stream().filter(p -> p.hidden).count()}">0</div>
-        </div>
-    </div>
-
-    <!-- 필터 및 검색 영역 -->
-    <div class="card mb-20">
-        <div class="filter-bar">
-            <select class="filter-select" onchange="filterPosts(this.value)">
-                <option value="all">전체 상태</option>
-                <option value="visible">노출 중</option>
-                <option value="hidden">숨김</option>
-            </select>
-            <input type="text" class="search-input" placeholder="제목 또는 작성자 검색" onkeyup="searchPosts(this.value)">
-            <select class="filter-select" onchange="sortPosts(this.value)">
-                <option value="recent">최근 작성순</option>
-                <option value="oldest">오래된 순</option>
-                <option value="title">제목순</option>
-            </select>
-        </div>
-    </div>
-
-    <!-- 게시글 목록 테이블 -->
     <div class="card">
         <div class="card-header">
-            <h3>게시글 목록</h3>
+            <h3>게시글 관리</h3>
         </div>
         <div class="table-container">
             <table>
                 <thead>
                 <tr>
-                    <th>ID</th>
-                    <th>제목</th>
-                    <th>작성자</th>
-                    <th>작성일</th>
-                    <th>상태</th>
-                    <th>관리</th>
+                    <th style="width: 60px;">ID</th>
+                    <th style="width: 200px;">제목</th>
+                    <th style="width: 100px;">작성자</th>
+                    <th style="width: 150px;">상태</th>
+                    <th style="width: 150px;">관리</th>
                 </tr>
                 </thead>
                 <tbody>
-                <tr th:each="post : ${posts}"
-                    th:attr="data-status=${post.hidden ? 'hidden' : 'visible'},
-                             data-title=${post.title},
-                             data-writer=${post.writerEmail}">
+                <tr th:each="post : ${posts}">
                     <td th:text="${post.id}">1</td>
-                    <td><div class="post-title-cell" th:text="${post.title}">게시글 제목입니다</div></td>
-                    <td>
-                        <div class="user-cell">
-                            <div class="user-avatar-small">
-                                <span th:text="${post.writerEmail != null ? post.writerEmail.substring(0,1).toUpperCase() : 'U'}">U</span>
-                            </div>
-                            <span th:text="${post.writerEmail}">user@example.com</span>
-                        </div>
-                    </td>
-                    <td th:text="${#temporals.format(post.createdAt, 'yyyy-MM-dd HH:mm')}">2024-01-01 12:00</td>
+                    <td th:text="${post.title}">게시글 제목</td>
+                    <td th:text="${post.writer}">작성자</td>
                     <td>
                         <span class="badge"
-                              th:classappend="${post.hidden ? 'badge-warning' : 'badge-success'}"
-                              th:text="${post.hidden ? '숨김' : '노출중'}">노출중</span>
+                              th:classappend="${post.status == 'ACTIVE' ? 'badge-success' :
+                                               post.status == 'DELETED' ? 'badge-secondary' : 'badge-type'}"
+                              th:text="${post.status == 'ACTIVE' ? '활성' :
+                                       post.status == 'DELETED' ? '삭제됨' : post.status}">
+                            활성
+                        </span>
                     </td>
                     <td>
-                        <div class="action-buttons">
-                            <a th:href="@{|/admin/posts/${post.id}|}" class="btn-small btn-detail">상세</a>
-                            <form th:action="@{|/admin/posts/${post.id}/hide|}" method="post">
-                                <button type="submit" class="btn-small btn-warning"
-                                        onclick="return confirm('이 게시글을 숨기시겠습니까?')">숨김</button>
-                            </form>
-                            <form th:action="@{|/admin/posts/${post.id}/unhide|}" method="post">
-                                <button type="submit" class="btn-small btn-success-alt"
-                                        onclick="return confirm('이 게시글을 다시 노출하시겠습니까?')">해제</button>
-                            </form>
-                            <form th:action="@{|/admin/posts/${post.id}|}" method="post"
-                                  onsubmit="return confirm('정말 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.');">
-                                <input type="hidden" name="_method" value="delete"/>
-                                <button type="submit" class="btn-small btn-danger">삭제</button>
-                            </form>
-                        </div>
+                        <a th:href="@{|/admin/posts/${post.id}|}" class="btn-detail">상세보기</a>
                     </td>
                 </tr>
                 <tr th:if="${posts.isEmpty()}">
-                    <td colspan="6" class="empty-row">등록된 게시글이 없습니다.</td>
+                    <td colspan="5" style="text-align: center; padding: 40px; color: #868e96;">
+                        등록된 게시글이 없습니다.
+                    </td>
                 </tr>
                 </tbody>
             </table>
         </div>
     </div>
 
-    <link rel="stylesheet" th:href="@{/css/post-list.css}"/>
-    <script th:src="@{/js/post-list.js}"></script>
+    <link rel="stylesheet" th:href="@{/css/posts.css}"/>
+    <script th:src="@{/js/posts.js}"></script>
 </div>
+</html>

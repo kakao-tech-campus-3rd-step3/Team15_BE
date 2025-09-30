@@ -1,6 +1,8 @@
-<meta charset="UTF-8">
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{admin/layout :: layout(~{::content})}">
+
 <div th:fragment="content">
-    <!-- 통계 카드 -->
     <div class="stats-grid">
         <div class="stat-card">
             <div class="stat-label">전체 회원</div>
@@ -8,19 +10,18 @@
         </div>
         <div class="stat-card">
             <div class="stat-label">활성 회원</div>
-            <div class="stat-value" th:text="${users.stream().filter(u -> u.status == 'ACTIVE').count()}">0</div>
+            <div class="stat-value" th:text="${#lists.size(users.?[status == 'ACTIVE'])}">0</div>
         </div>
         <div class="stat-card">
             <div class="stat-label">정지된 회원</div>
-            <div class="stat-value" th:text="${users.stream().filter(u -> u.status == 'SUSPENDED').count()}">0</div>
+            <div class="stat-value" th:text="${#lists.size(users.?[status == 'SUSPENDED'])}">0</div>
         </div>
         <div class="stat-card">
             <div class="stat-label">탈퇴 회원</div>
-            <div class="stat-value" th:text="${users.stream().filter(u -> u.status == 'DELETED').count()}">0</div>
+            <div class="stat-value" th:text="${#lists.size(users.?[status == 'DELETED'])}">0</div>
         </div>
     </div>
 
-    <!-- 필터 및 검색 영역 -->
     <div class="card" style="margin-bottom: 20px;">
         <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
             <select class="filter-select" onchange="filterUsers(this.value)">
@@ -29,16 +30,14 @@
                 <option value="SUSPENDED">정지</option>
                 <option value="DELETED">탈퇴</option>
             </select>
-            <input type="text" class="search-input" placeholder="이메일 또는 닉네임 검색" onkeyup="searchUsers(this.value)">
+            <input type="text" class="search-input" placeholder="ID 검색" onkeyup="searchUsers(this.value)">
             <select class="filter-select" onchange="sortUsers(this.value)">
                 <option value="recent">최근 가입순</option>
                 <option value="oldest">오래된 순</option>
-                <option value="nickname">닉네임순</option>
             </select>
         </div>
     </div>
 
-    <!-- 회원 목록 테이블 -->
     <div class="card">
         <div class="card-header">
             <h3>회원 목록</h3>
@@ -48,26 +47,14 @@
                 <thead>
                 <tr>
                     <th style="width: 60px;">ID</th>
-                    <th style="width: 200px;">이메일</th>
-                    <th style="width: 150px;">닉네임</th>
                     <th style="width: 100px;">상태</th>
-                    <th style="width: 160px;">가입일</th>
                     <th style="width: 150px;">관리</th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr th:each="user : ${users}"
-                    th:attr="data-status=${user.status}, data-email=${user.email}, data-nickname=${user.nickname}">
-                    <td th:text="${user.id}">1</td>
-                    <td>
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <div class="user-avatar">
-                                <span th:text="${user.nickname != null ? user.nickname.substring(0,1).toUpperCase() : 'U'}">U</span>
-                            </div>
-                            <span th:text="${user.email}">user@example.com</span>
-                        </div>
-                    </td>
-                    <td th:text="${user.nickname}">사용자123</td>
+                    th:attr="data-status=${user.status}, data-id=${user.userId}">
+                    <td th:text="${user.userId}">1</td>
                     <td>
                         <span class="badge"
                               th:classappend="${user.status == 'ACTIVE' ? 'badge-success' :
@@ -79,25 +66,24 @@
                             활성
                         </span>
                     </td>
-                    <td th:text="${#temporals.format(user.createdAt, 'yyyy-MM-dd HH:mm')}">2024-01-01 12:00</td>
                     <td>
                         <div style="display: flex; gap: 5px;">
-                            <button class="btn-small btn-detail" th:onclick="'viewUser(' + ${user.id} + ')'">상세</button>
+                            <button class="btn-small btn-detail" th:onclick="'viewUser(' + ${user.userId} + ')'">상세</button>
                             <button class="btn-small btn-warning"
                                     th:if="${user.status == 'ACTIVE'}"
-                                    th:onclick="'suspendUser(' + ${user.id} + ')'">
+                                    th:onclick="'suspendUser(' + ${user.userId} + ')'">
                                 정지
                             </button>
                             <button class="btn-small btn-success"
                                     th:if="${user.status == 'SUSPENDED'}"
-                                    th:onclick="'activateUser(' + ${user.id} + ')'">
+                                    th:onclick="'activateUser(' + ${user.userId} + ')'">
                                 활성화
                             </button>
                         </div>
                     </td>
                 </tr>
                 <tr th:if="${users.isEmpty()}">
-                    <td colspan="6" style="text-align: center; padding: 40px; color: #868e96;">
+                    <td colspan="3" style="text-align: center; padding: 40px; color: #868e96;">
                         등록된 회원이 없습니다.
                     </td>
                 </tr>
@@ -106,9 +92,7 @@
         </div>
     </div>
 
-    <!-- 외부 CSS -->
     <link rel="stylesheet" th:href="@{/css/users.css}"/>
-
-    <!-- 외부 JS -->
     <script th:src="@{/js/users.js}"></script>
 </div>
+</html>
