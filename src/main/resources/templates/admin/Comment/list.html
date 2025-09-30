@@ -52,8 +52,8 @@
                 <tbody>
                 <tr th:each="comment : ${comments}"
                     th:attr="data-status=${comment.deleted ? 'deleted' : 'active'},
-                                 data-writer=${comment.writerEmail},
-                                 data-content=${comment.content}">
+                             data-writer=${comment.writerEmail},
+                             data-content=${comment.content}">
                     <td th:text="${comment.id}">1</td>
                     <td>
                         <div class="comment-content">
@@ -70,11 +70,11 @@
                     </td>
                     <td th:text="${#temporals.format(comment.createdAt, 'yyyy-MM-dd HH:mm')}">2024-01-01 12:00</td>
                     <td>
-                            <span class="badge"
-                                  th:classappend="${comment.deleted ? 'badge-danger' : 'badge-success'}"
-                                  th:text="${comment.deleted ? '삭제됨' : '노출중'}">
-                                노출중
-                            </span>
+                        <span class="badge"
+                              th:classappend="${comment.deleted ? 'badge-danger' : 'badge-success'}"
+                              th:text="${comment.deleted ? '삭제됨' : '노출중'}">
+                            노출중
+                        </span>
                     </td>
                     <td>
                         <div style="display: flex; gap: 5px; justify-content: center;">
@@ -106,144 +106,9 @@
         </div>
     </div>
 
-    <style>
-        .filter-select {
-            padding: 10px 15px;
-            border: 1px solid #dee2e6;
-            border-radius: 8px;
-            font-size: 14px;
-            color: #495057;
-            background-color: white;
-            cursor: pointer;
-            transition: border-color 0.2s;
-        }
+    <!-- 외부 CSS -->
+    <link rel="stylesheet" th:href="@{/css/comments.css}"/>
 
-        .filter-select:hover,
-        .filter-select:focus {
-            border-color: #5CB85C;
-            outline: none;
-        }
-
-        .search-input {
-            padding: 10px 15px;
-            border: 1px solid #dee2e6;
-            border-radius: 8px;
-            font-size: 14px;
-            color: #495057;
-            flex: 1;
-            min-width: 200px;
-            transition: border-color 0.2s;
-        }
-
-        .search-input:focus {
-            border-color: #5CB85C;
-            outline: none;
-        }
-
-        .comment-content {
-            text-align: left;
-            max-width: 300px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-
-        .comment-content p {
-            margin: 0;
-            color: #495057;
-            font-size: 14px;
-        }
-
-        .user-avatar-small {
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #5CB85C, #4CAF50);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: 600;
-            font-size: 12px;
-            flex-shrink: 0;
-        }
-
-        .badge {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-
-        .badge-success {
-            background-color: #d1e7dd;
-            color: #0f5132;
-        }
-
-        .badge-danger {
-            background-color: #f8d7da;
-            color: #842029;
-        }
-
-        .btn-small {
-            padding: 5px 12px;
-            border: none;
-            border-radius: 6px;
-            font-size: 12px;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-weight: 500;
-        }
-
-        .btn-warning {
-            background-color: #ffc107;
-            color: #000;
-        }
-
-        .btn-warning:hover {
-            background-color: #ffb300;
-        }
-
-        .btn-danger {
-            background-color: #dc3545;
-            color: white;
-        }
-
-        .btn-danger:hover {
-            background-color: #c82333;
-        }
-    </style>
-
-    <script>
-        function filterComments(status) {
-            const rows = document.querySelectorAll('tbody tr[data-status]');
-            rows.forEach(row => {
-                if (status === 'all' || row.getAttribute('data-status') === status) {
-                    row.style.display = '';
-                } else {
-                    row.style.display = 'none';
-                }
-            });
-        }
-
-        function searchComments(keyword) {
-            const rows = document.querySelectorAll('tbody tr[data-status]');
-            const lowerKeyword = keyword.toLowerCase();
-            rows.forEach(row => {
-                const writer = row.getAttribute('data-writer').toLowerCase();
-                const content = row.getAttribute('data-content').toLowerCase();
-                if (writer.includes(lowerKeyword) || content.includes(lowerKeyword)) {
-                    row.style.display = '';
-                } else {
-                    row.style.display = 'none';
-                }
-            });
-        }
-
-        function sortComments(type) {
-            // 정렬 기능은 서버사이드에서 처리하는 것을 권장
-            console.log('정렬:', type);
-        }
-    </script>
+    <!-- 외부 JS -->
+    <script th:src="@{/js/comments.js}"></script>
 </div>
