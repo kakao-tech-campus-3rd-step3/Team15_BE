@@ -2,86 +2,313 @@
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8" />
-    <title>지원 사업 등록/수정</title>
+    <title>지원 사업 등록/수정 - 관리자</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <style>
-        body { font-family: ui-sans-serif, system-ui; margin: 24px; }
-        form { max-width:860px; display:grid; grid-template-columns: 1fr; gap:12px; }
-        label { font-weight:600; color:#374151; margin-bottom:4px; display:block; }
-        input, textarea, select { width:100%; padding:10px; border:1px solid #d1d5db; border-radius:8px; }
-        .row { display:flex; gap:12px; }
-        .btn { padding:10px 14px; border:1px solid #d1d5db; background:#fff; cursor:pointer; border-radius:8px; }
-        .btn.primary { background:#111827; color:#fff; border-color:#111827; }
-        .actions { display:flex; gap:8px; margin-top:8px; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Malgun Gothic', sans-serif;
+            background-color: #f8f9fa;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        /* 헤더 */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .btn-back {
+            display: inline-flex;
+            align-items: center;
+            padding: 10px 20px;
+            background-color: #ffffff;
+            color: #495057;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            border: 1px solid #dee2e6;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-back:hover {
+            background-color: #f8f9fa;
+            border-color: #5CB85C;
+            color: #5CB85C;
+        }
+
+        h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #212529;
+            margin-bottom: 24px;
+        }
+
+        /* 카드 */
+        .card {
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            padding: 32px;
+            margin-bottom: 20px;
+        }
+
+        /* 폼 */
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        label .required {
+            color: #dc3545;
+            margin-left: 2px;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #495057;
+            transition: border-color 0.2s;
+            font-family: inherit;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #5CB85C;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        input::placeholder, textarea::placeholder {
+            color: #adb5bd;
+        }
+
+        /* 헬프 텍스트 */
+        .help-text {
+            font-size: 13px;
+            color: #868e96;
+            margin-top: 4px;
+        }
+
+        /* 구분선 */
+        .divider {
+            height: 1px;
+            background-color: #e9ecef;
+            margin: 8px 0;
+        }
+
+        /* 액션 버튼 */
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            padding-top: 12px;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-cancel {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .btn-cancel:hover {
+            background-color: #5a6268;
+        }
+
+        .btn-primary {
+            background-color: #5CB85C;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #4CAF50;
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        /* 로딩 스피너 */
+        .loading {
+            text-align: center;
+            padding: 60px 20px;
+            color: #868e96;
+        }
+
+        /* 반응형 */
+        @media (max-width: 768px) {
+            body {
+                padding: 20px 16px;
+            }
+
+            .card {
+                padding: 24px 20px;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            .form-actions {
+                flex-direction: column-reverse;
+            }
+
+            .btn {
+                width: 100%;
+            }
+        }
     </style>
 </head>
 <body>
-<button class="btn" onclick="history.back()">← 뒤로</button>
-<h1 style="margin:12px 0;" id="title">지원 사업 등록</h1>
-
-<form id="form" onsubmit="submitForm(event)">
-    <div>
-        <label>제목 *</label>
-        <input id="name" required maxlength="200" />
-    </div>
-    <div>
-        <label>제공기관 *</label>
-        <input id="company" required maxlength="120" />
-    </div>
-    <div class="row">
-        <div style="flex:1">
-            <label>신청 시작 *</label>
-            <input id="startDate" type="datetime-local" required />
-        </div>
-        <div style="flex:1">
-            <label>신청 마감 *</label>
-            <input id="endDate" type="datetime-local" required />
-        </div>
-    </div>
-    <div class="row">
-        <div style="flex:1">
-            <label>상태 *</label>
-            <select id="status" required>
-                <option value="DRAFT">DRAFT</option>
-                <option value="PUBLISHED">PUBLISHED</option>
-                <option value="CLOSED">CLOSED</option>
-            </select>
-        </div>
-        <div style="flex:1">
-            <label>유형</label>
-            <input id="supportType" placeholder="예: EMPLOYMENT, STARTUP 등" />
-        </div>
-    </div>
-    <div>
-        <label>신청 URL *</label>
-        <input id="applicationUrl" type="url" required placeholder="https://..." />
-    </div>
-    <div>
-        <label>이미지 URL</label>
-        <input id="imageUrl" type="url" placeholder="https://..." />
-    </div>
-    <div>
-        <label>장소/지역</label>
-        <input id="place" />
-    </div>
-    <div>
-        <label>내용</label>
-        <textarea id="content" rows="8" placeholder="상세 내용"></textarea>
+<div class="container">
+    <div class="page-header">
+        <button class="btn-back" onclick="history.back()">← 뒤로</button>
     </div>
 
-    <div class="actions">
-        <button class="btn" type="button" onclick="history.back()">취소</button>
-        <button class="btn primary" type="submit">저장</button>
+    <h1 id="pageTitle">지원 사업 등록</h1>
+
+    <div class="card">
+        <form id="supportForm" onsubmit="submitForm(event)">
+            <!-- 기본 정보 -->
+            <div class="form-group">
+                <label>제목<span class="required">*</span></label>
+                <input id="name" type="text" required maxlength="200" placeholder="지원 사업 제목을 입력하세요" />
+            </div>
+
+            <div class="form-group">
+                <label>제공기관<span class="required">*</span></label>
+                <input id="company" type="text" required maxlength="120" placeholder="예: 중소벤처기업부, 고용노동부" />
+            </div>
+
+            <div class="divider"></div>
+
+            <!-- 날짜 및 상태 -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label>신청 시작<span class="required">*</span></label>
+                    <input id="startDate" type="datetime-local" required />
+                </div>
+                <div class="form-group">
+                    <label>신청 마감<span class="required">*</span></label>
+                    <input id="endDate" type="datetime-local" required />
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>상태<span class="required">*</span></label>
+                    <select id="status" required>
+                        <option value="DRAFT">임시저장</option>
+                        <option value="PUBLISHED">게시됨</option>
+                        <option value="CLOSED">종료</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>유형</label>
+                    <input id="supportType" type="text" placeholder="예: EMPLOYMENT, STARTUP" />
+                    <span class="help-text">지원 사업 카테고리를 입력하세요</span>
+                </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <!-- URL 정보 -->
+            <div class="form-group">
+                <label>신청 URL<span class="required">*</span></label>
+                <input id="applicationUrl" type="url" required placeholder="https://example.com/apply" />
+                <span class="help-text">사업 신청 페이지 링크를 입력하세요</span>
+            </div>
+
+            <div class="form-group">
+                <label>이미지 URL</label>
+                <input id="imageUrl" type="url" placeholder="https://example.com/image.jpg" />
+                <span class="help-text">대표 이미지 링크 (선택사항)</span>
+            </div>
+
+            <div class="divider"></div>
+
+            <!-- 상세 정보 -->
+            <div class="form-group">
+                <label>장소/지역</label>
+                <input id="place" type="text" placeholder="예: 서울, 전국, 온라인" />
+            </div>
+
+            <div class="form-group">
+                <label>상세 내용</label>
+                <textarea id="content" rows="10" placeholder="지원 사업에 대한 상세 내용을 입력하세요"></textarea>
+                <span class="help-text">지원 대상, 혜택, 신청 방법 등을 자세히 작성해주세요</span>
+            </div>
+
+            <!-- 액션 버튼 -->
+            <div class="form-actions">
+                <button type="button" class="btn btn-cancel" onclick="history.back()">취소</button>
+                <button type="submit" class="btn btn-primary" id="submitBtn">💾 저장</button>
+            </div>
+        </form>
     </div>
-</form>
+</div>
 
 <script>
-    const API = '/api/admin/support-links'; // 필요 시 변경
+    const API = '/api/admin/support-links';
     const id = new URLSearchParams(location.search).get('id');
 
     if (id) {
-        document.getElementById('title').innerText = '지원 사업 수정';
-        load();
+        document.getElementById('pageTitle').innerText = '지원 사업 수정';
+        loadData();
     }
 
     function toLocalInput(dt) {
@@ -91,26 +318,43 @@
         return `${d.getFullYear()}-${z(d.getMonth()+1)}-${z(d.getDate())}T${z(d.getHours())}:${z(d.getMinutes())}`;
     }
 
-    async function load() {
-        const res = await fetch(`/api/support-programs/${id}`);
-        if (!res.ok) { alert('조회 실패'); return; }
-        const d = await res.json();
-        setVal('name', d.name);
-        setVal('company', d.company);
-        setVal('content', d.content);
-        setVal('place', d.place);
-        setVal('applicationUrl', d.applicationUrl);
-        setVal('imageUrl', d.imageUrl);
-        setVal('supportType', d.supportType);
-        document.getElementById('status').value = d.status || 'DRAFT';
-        document.getElementById('startDate').value = toLocalInput(d.startDate);
-        document.getElementById('endDate').value = toLocalInput(d.endDate);
+    async function loadData() {
+        try {
+            const res = await fetch(`/api/support-programs/${id}`);
+            if (!res.ok) {
+                alert('데이터 조회에 실패했습니다.');
+                return;
+            }
+            const d = await res.json();
+
+            setVal('name', d.name);
+            setVal('company', d.company);
+            setVal('content', d.content);
+            setVal('place', d.place);
+            setVal('applicationUrl', d.applicationUrl);
+            setVal('imageUrl', d.imageUrl);
+            setVal('supportType', d.supportType);
+            document.getElementById('status').value = d.status || 'DRAFT';
+            document.getElementById('startDate').value = toLocalInput(d.startDate);
+            document.getElementById('endDate').value = toLocalInput(d.endDate);
+        } catch (error) {
+            console.error('로드 에러:', error);
+            alert('데이터를 불러오는 중 오류가 발생했습니다.');
+        }
     }
 
-    function setVal(id, v){ const el = document.getElementById(id); if (el) el.value = v ?? ''; }
+    function setVal(id, v) {
+        const el = document.getElementById(id);
+        if (el) el.value = v ?? '';
+    }
 
     async function submitForm(e) {
         e.preventDefault();
+
+        const submitBtn = document.getElementById('submitBtn');
+        submitBtn.disabled = true;
+        submitBtn.textContent = '저장 중...';
+
         const body = {
             name: v('name'),
             company: v('company'),
@@ -124,30 +368,48 @@
             status: v('status')
         };
 
+        // 날짜 유효성 검사
         if (new Date(body.startDate) > new Date(body.endDate)) {
-            alert('시작일이 마감일보다 늦을 수 없습니다.'); return;
+            alert('신청 시작일이 마감일보다 늦을 수 없습니다.');
+            submitBtn.disabled = false;
+            submitBtn.textContent = '💾 저장';
+            return;
         }
 
         const method = id ? 'PATCH' : 'POST';
         const url = id ? `${API}/${id}` : API;
 
-        const res = await fetch(url, {
-            method,
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(body)
-        });
+        try {
+            const res = await fetch(url, {
+                method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
 
-        if (res.ok) {
-            alert('저장되었습니다.');
-            location.href = '/admin/supports/list.html';
-        } else {
-            const err = await res.json().catch(()=>({}));
-            alert('저장 실패: ' + (err.message || res.status));
+            if (res.ok) {
+                alert('✅ 저장되었습니다.');
+                location.href = '/admin/supports/list.html';
+            } else {
+                const err = await res.json().catch(() => ({}));
+                alert('❌ 저장 실패: ' + (err.message || res.status));
+                submitBtn.disabled = false;
+                submitBtn.textContent = '💾 저장';
+            }
+        } catch (error) {
+            console.error('저장 에러:', error);
+            alert('❌ 저장 중 오류가 발생했습니다.');
+            submitBtn.disabled = false;
+            submitBtn.textContent = '💾 저장';
         }
     }
 
-    function v(id){ return document.getElementById(id).value.trim(); }
-    function toISO(local) { return local ? new Date(local).toISOString() : null; }
+    function v(id) {
+        return document.getElementById(id).value.trim();
+    }
+
+    function toISO(local) {
+        return local ? new Date(local).toISOString() : null;
+    }
 </script>
 </body>
 </html>

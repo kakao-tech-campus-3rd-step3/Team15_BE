@@ -2,64 +2,389 @@
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8" />
-    <title>지원 사업 상세</title>
+    <title>지원 사업 상세 - 관리자</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <style>
-        body { font-family: ui-sans-serif, system-ui; margin: 24px; }
-        .row { margin-bottom: 10px; }
-        .label { font-weight:600; width:140px; display:inline-block; color:#374151; }
-        .btn { padding:8px 12px; border:1px solid #d1d5db; background:#fff; cursor:pointer; border-radius:8px; }
-        .btn.primary { background:#111827; color:#fff; border-color:#111827; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Malgun Gothic', sans-serif;
+            background-color: #f8f9fa;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        /* 헤더 영역 */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .btn-back {
+            display: inline-flex;
+            align-items: center;
+            padding: 10px 20px;
+            background-color: #ffffff;
+            color: #495057;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            border: 1px solid #dee2e6;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-back:hover {
+            background-color: #f8f9fa;
+            border-color: #5CB85C;
+            color: #5CB85C;
+        }
+
+        h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #212529;
+            margin-bottom: 24px;
+        }
+
+        /* 로딩 및 에러 메시지 */
+        .message {
+            text-align: center;
+            padding: 60px 20px;
+            color: #868e96;
+            font-size: 15px;
+        }
+
+        /* 카드 */
+        .card {
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            padding: 32px;
+            margin-bottom: 20px;
+        }
+
+        /* 정보 그리드 */
+        .info-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .info-row {
+            display: grid;
+            grid-template-columns: 140px 1fr;
+            gap: 16px;
+            align-items: start;
+        }
+
+        .info-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #495057;
+            padding-top: 4px;
+        }
+
+        .info-value {
+            font-size: 15px;
+            color: #212529;
+            line-height: 1.6;
+        }
+
+        .info-value a {
+            color: #5CB85C;
+            text-decoration: none;
+            word-break: break-all;
+        }
+
+        .info-value a:hover {
+            text-decoration: underline;
+        }
+
+        /* 상태 배지 */
+        .status-badge {
+            display: inline-block;
+            padding: 6px 14px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .status-badge.active {
+            background-color: #d1e7dd;
+            color: #0f5132;
+        }
+
+        .status-badge.inactive {
+            background-color: #f8d7da;
+            color: #842029;
+        }
+
+        .status-badge.upcoming {
+            background-color: #cfe2ff;
+            color: #084298;
+        }
+
+        /* 내용 영역 */
+        .content-box {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #5CB85C;
+            line-height: 1.8;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        /* 구분선 */
+        .divider {
+            height: 1px;
+            background-color: #e9ecef;
+            margin: 24px 0;
+        }
+
+        /* 액션 버튼 영역 */
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background-color: #5CB85C;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #4CAF50;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+
+        .btn-outline {
+            background-color: white;
+            color: #5CB85C;
+            border: 1px solid #5CB85C;
+        }
+
+        .btn-outline:hover {
+            background-color: #5CB85C;
+            color: white;
+        }
+
+        /* 반응형 */
+        @media (max-width: 768px) {
+            body {
+                padding: 20px 16px;
+            }
+
+            .info-row {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+
+            .card {
+                padding: 24px 20px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+        }
     </style>
 </head>
 <body>
-<button class="btn" onclick="history.back()">← 뒤로</button>
-<h1 style="margin:12px 0;">지원 사업 상세</h1>
+<div class="container">
+    <div class="page-header">
+        <button class="btn-back" onclick="history.back()">← 뒤로</button>
+    </div>
 
-<div id="view">
-    불러오는 중…
-</div>
+    <h1>지원 사업 상세</h1>
 
-<div style="margin-top:16px;">
-    <button id="editBtn" class="btn">수정</button>
-    <a id="applyLink" class="btn" target="_blank">신청 페이지 이동</a>
+    <div class="card">
+        <div id="view" class="message">
+            불러오는 중…
+        </div>
+    </div>
+
+    <div class="action-buttons" id="actionButtons" style="display: none;">
+        <button id="editBtn" class="btn btn-primary">✏️ 수정</button>
+        <a id="applyLink" class="btn btn-outline" target="_blank">🔗 신청 페이지 이동</a>
+        <button class="btn btn-secondary" onclick="history.back()">취소</button>
+    </div>
 </div>
 
 <script>
     const id = new URLSearchParams(location.search).get('id');
-    if (!id) document.getElementById('view').innerText = 'id가 없습니다.';
+    const viewEl = document.getElementById('view');
+    const actionButtons = document.getElementById('actionButtons');
+
+    if (!id) {
+        viewEl.innerHTML = '<div class="message">❌ ID가 없습니다.</div>';
+    } else {
+        loadDetail();
+    }
 
     async function loadDetail() {
-        const res = await fetch(`/api/support-programs/${id}`);
-        if (!res.ok) {
-            document.getElementById('view').innerText = '조회 실패';
-            return;
+        try {
+            const res = await fetch(`/api/support-programs/${id}`);
+            if (!res.ok) {
+                viewEl.innerHTML = '<div class="message">⚠️ 조회에 실패했습니다.</div>';
+                return;
+            }
+            const d = await res.json();
+            renderDetail(d);
+        } catch (error) {
+            viewEl.innerHTML = '<div class="message">⚠️ 데이터를 불러오는 중 오류가 발생했습니다.</div>';
+            console.error(error);
         }
-        const d = await res.json();
-        document.getElementById('view').innerHTML = `
-        <div class="row"><span class="label">제목</span> ${escapeHtml(d.name||'')}</div>
-        <div class="row"><span class="label">제공기관</span> ${escapeHtml(d.company||'')}</div>
-        <div class="row"><span class="label">상태</span> ${d.status||''}</div>
-        <div class="row"><span class="label">신청기간</span> ${dateRange(d.startDate, d.endDate)}</div>
-        <div class="row"><span class="label">장소/지역</span> ${escapeHtml(d.place||'-')}</div>
-        <div class="row"><span class="label">링크</span> <a href="${d.applicationUrl||'#'}" target="_blank">${d.applicationUrl||'-'}</a></div>
-        <div class="row"><span class="label">내용</span><div>${nl2br(escapeHtml(d.content||''))}</div></div>
-      `;
-        document.getElementById('editBtn').onclick = () => location.href = '/admin/supports/form.html?id=' + id;
-        const link = document.getElementById('applyLink');
-        link.href = d.applicationUrl || '#';
-        if (!d.applicationUrl) link.style.display = 'none';
+    }
+
+    function renderDetail(d) {
+        viewEl.innerHTML = `
+                <div class="info-grid">
+                    <div class="info-row">
+                        <div class="info-label">제목</div>
+                        <div class="info-value">${escapeHtml(d.name || '-')}</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">제공기관</div>
+                        <div class="info-value">${escapeHtml(d.company || '-')}</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">상태</div>
+                        <div class="info-value">
+                            <span class="status-badge ${getStatusClass(d.status)}">
+                                ${getStatusText(d.status)}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">신청기간</div>
+                        <div class="info-value">${dateRange(d.startDate, d.endDate)}</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">장소/지역</div>
+                        <div class="info-value">${escapeHtml(d.place || '-')}</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">신청 링크</div>
+                        <div class="info-value">
+                            ${d.applicationUrl
+            ? `<a href="${escapeHtml(d.applicationUrl)}" target="_blank">${escapeHtml(d.applicationUrl)}</a>`
+            : '-'}
+                        </div>
+                    </div>
+                    <div class="divider"></div>
+                    <div class="info-row">
+                        <div class="info-label">상세 내용</div>
+                        <div class="info-value">
+                            <div class="content-box">${nl2br(escapeHtml(d.content || '내용이 없습니다.'))}</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+        // 수정 버튼 설정
+        document.getElementById('editBtn').onclick = () => {
+            location.href = '/admin/supports/form.html?id=' + id;
+        };
+
+        // 신청 링크 설정
+        const applyLink = document.getElementById('applyLink');
+        if (d.applicationUrl) {
+            applyLink.href = d.applicationUrl;
+            applyLink.style.display = 'inline-block';
+        } else {
+            applyLink.style.display = 'none';
+        }
+
+        // 액션 버튼 표시
+        actionButtons.style.display = 'flex';
+    }
+
+    function getStatusClass(status) {
+        const statusMap = {
+            'ACTIVE': 'active',
+            'INACTIVE': 'inactive',
+            'UPCOMING': 'upcoming'
+        };
+        return statusMap[status] || 'active';
+    }
+
+    function getStatusText(status) {
+        const statusMap = {
+            'ACTIVE': '진행 중',
+            'INACTIVE': '종료',
+            'UPCOMING': '예정'
+        };
+        return statusMap[status] || status || '진행 중';
     }
 
     function dateRange(s, e) {
         if (!s && !e) return '-';
-        return [fmt(s), fmt(e)].filter(Boolean).join(' ~ ');
+        const start = s ? fmt(s) : '';
+        const end = e ? fmt(e) : '';
+        if (start && end) return `${start} ~ ${end}`;
+        return start || end || '-';
     }
-    function fmt(x) { return x ? new Date(x).toLocaleString() : ''; }
-    function nl2br(s){ return s.replace(/\n/g,'<br/>'); }
-    function escapeHtml(s) { return s.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
 
-    loadDetail();
+    function fmt(x) {
+        if (!x) return '';
+        const date = new Date(x);
+        return date.toLocaleDateString('ko-KR', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    }
+
+    function nl2br(s) {
+        return s.replace(/\n/g, '<br/>');
+    }
+
+    function escapeHtml(s) {
+        if (!s) return '';
+        return String(s).replace(/[&<>"']/g, m => ({
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#39;'
+        }[m]));
+    }
 </script>
 </body>
 </html>
