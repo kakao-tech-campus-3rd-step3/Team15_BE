@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>지원 사업 관리 - 목록</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+        body { font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial; margin: 24px; }
+        .toolbar { display:flex; gap:8px; align-items:center; margin-bottom:16px; }
+        table { width:100%; border-collapse: collapse; }
+        th, td { padding:10px; border-bottom:1px solid #e5e7eb; text-align:left; }
+        th { background:#f9fafb; }
+        .btn { padding:8px 12px; border:1px solid #d1d5db; background:#fff; cursor:pointer; border-radius:8px; }
+        .btn.primary { background:#111827; color:#fff; border-color:#111827; }
+        .badge { padding:2px 8px; border-radius:9999px; font-size:12px; }
+        .badge.PUBLISHED { background:#EEF2FF; color:#3730A3; }
+        .badge.DRAFT { background:#FEF3C7; color:#92400E; }
+        .badge.CLOSED { background:#FEE2E2; color:#991B1B; }
+    </style>
+</head>
+<body>
+<h1 style="margin-bottom:12px;">지원 사업 관리</h1>
+
+<div class="toolbar">
+    <input id="search" placeholder="제목/기관 검색" style="flex:1; padding:8px 10px; border:1px solid #d1d5db; border-radius:8px;" />
+    <select id="status" class="btn">
+        <option value="">상태(전체)</option>
+        <option value="PUBLISHED">PUBLISHED</option>
+        <option value="DRAFT">DRAFT</option>
+        <option value="CLOSED">CLOSED</option>
+    </select>
+    <button class="btn" onclick="loadSupports()">검색</button>
+    <button class="btn primary" onclick="location.href='/admin/supports/form.html'">+ 새로 만들기</button>
+</div>
+
+<table>
+    <thead>
+    <tr>
+        <th style="width:60px;">ID</th>
+        <th>제목</th>
+        <th style="width:180px;">제공기관</th>
+        <th style="width:180px;">신청기간</th>
+        <th style="width:110px;">상태</th>
+        <th style="width:200px;">액션</th>
+    </tr>
+    </thead>
+    <tbody id="tbody">
+    <tr><td colspan="6">불러오는 중…</td></tr>
+    </tbody>
+</table>
+
+<script>
+    const API = '/api/admin/support-links'; // 필요 시 /api/admin/supports 로 변경
+    async function loadSupports() {
+        const q = document.getElementById('search').value.trim();
+        const status = document.getElementById('status').value;
+        // 간단 버전: 서버 검색 미구현이면 전체 불러와 클라이언트 필터
+        const res = await fetch('/api/support-programs'); // 공개 API 목록 재사용(임시)
+        const data = await res.json();
+
+        let rows = data;
+        if (q) {
+            const ql = q.toLowerCase();
+            rows = rows.filter(r =>
+                (r.name||'').toLowerCase().includes(ql) ||
+                (r.company||'').toLowerCase().includes(ql)
+            );
+        }
+        if (status) rows = rows.filter(r => r.status === status);
+
+        const tbody = document.getElementById('tbody');
+        if (!rows.length) {
+            tbody.innerHTML = '<tr><td colspan="6">결과가 없습니다.</td></tr>';
+            return;
+        }
+        tbody.innerHTML = rows.map(r => `
+        <tr>
+          <td>${r.id ?? ''}</td>
+          <td><a href="/admin/supports/detail.html?id=${r.id}">${escapeHtml(r.name ?? '')}</a></td>
+          <td>${escapeHtml(r.company ?? '')}</td>
+          <td>${dateRange(r.startDate, r.endDate)}</td>
+          <td><span class="badge ${r.status}">${r.status||''}</span></td>
+          <td>
+            <button class="btn" onclick="location.href='/admin/supports/form.html?id=${r.id}'">수정</button>
+            <button class="btn" onclick="del(${r.id})">삭제</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    async function del(id) {
+        if (!confirm('정말 삭제하시겠습니까?')) return;
+        const res = await fetch(`${API}/${id}`, { method: 'DELETE' });
+        if (res.status === 204) {
+            alert('삭제되었습니다');
+            loadSupports();
+        } else {
+            const body = await res.json().catch(()=>{});
+            alert('삭제 실패: ' + (body?.message || res.status));
+        }
+    }
+
+    function dateRange(s, e) {
+        if (!s && !e) return '-';
+        return [fmt(s), fmt(e)].filter(Boolean).join(' ~ ');
+    }
+    function fmt(x) { return x ? new Date(x).toLocaleDateString() : ''; }
+    function escapeHtml(s) { return s.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+
+    loadSupports();
+</script>
+</body>
+</html>

@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>지원 사업 등록/수정</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+        body { font-family: ui-sans-serif, system-ui; margin: 24px; }
+        form { max-width:860px; display:grid; grid-template-columns: 1fr; gap:12px; }
+        label { font-weight:600; color:#374151; margin-bottom:4px; display:block; }
+        input, textarea, select { width:100%; padding:10px; border:1px solid #d1d5db; border-radius:8px; }
+        .row { display:flex; gap:12px; }
+        .btn { padding:10px 14px; border:1px solid #d1d5db; background:#fff; cursor:pointer; border-radius:8px; }
+        .btn.primary { background:#111827; color:#fff; border-color:#111827; }
+        .actions { display:flex; gap:8px; margin-top:8px; }
+    </style>
+</head>
+<body>
+<button class="btn" onclick="history.back()">← 뒤로</button>
+<h1 style="margin:12px 0;" id="title">지원 사업 등록</h1>
+
+<form id="form" onsubmit="submitForm(event)">
+    <div>
+        <label>제목 *</label>
+        <input id="name" required maxlength="200" />
+    </div>
+    <div>
+        <label>제공기관 *</label>
+        <input id="company" required maxlength="120" />
+    </div>
+    <div class="row">
+        <div style="flex:1">
+            <label>신청 시작 *</label>
+            <input id="startDate" type="datetime-local" required />
+        </div>
+        <div style="flex:1">
+            <label>신청 마감 *</label>
+            <input id="endDate" type="datetime-local" required />
+        </div>
+    </div>
+    <div class="row">
+        <div style="flex:1">
+            <label>상태 *</label>
+            <select id="status" required>
+                <option value="DRAFT">DRAFT</option>
+                <option value="PUBLISHED">PUBLISHED</option>
+                <option value="CLOSED">CLOSED</option>
+            </select>
+        </div>
+        <div style="flex:1">
+            <label>유형</label>
+            <input id="supportType" placeholder="예: EMPLOYMENT, STARTUP 등" />
+        </div>
+    </div>
+    <div>
+        <label>신청 URL *</label>
+        <input id="applicationUrl" type="url" required placeholder="https://..." />
+    </div>
+    <div>
+        <label>이미지 URL</label>
+        <input id="imageUrl" type="url" placeholder="https://..." />
+    </div>
+    <div>
+        <label>장소/지역</label>
+        <input id="place" />
+    </div>
+    <div>
+        <label>내용</label>
+        <textarea id="content" rows="8" placeholder="상세 내용"></textarea>
+    </div>
+
+    <div class="actions">
+        <button class="btn" type="button" onclick="history.back()">취소</button>
+        <button class="btn primary" type="submit">저장</button>
+    </div>
+</form>
+
+<script>
+    const API = '/api/admin/support-links'; // 필요 시 변경
+    const id = new URLSearchParams(location.search).get('id');
+
+    if (id) {
+        document.getElementById('title').innerText = '지원 사업 수정';
+        load();
+    }
+
+    function toLocalInput(dt) {
+        if (!dt) return '';
+        const d = new Date(dt);
+        const z = n => String(n).padStart(2, '0');
+        return `${d.getFullYear()}-${z(d.getMonth()+1)}-${z(d.getDate())}T${z(d.getHours())}:${z(d.getMinutes())}`;
+    }
+
+    async function load() {
+        const res = await fetch(`/api/support-programs/${id}`);
+        if (!res.ok) { alert('조회 실패'); return; }
+        const d = await res.json();
+        setVal('name', d.name);
+        setVal('company', d.company);
+        setVal('content', d.content);
+        setVal('place', d.place);
+        setVal('applicationUrl', d.applicationUrl);
+        setVal('imageUrl', d.imageUrl);
+        setVal('supportType', d.supportType);
+        document.getElementById('status').value = d.status || 'DRAFT';
+        document.getElementById('startDate').value = toLocalInput(d.startDate);
+        document.getElementById('endDate').value = toLocalInput(d.endDate);
+    }
+
+    function setVal(id, v){ const el = document.getElementById(id); if (el) el.value = v ?? ''; }
+
+    async function submitForm(e) {
+        e.preventDefault();
+        const body = {
+            name: v('name'),
+            company: v('company'),
+            content: v('content'),
+            place: v('place'),
+            startDate: toISO(v('startDate')),
+            endDate: toISO(v('endDate')),
+            supportType: v('supportType'),
+            applicationUrl: v('applicationUrl'),
+            imageUrl: v('imageUrl'),
+            status: v('status')
+        };
+
+        if (new Date(body.startDate) > new Date(body.endDate)) {
+            alert('시작일이 마감일보다 늦을 수 없습니다.'); return;
+        }
+
+        const method = id ? 'PATCH' : 'POST';
+        const url = id ? `${API}/${id}` : API;
+
+        const res = await fetch(url, {
+            method,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+        });
+
+        if (res.ok) {
+            alert('저장되었습니다.');
+            location.href = '/admin/supports/list.html';
+        } else {
+            const err = await res.json().catch(()=>({}));
+            alert('저장 실패: ' + (err.message || res.status));
+        }
+    }
+
+    function v(id){ return document.getElementById(id).value.trim(); }
+    function toISO(local) { return local ? new Date(local).toISOString() : null; }
+</script>
+</body>
+</html>

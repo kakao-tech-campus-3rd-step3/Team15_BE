@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>지원 사업 상세</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+        body { font-family: ui-sans-serif, system-ui; margin: 24px; }
+        .row { margin-bottom: 10px; }
+        .label { font-weight:600; width:140px; display:inline-block; color:#374151; }
+        .btn { padding:8px 12px; border:1px solid #d1d5db; background:#fff; cursor:pointer; border-radius:8px; }
+        .btn.primary { background:#111827; color:#fff; border-color:#111827; }
+    </style>
+</head>
+<body>
+<button class="btn" onclick="history.back()">← 뒤로</button>
+<h1 style="margin:12px 0;">지원 사업 상세</h1>
+
+<div id="view">
+    불러오는 중…
+</div>
+
+<div style="margin-top:16px;">
+    <button id="editBtn" class="btn">수정</button>
+    <a id="applyLink" class="btn" target="_blank">신청 페이지 이동</a>
+</div>
+
+<script>
+    const id = new URLSearchParams(location.search).get('id');
+    if (!id) document.getElementById('view').innerText = 'id가 없습니다.';
+
+    async function loadDetail() {
+        const res = await fetch(`/api/support-programs/${id}`);
+        if (!res.ok) {
+            document.getElementById('view').innerText = '조회 실패';
+            return;
+        }
+        const d = await res.json();
+        document.getElementById('view').innerHTML = `
+        <div class="row"><span class="label">제목</span> ${escapeHtml(d.name||'')}</div>
+        <div class="row"><span class="label">제공기관</span> ${escapeHtml(d.company||'')}</div>
+        <div class="row"><span class="label">상태</span> ${d.status||''}</div>
+        <div class="row"><span class="label">신청기간</span> ${dateRange(d.startDate, d.endDate)}</div>
+        <div class="row"><span class="label">장소/지역</span> ${escapeHtml(d.place||'-')}</div>
+        <div class="row"><span class="label">링크</span> <a href="${d.applicationUrl||'#'}" target="_blank">${d.applicationUrl||'-'}</a></div>
+        <div class="row"><span class="label">내용</span><div>${nl2br(escapeHtml(d.content||''))}</div></div>
+      `;
+        document.getElementById('editBtn').onclick = () => location.href = '/admin/supports/form.html?id=' + id;
+        const link = document.getElementById('applyLink');
+        link.href = d.applicationUrl || '#';
+        if (!d.applicationUrl) link.style.display = 'none';
+    }
+
+    function dateRange(s, e) {
+        if (!s && !e) return '-';
+        return [fmt(s), fmt(e)].filter(Boolean).join(' ~ ');
+    }
+    function fmt(x) { return x ? new Date(x).toLocaleString() : ''; }
+    function nl2br(s){ return s.replace(/\n/g,'<br/>'); }
+    function escapeHtml(s) { return s.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+
+    loadDetail();
+</script>
+</body>
+</html>
