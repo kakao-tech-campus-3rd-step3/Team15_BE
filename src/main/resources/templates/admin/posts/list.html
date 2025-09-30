@@ -17,8 +17,8 @@
     </div>
 
     <!-- 필터 및 검색 영역 -->
-    <div class="card" style="margin-bottom: 20px;">
-        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+    <div class="card mb-20">
+        <div class="filter-bar">
             <select class="filter-select" onchange="filterPosts(this.value)">
                 <option value="all">전체 상태</option>
                 <option value="visible">노출 중</option>
@@ -42,27 +42,23 @@
             <table>
                 <thead>
                 <tr>
-                    <th style="width: 60px;">ID</th>
-                    <th style="width: auto;">제목</th>
-                    <th style="width: 180px;">작성자</th>
-                    <th style="width: 160px;">작성일</th>
-                    <th style="width: 100px;">상태</th>
-                    <th style="width: 280px;">관리</th>
+                    <th>ID</th>
+                    <th>제목</th>
+                    <th>작성자</th>
+                    <th>작성일</th>
+                    <th>상태</th>
+                    <th>관리</th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr th:each="post : ${posts}"
                     th:attr="data-status=${post.hidden ? 'hidden' : 'visible'},
-                                 data-title=${post.title},
-                                 data-writer=${post.writerEmail}">
+                             data-title=${post.title},
+                             data-writer=${post.writerEmail}">
                     <td th:text="${post.id}">1</td>
+                    <td><div class="post-title-cell" th:text="${post.title}">게시글 제목입니다</div></td>
                     <td>
-                        <div class="post-title-cell">
-                            <span th:text="${post.title}">게시글 제목입니다</span>
-                        </div>
-                    </td>
-                    <td>
-                        <div style="display: flex; align-items: center; gap: 8px;">
+                        <div class="user-cell">
                             <div class="user-avatar-small">
                                 <span th:text="${post.writerEmail != null ? post.writerEmail.substring(0,1).toUpperCase() : 'U'}">U</span>
                             </div>
@@ -71,204 +67,37 @@
                     </td>
                     <td th:text="${#temporals.format(post.createdAt, 'yyyy-MM-dd HH:mm')}">2024-01-01 12:00</td>
                     <td>
-                            <span class="badge"
-                                  th:classappend="${post.hidden ? 'badge-warning' : 'badge-success'}"
-                                  th:text="${post.hidden ? '숨김' : '노출중'}">
-                                노출중
-                            </span>
+                        <span class="badge"
+                              th:classappend="${post.hidden ? 'badge-warning' : 'badge-success'}"
+                              th:text="${post.hidden ? '숨김' : '노출중'}">노출중</span>
                     </td>
                     <td>
-                        <div style="display: flex; gap: 5px; justify-content: center; flex-wrap: wrap;">
-                            <a th:href="@{|/admin/posts/${post.id}|}" class="btn-small btn-detail">
-                                상세
-                            </a>
-
-                            <form th:action="@{|/admin/posts/${post.id}/hide|}" method="post" style="display:inline;">
-                                <button type="submit" class="btn-small btn-warning" onclick="return confirm('이 게시글을 숨기시겠습니까?')">
-                                    숨김
-                                </button>
+                        <div class="action-buttons">
+                            <a th:href="@{|/admin/posts/${post.id}|}" class="btn-small btn-detail">상세</a>
+                            <form th:action="@{|/admin/posts/${post.id}/hide|}" method="post">
+                                <button type="submit" class="btn-small btn-warning"
+                                        onclick="return confirm('이 게시글을 숨기시겠습니까?')">숨김</button>
                             </form>
-
-                            <form th:action="@{|/admin/posts/${post.id}/unhide|}" method="post" style="display:inline;">
-                                <button type="submit" class="btn-small btn-success-alt" onclick="return confirm('이 게시글을 다시 노출하시겠습니까?')">
-                                    해제
-                                </button>
+                            <form th:action="@{|/admin/posts/${post.id}/unhide|}" method="post">
+                                <button type="submit" class="btn-small btn-success-alt"
+                                        onclick="return confirm('이 게시글을 다시 노출하시겠습니까?')">해제</button>
                             </form>
-
-                            <form th:action="@{|/admin/posts/${post.id}|}" method="post" style="display:inline;"
+                            <form th:action="@{|/admin/posts/${post.id}|}" method="post"
                                   onsubmit="return confirm('정말 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.');">
                                 <input type="hidden" name="_method" value="delete"/>
-                                <button type="submit" class="btn-small btn-danger">
-                                    삭제
-                                </button>
+                                <button type="submit" class="btn-small btn-danger">삭제</button>
                             </form>
                         </div>
                     </td>
                 </tr>
                 <tr th:if="${posts.isEmpty()}">
-                    <td colspan="6" style="text-align: center; padding: 40px; color: #868e96;">
-                        등록된 게시글이 없습니다.
-                    </td>
+                    <td colspan="6" class="empty-row">등록된 게시글이 없습니다.</td>
                 </tr>
                 </tbody>
             </table>
         </div>
     </div>
 
-    <style>
-        .filter-select {
-            padding: 10px 15px;
-            border: 1px solid #dee2e6;
-            border-radius: 8px;
-            font-size: 14px;
-            color: #495057;
-            background-color: white;
-            cursor: pointer;
-            transition: border-color 0.2s;
-        }
-
-        .filter-select:hover,
-        .filter-select:focus {
-            border-color: #5CB85C;
-            outline: none;
-        }
-
-        .search-input {
-            padding: 10px 15px;
-            border: 1px solid #dee2e6;
-            border-radius: 8px;
-            font-size: 14px;
-            color: #495057;
-            flex: 1;
-            min-width: 200px;
-            transition: border-color 0.2s;
-        }
-
-        .search-input:focus {
-            border-color: #5CB85C;
-            outline: none;
-        }
-
-        .post-title-cell {
-            text-align: left;
-            max-width: 400px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            font-weight: 500;
-            color: #212529;
-        }
-
-        .user-avatar-small {
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #5CB85C, #4CAF50);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: 600;
-            font-size: 12px;
-            flex-shrink: 0;
-        }
-
-        .badge {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-
-        .badge-success {
-            background-color: #d1e7dd;
-            color: #0f5132;
-        }
-
-        .badge-warning {
-            background-color: #fff3cd;
-            color: #856404;
-        }
-
-        .btn-small {
-            padding: 5px 12px;
-            border: none;
-            border-radius: 6px;
-            font-size: 12px;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-weight: 500;
-            text-decoration: none;
-            display: inline-block;
-        }
-
-        .btn-detail {
-            background-color: #5CB85C;
-            color: white;
-        }
-
-        .btn-detail:hover {
-            background-color: #4CAF50;
-        }
-
-        .btn-warning {
-            background-color: #ffc107;
-            color: #000;
-        }
-
-        .btn-warning:hover {
-            background-color: #ffb300;
-        }
-
-        .btn-success-alt {
-            background-color: #28a745;
-            color: white;
-        }
-
-        .btn-success-alt:hover {
-            background-color: #218838;
-        }
-
-        .btn-danger {
-            background-color: #dc3545;
-            color: white;
-        }
-
-        .btn-danger:hover {
-            background-color: #c82333;
-        }
-    </style>
-
-    <script>
-        function filterPosts(status) {
-            const rows = document.querySelectorAll('tbody tr[data-status]');
-            rows.forEach(row => {
-                if (status === 'all' || row.getAttribute('data-status') === status) {
-                    row.style.display = '';
-                } else {
-                    row.style.display = 'none';
-                }
-            });
-        }
-
-        function searchPosts(keyword) {
-            const rows = document.querySelectorAll('tbody tr[data-status]');
-            const lowerKeyword = keyword.toLowerCase();
-            rows.forEach(row => {
-                const title = row.getAttribute('data-title').toLowerCase();
-                const writer = row.getAttribute('data-writer').toLowerCase();
-                if (title.includes(lowerKeyword) || writer.includes(lowerKeyword)) {
-                    row.style.display = '';
-                } else {
-                    row.style.display = 'none';
-                }
-            });
-        }
-
-        function sortPosts(type) {
-            // 정렬 기능은 서버사이드에서 처리하는 것을 권장
-            console.log('정렬:', type);
-        }
-    </script>
+    <link rel="stylesheet" th:href="@{/css/post-list.css}"/>
+    <script th:src="@{/js/post-list.js}"></script>
 </div>
