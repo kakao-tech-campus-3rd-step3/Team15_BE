@@ -1,0 +1,29 @@
+<div th:fragment="sidebar">
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <h1>🌱 관리자</h1>
+        </div>
+        <ul class="sidebar-nav">
+            <li>
+                <a th:href="@{/admin/reports}" th:classappend="${#httpServletRequest.requestURI.contains('/reports') ? 'active' : ''}">
+                    <span class="icon">📢</span> 신고 관리
+                </a>
+            </li>
+            <li>
+                <a th:href="@{/admin/posts}" th:classappend="${#httpServletRequest.requestURI.contains('/posts') ? 'active' : ''}">
+                    <span class="icon">📝</span> 게시글 관리
+                </a>
+            </li>
+            <li>
+                <a th:href="@{/admin/comments}" th:classappend="${#httpServletRequest.requestURI.contains('/comments') ? 'active' : ''}">
+                    <span class="icon">💬</span> 댓글 관리
+                </a>
+            </li>
+            <li>
+                <a th:href="@{/admin/users}" th:classappend="${#httpServletRequest.requestURI.contains('/users') ? 'active' : ''}">
+                    <span class="icon">👥</span> 회원 관리
+                </a>
+            </li>
+        </ul>
+    </aside>
+</div>
