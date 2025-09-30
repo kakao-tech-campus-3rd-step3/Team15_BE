@@ -1,29 +1,39 @@
+<meta charset="UTF-8">
 <div th:fragment="sidebar">
     <aside class="sidebar">
-        <div class="sidebar-header">
-            <h1>🌱 관리자</h1>
-        </div>
-        <ul class="sidebar-nav">
-            <li>
-                <a th:href="@{/admin/reports}" th:classappend="${#httpServletRequest.requestURI.contains('/reports') ? 'active' : ''}">
-                    <span class="icon">📢</span> 신고 관리
-                </a>
-            </li>
-            <li>
-                <a th:href="@{/admin/posts}" th:classappend="${#httpServletRequest.requestURI.contains('/posts') ? 'active' : ''}">
-                    <span class="icon">📝</span> 게시글 관리
-                </a>
-            </li>
-            <li>
-                <a th:href="@{/admin/comments}" th:classappend="${#httpServletRequest.requestURI.contains('/comments') ? 'active' : ''}">
-                    <span class="icon">💬</span> 댓글 관리
-                </a>
-            </li>
-            <li>
-                <a th:href="@{/admin/users}" th:classappend="${#httpServletRequest.requestURI.contains('/users') ? 'active' : ''}">
-                    <span class="icon">👥</span> 회원 관리
-                </a>
-            </li>
-        </ul>
+        <nav>
+            <ul>
+                <li>
+                    <a th:href="@{/admin/supports}"
+                       th:classappend="${currentUri.contains('/supports') ? 'active' : ''}">
+                        지원 사업
+                    </a>
+                </li>
+                <li>
+                    <a th:href="@{/admin/reports}"
+                       th:classappend="${currentUri.contains('/reports') ? 'active' : ''}">
+                        신고 관리
+                    </a>
+                </li>
+                <li>
+                    <a th:href="@{/admin/users}"
+                       th:classappend="${currentUri.contains('/users') ? 'active' : ''}">
+                        회원 관리
+                    </a>
+                </li>
+                <li>
+                    <a th:href="@{/admin/posts}"
+                       th:classappend="${currentUri.contains('/posts') ? 'active' : ''}">
+                        게시글 관리
+                    </a>
+                </li>
+                <li>
+                    <a th:href="@{/admin/comments}"
+                       th:classappend="${currentUri.contains('/comments') ? 'active' : ''}">
+                        댓글 관리
+                    </a>
+                </li>
+            </ul>
+        </nav>
     </aside>
 </div>
