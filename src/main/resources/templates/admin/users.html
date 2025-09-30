@@ -1,25 +1,273 @@
-<!-- templates/admin/users.html -->
 <meta charset="UTF-8">
 <div th:fragment="content">
-    <h2>회원 목록</h2>
-    <table border="1">
-        <thead>
-        <tr>
-            <th>ID</th>
-            <th>이메일</th>
-            <th>닉네임</th>
-            <th>상태</th>
-            <th>가입일</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="user : ${users}">
-            <td th:text="${user.id}"></td>
-            <td th:text="${user.email}"></td>
-            <td th:text="${user.nickname}"></td>
-            <td th:text="${user.status}"></td>
-            <td th:text="${#temporals.format(user.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
-        </tr>
-        </tbody>
-    </table>
+    <!-- 통계 카드 -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-label">전체 회원</div>
+            <div class="stat-value" th:text="${users.size()}">0</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">활성 회원</div>
+            <div class="stat-value" th:text="${users.stream().filter(u -> u.status == 'ACTIVE').count()}">0</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">정지된 회원</div>
+            <div class="stat-value" th:text="${users.stream().filter(u -> u.status == 'SUSPENDED').count()}">0</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">탈퇴 회원</div>
+            <div class="stat-value" th:text="${users.stream().filter(u -> u.status == 'DELETED').count()}">0</div>
+        </div>
+    </div>
+
+    <!-- 필터 및 검색 영역 -->
+    <div class="card" style="margin-bottom: 20px;">
+        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+            <select class="filter-select" onchange="filterUsers(this.value)">
+                <option value="all">전체 상태</option>
+                <option value="ACTIVE">활성</option>
+                <option value="SUSPENDED">정지</option>
+                <option value="DELETED">탈퇴</option>
+            </select>
+            <input type="text" class="search-input" placeholder="이메일 또는 닉네임 검색" onkeyup="searchUsers(this.value)">
+            <select class="filter-select" onchange="sortUsers(this.value)">
+                <option value="recent">최근 가입순</option>
+                <option value="oldest">오래된 순</option>
+                <option value="nickname">닉네임순</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- 회원 목록 테이블 -->
+    <div class="card">
+        <div class="card-header">
+            <h3>회원 목록</h3>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                <tr>
+                    <th style="width: 60px;">ID</th>
+                    <th style="width: 200px;">이메일</th>
+                    <th style="width: 150px;">닉네임</th>
+                    <th style="width: 100px;">상태</th>
+                    <th style="width: 160px;">가입일</th>
+                    <th style="width: 150px;">관리</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="user : ${users}" th:attr="data-status=${user.status}, data-email=${user.email}, data-nickname=${user.nickname}">
+                    <td th:text="${user.id}">1</td>
+                    <td>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <div class="user-avatar">
+                                <span th:text="${user.nickname != null ? user.nickname.substring(0,1).toUpperCase() : 'U'}">U</span>
+                            </div>
+                            <span th:text="${user.email}">user@example.com</span>
+                        </div>
+                    </td>
+                    <td th:text="${user.nickname}">사용자123</td>
+                    <td>
+                            <span class="badge"
+                                  th:classappend="${user.status == 'ACTIVE' ? 'badge-success' :
+                                                   user.status == 'SUSPENDED' ? 'badge-danger' :
+                                                   user.status == 'DELETED' ? 'badge-secondary' : 'badge-type'}"
+                                  th:text="${user.status == 'ACTIVE' ? '활성' :
+                                           user.status == 'SUSPENDED' ? '정지' :
+                                           user.status == 'DELETED' ? '탈퇴' : user.status}">
+                                활성
+                            </span>
+                    </td>
+                    <td th:text="${#temporals.format(user.createdAt, 'yyyy-MM-dd HH:mm')}">2024-01-01 12:00</td>
+                    <td>
+                        <div style="display: flex; gap: 5px;">
+                            <button class="btn-small btn-detail" th:onclick="'viewUser(' + ${user.id} + ')'">상세</button>
+                            <button class="btn-small btn-warning"
+                                    th:if="${user.status == 'ACTIVE'}"
+                                    th:onclick="'suspendUser(' + ${user.id} + ')'">
+                                정지
+                            </button>
+                            <button class="btn-small btn-success"
+                                    th:if="${user.status == 'SUSPENDED'}"
+                                    th:onclick="'activateUser(' + ${user.id} + ')'">
+                                활성화
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                <tr th:if="${users.isEmpty()}">
+                    <td colspan="6" style="text-align: center; padding: 40px; color: #868e96;">
+                        등록된 회원이 없습니다.
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <style>
+        .filter-select {
+            padding: 10px 15px;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #495057;
+            background-color: white;
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+
+        .filter-select:hover,
+        .filter-select:focus {
+            border-color: #5CB85C;
+            outline: none;
+        }
+
+        .search-input {
+            padding: 10px 15px;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #495057;
+            flex: 1;
+            min-width: 200px;
+            transition: border-color 0.2s;
+        }
+
+        .search-input:focus {
+            border-color: #5CB85C;
+            outline: none;
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #5CB85C, #4CAF50);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge-type {
+            background-color: #e9ecef;
+            color: #495057;
+        }
+
+        .badge-success {
+            background-color: #d1e7dd;
+            color: #0f5132;
+        }
+
+        .badge-danger {
+            background-color: #f8d7da;
+            color: #842029;
+        }
+
+        .badge-secondary {
+            background-color: #e9ecef;
+            color: #6c757d;
+        }
+
+        .btn-small {
+            padding: 5px 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+
+        .btn-detail {
+            background-color: #5CB85C;
+            color: white;
+        }
+
+        .btn-detail:hover {
+            background-color: #4CAF50;
+        }
+
+        .btn-warning {
+            background-color: #ffc107;
+            color: #000;
+        }
+
+        .btn-warning:hover {
+            background-color: #ffb300;
+        }
+
+        .btn-success {
+            background-color: #5CB85C;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background-color: #4CAF50;
+        }
+    </style>
+
+    <script>
+        function filterUsers(status) {
+            const rows = document.querySelectorAll('tbody tr[data-status]');
+            rows.forEach(row => {
+                if (status === 'all' || row.getAttribute('data-status') === status) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        function searchUsers(keyword) {
+            const rows = document.querySelectorAll('tbody tr[data-status]');
+            const lowerKeyword = keyword.toLowerCase();
+            rows.forEach(row => {
+                const email = row.getAttribute('data-email').toLowerCase();
+                const nickname = row.getAttribute('data-nickname').toLowerCase();
+                if (email.includes(lowerKeyword) || nickname.includes(lowerKeyword)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        function sortUsers(type) {
+            // 정렬 기능은 서버사이드에서 처리하는 것을 권장
+            console.log('정렬:', type);
+        }
+
+        function viewUser(userId) {
+            // 상세 페이지로 이동
+            window.location.href = `/admin/users/${userId}`;
+        }
+
+        function suspendUser(userId) {
+            if (confirm('이 회원을 정지하시겠습니까?')) {
+                // 정지 처리 API 호출
+                console.log('정지:', userId);
+                // TODO: 실제 API 호출
+            }
+        }
+
+        function activateUser(userId) {
+            if (confirm('이 회원을 활성화하시겠습니까?')) {
+                // 활성화 처리 API 호출
+                console.log('활성화:', userId);
+                // TODO: 실제 API 호출
+            }
+        }
+    </script>
 </div>
