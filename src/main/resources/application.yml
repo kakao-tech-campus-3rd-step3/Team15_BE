@@ -39,6 +39,8 @@ logging:
     root: INFO
     org.springframework.web: DEBUG
     katecam.hyuswim: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] %logger{36} - %msg%n%ex"
 
 jwt:
   secret: ${JWT_SECRET}
