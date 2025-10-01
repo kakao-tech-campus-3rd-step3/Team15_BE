@@ -103,9 +103,8 @@ jobs:
             APP_PORT=${APP_PORT}
             EOF
 
-            echo "===== Docker Compose Restart ====="
-            docker compose down
-            docker compose --env-file .env up -d --build
+            echo "===== Docker Compose Restart (App Only) ====="
+            docker compose up -d --build app
 
             echo "===== Container Status ====="
             docker compose ps
