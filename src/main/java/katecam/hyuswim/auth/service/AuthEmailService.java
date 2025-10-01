@@ -59,6 +59,10 @@ public class AuthEmailService {
             throw new CustomException(ErrorCode.EMAIL_CODE_MISMATCH);
         }
 
+        // 인증 성공 → verified 플래그 저장 (5분)
+        redisTemplate.opsForValue()
+                .set("auth:email:verified:" + email, "true", Duration.ofMinutes(5));
+
         redisTemplate.delete(key);
     }
 }

@@ -19,6 +19,7 @@ public enum ErrorCode {
     EMAIL_SEND_FAILED(HttpStatus.INTERNAL_SERVER_ERROR,"이메일 발송에 실패했습니다."),
     EMAIL_CODE_EXPIRED(HttpStatus.BAD_REQUEST, "인증번호가 만료되었거나 존재하지 않습니다."),
     EMAIL_CODE_MISMATCH(HttpStatus.BAD_REQUEST, "인증번호가 올바르지 않습니다."),
+    EMAIL_NOT_VERIFIED(HttpStatus.BAD_REQUEST, "이메일 인증이 완료되지 않았습니다."),
 
 
     //Auth
