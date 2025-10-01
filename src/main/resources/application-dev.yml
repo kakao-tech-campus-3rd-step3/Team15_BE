@@ -7,5 +7,6 @@ spring:
         format_sql: true
         dialect: org.hibernate.dialect.MySQLDialect
         transaction.jta.platform: org.hibernate.engine.transaction.jta.platform.internal.NoJtaPlatform
+        jdbc.time_zone: Asia/Seoul
     show-sql: false
     open-in-view: false
