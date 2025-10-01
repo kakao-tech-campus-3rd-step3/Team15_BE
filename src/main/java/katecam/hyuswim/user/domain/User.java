@@ -1,6 +1,7 @@
 package katecam.hyuswim.user.domain;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.data.annotation.CreatedDate;
@@ -25,20 +26,10 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
-    private AuthProvider provider;
-
-    private Long providerId;
-
-    private String email;
-
-    private String password;
+    private String nickname;
 
     @Column(nullable = false, unique = true)
     private String handle;
-
-    private String nickname;
 
     private String introduction;
 
@@ -53,15 +44,17 @@ public class User {
     @Column(name = "is_deleted", nullable = false)
     private Boolean isDeleted = false;
 
-    private LocalDateTime blockedUntil;
-
-    private String blockReason;
-
     @Column(name = "comment_notification_enabled", nullable = false)
     private Boolean commentNotificationEnabled = true;
 
     @Column(name = "like_notification_enabled", nullable = false)
     private Boolean likeNotificationEnabled = true;
+
+    @Column(nullable = false)
+    private long points = 0;
+
+    private int score;
+    private int level;
 
     @OneToMany(mappedBy = "user")
     private List<Badge> badges;
@@ -75,6 +68,13 @@ public class User {
     @OneToMany(mappedBy = "user")
     private List<MissionProgress> missionProgresses;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<UserBlockHistory> blockHistories = new ArrayList<>();
+
+    @Column(name = "last_active_date")
+    @CreatedDate
+    private LocalDateTime lastActiveDate;
+
     @CreatedDate
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
@@ -83,51 +83,15 @@ public class User {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-  public User(String email, String password, AuthProvider provider) {
-    this.email = email;
-    this.password = password;
-    this.nickname = "새싹이";
-    this.role = UserRole.USER;
-    this.handle = "@"+generateHandle();
-    this.provider =provider;
-  }
-
-  public User(String email, String nickname, String introduction, UserRole role) {
-      this.email = email;
-      this.password = "N/A";
-      this.nickname = nickname;
-      this.role = role;
-      this.handle = "@ai-" +generateHandle();
-      this.introduction = introduction;
-      this.provider =AuthProvider.LOCAL;
+    public static User createDefault() {
+        return new User("새싹이", null, UserRole.USER);
     }
 
-    public static User createKakaoUser(AuthProvider provider, Long providerId) {
-        User user = new User();
-        user.provider = provider;
-        user.providerId = providerId;
-        user.nickname = "새싹이";
-        user.handle = "@"+generateHandle();
-        user.role = UserRole.USER;
-        return user;
-    }
-
-    public void blockUntil(LocalDateTime until, String reason) {
-        this.status = UserStatus.BLOCKED;
-        this.blockedUntil = until;
-        this.blockReason = reason;
-    }
-
-    public void unblock() {
-        this.status = UserStatus.ACTIVE;
-        this.blockedUntil = null;
-        this.blockReason = null;
-    }
-
-    public void ban(String reason) {
-        this.status = UserStatus.BANNED;
-        this.blockedUntil = null;
-        this.blockReason = reason;
+    public User(String nickname, String introduction, UserRole role) {
+        this.nickname = nickname;
+        this.introduction = introduction;
+        this.role = role;
+        this.handle = "@" + generateHandle();
     }
 
     public void delete() {
@@ -162,4 +126,19 @@ public class User {
         }
         return sb.toString();
     }
+
+    public void addPoints(long points) {
+        if (points > 0) {
+            this.points += points;
+        }
+    }
+
+    public void updateLastActiveDate() {
+        this.lastActiveDate = LocalDateTime.now();
+    }
+
+    public void setStatus(UserStatus status) {
+        this.status = status;
+    }
+
 }
