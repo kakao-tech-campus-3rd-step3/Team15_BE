@@ -4,11 +4,6 @@ services:
     container_name: hyuswim-app
     ports:
       - "${APP_PORT}:8080"
-    depends_on:
-      mysql:
-        condition: service_healthy
-      redis:
-        condition: service_started
     environment:
       SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
       DB_HOST: ${DB_HOST}
@@ -31,28 +26,6 @@ services:
       TZ: Asia/Seoul
     restart: always
 
-  mysql:
-    image: mysql:8.0
-    container_name: hyuswim-mysql
-    environment:
-      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
-      MYSQL_DATABASE: ${DB_NAME}
-      MYSQL_USER: ${DB_USER}
-      MYSQL_PASSWORD: ${DB_PASSWORD}
-      TZ: Asia/Seoul
-    ports:
-      - "${DB_PORT}:3306"
-    volumes:
-      - mysql_data:/var/lib/mysql
-    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
-    restart: always
-    healthcheck:
-      test: [ "CMD-SHELL", "mysqladmin ping -h localhost -u$DB_USER -p$DB_PASSWORD" ]
-      interval: 5s
-      timeout: 10s
-      retries: 10
-      start_period: 30s
-
   redis:
     image: redis:7.2
     container_name: hyuswim-redis
@@ -65,7 +38,6 @@ services:
       TZ: Asia/Seoul
 
 volumes:
-  mysql_data:
   redis_data:
 
 
