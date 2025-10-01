@@ -1,4 +1,4 @@
-package katecam.hyuswim.auth.util;
+package katecam.hyuswim.common.util;
 
 import jakarta.servlet.http.HttpServletRequest;
 

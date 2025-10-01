@@ -8,7 +8,7 @@ import katecam.hyuswim.auth.dto.EmailSendRequest;
 import katecam.hyuswim.auth.dto.EmailSendResponse;
 import katecam.hyuswim.auth.dto.EmailVerifyRequest;
 import katecam.hyuswim.auth.service.AuthEmailService;
-import katecam.hyuswim.auth.util.IpUtils;
+import katecam.hyuswim.common.util.IpUtils;
 import katecam.hyuswim.user.dto.mypage.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
