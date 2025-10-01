@@ -12,6 +12,7 @@ import katecam.hyuswim.user.domain.User;
 import katecam.hyuswim.user.domain.UserStatus;
 import katecam.hyuswim.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -26,6 +27,7 @@ import java.util.Optional;
 public class AuthService {
 
     private final JwtUtil jwtUtil;
+    private final RedisTemplate<String, String> redisTemplate;
     private final PasswordEncoder passwordEncoder;
     private final RefreshTokenService refreshTokenService;
     private final UserRepository userRepository;
@@ -35,6 +37,12 @@ public class AuthService {
     public User signup(SignupRequest request) {
         String email = request.getEmail();
 
+        String verified = redisTemplate.opsForValue().get("auth:email:verified:" + email);
+
+        if (!"true".equals(verified)) {
+            throw new CustomException(ErrorCode.EMAIL_NOT_VERIFIED);
+        }
+
         userAuthRepository.findByEmailAndProvider(email, AuthProvider.LOCAL)
                 .ifPresent(auth -> validateReSignup(auth.getUser()));
 
@@ -42,7 +50,7 @@ public class AuthService {
         userRepository.save(user);
 
         String encodedPassword = passwordEncoder.encode(request.getPassword());
-        ;
+
         UserAuth auth = UserAuth.createLocal(user, request, encodedPassword);
         userAuthRepository.save(auth);
 

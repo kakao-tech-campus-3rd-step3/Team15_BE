@@ -249,11 +249,6 @@ public class MyPageService {
     }
 
     @Transactional
-    public void sendEmailCode(EmailSendRequest emailSendRequest) {
-        authEmailService.sendCode(emailSendRequest);
-    }
-
-    @Transactional
     public void verifyEmailCode(EmailVerifyRequest emailVerifyRequest) {
         authEmailService.verifyCode(emailVerifyRequest.getEmail(), emailVerifyRequest.getCode());
     }

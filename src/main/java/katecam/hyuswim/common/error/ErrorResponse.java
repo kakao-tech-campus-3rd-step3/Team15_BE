@@ -19,4 +19,13 @@ public class ErrorResponse {
         .message(errorCode.getMessage())
         .build();
   }
+
+    public static ErrorResponse from(ErrorCode errorCode, String customMessage) {
+        return ErrorResponse.builder()
+                .status(errorCode.getStatus().value())
+                .code(errorCode.name())
+                .message(customMessage)
+                .build();
+    }
+
 }

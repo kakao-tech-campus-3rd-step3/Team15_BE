@@ -19,7 +19,9 @@ public enum ErrorCode {
     EMAIL_SEND_FAILED(HttpStatus.INTERNAL_SERVER_ERROR,"이메일 발송에 실패했습니다."),
     EMAIL_CODE_EXPIRED(HttpStatus.BAD_REQUEST, "인증번호가 만료되었거나 존재하지 않습니다."),
     EMAIL_CODE_MISMATCH(HttpStatus.BAD_REQUEST, "인증번호가 올바르지 않습니다."),
-
+    EMAIL_NOT_VERIFIED(HttpStatus.BAD_REQUEST, "이메일 인증이 완료되지 않았습니다."),
+    EMAIL_REQUEST_LIMIT_EXCEEDED(HttpStatus.TOO_MANY_REQUESTS, "해당 이메일로의 인증 요청 횟수가 초과되었습니다."),
+    IP_REQUEST_LIMIT_EXCEEDED(HttpStatus.TOO_MANY_REQUESTS, "해당 IP에서의 인증 요청 횟수가 초과되었습니다."),
 
     //Auth
     GOOGLE_TOKEN_REQUEST_FAILED(HttpStatus.BAD_REQUEST, "구글 토큰 요청에 실패했습니다."),
@@ -59,6 +61,9 @@ public enum ErrorCode {
     // Support
     SUPPORT_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 지원 사업입니다."),
     INVALID_SUPPORT_TYPE(HttpStatus.BAD_REQUEST, "유효하지 않은 지원 사업 카테고리입니다."),
+
+    //Validation
+    INVALID_INPUT(HttpStatus.BAD_REQUEST, "잘못된 요청입니다."),
 
     //Common
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "예상치 못한 오류가 발생했습니다.");

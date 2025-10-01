@@ -1,5 +1,6 @@
 package katecam.hyuswim.auth.controller;
 
+import jakarta.validation.Valid;
 import katecam.hyuswim.auth.dto.*;
 import katecam.hyuswim.auth.service.AuthService;
 import katecam.hyuswim.auth.service.RefreshTokenService;
@@ -22,14 +23,14 @@ public class AuthController {
     private final RefreshTokenService refreshTokenService;
 
     @PostMapping("/signup")
-    public ResponseEntity<SignupResponse> signup(@RequestBody SignupRequest request) {
+    public ResponseEntity<SignupResponse> signup(@Valid @RequestBody SignupRequest request) {
         User user = authService.signup(request);
         SignupResponse response = SignupResponse.from(user);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AccessTokenResponse> login(@RequestBody LoginRequest request) {
+    public ResponseEntity<AccessTokenResponse> login(@Valid @RequestBody LoginRequest request) {
         LoginTokens tokens = authService.login(request);
         ResponseCookie refreshTokenCookie = cookieUtil.createRefreshTokenCookie(tokens.refreshToken());
 
