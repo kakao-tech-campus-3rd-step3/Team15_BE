@@ -38,6 +38,7 @@ public class AuthService {
         String email = request.getEmail();
 
         String verified = redisTemplate.opsForValue().get("auth:email:verified:" + email);
+
         if (!"true".equals(verified)) {
             throw new CustomException(ErrorCode.EMAIL_NOT_VERIFIED);
         }

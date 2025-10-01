@@ -20,7 +20,8 @@ public enum ErrorCode {
     EMAIL_CODE_EXPIRED(HttpStatus.BAD_REQUEST, "인증번호가 만료되었거나 존재하지 않습니다."),
     EMAIL_CODE_MISMATCH(HttpStatus.BAD_REQUEST, "인증번호가 올바르지 않습니다."),
     EMAIL_NOT_VERIFIED(HttpStatus.BAD_REQUEST, "이메일 인증이 완료되지 않았습니다."),
-
+    EMAIL_REQUEST_LIMIT_EXCEEDED(HttpStatus.TOO_MANY_REQUESTS, "해당 이메일로의 인증 요청 횟수가 초과되었습니다."),
+    IP_REQUEST_LIMIT_EXCEEDED(HttpStatus.TOO_MANY_REQUESTS, "해당 IP에서의 인증 요청 횟수가 초과되었습니다."),
 
     //Auth
     GOOGLE_TOKEN_REQUEST_FAILED(HttpStatus.BAD_REQUEST, "구글 토큰 요청에 실패했습니다."),

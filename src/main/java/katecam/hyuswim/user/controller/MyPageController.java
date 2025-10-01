@@ -3,8 +3,12 @@ package katecam.hyuswim.user.controller;
 import java.util.List;
 import java.util.Map;
 
+import jakarta.servlet.http.HttpServletRequest;
 import katecam.hyuswim.auth.dto.EmailSendRequest;
+import katecam.hyuswim.auth.dto.EmailSendResponse;
 import katecam.hyuswim.auth.dto.EmailVerifyRequest;
+import katecam.hyuswim.auth.service.AuthEmailService;
+import katecam.hyuswim.auth.util.IpUtils;
 import katecam.hyuswim.user.dto.mypage.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,6 +24,7 @@ import lombok.RequiredArgsConstructor;
 public class MyPageController {
 
   private final MyPageService myPageService;
+  private final AuthEmailService authEmailService;
 
   @GetMapping("/me/stats")
   public ResponseEntity<MyOverviewResponse> myOverview(@LoginUser User loginUser) {
@@ -80,14 +85,18 @@ public class MyPageController {
       return ResponseEntity.ok(myPageService.selectEmail(loginUser));
   }
 
-  @PostMapping("/me/email/send")
-    public ResponseEntity<Void> sendEmailCode(@RequestBody EmailSendRequest emailSendRequest) {
-      myPageService.sendEmailCode(emailSendRequest);
-      return ResponseEntity.ok().build();
-  }
+    @PostMapping("/me/email/send")
+    public ResponseEntity<EmailSendResponse> sendEmailCode(
+            @RequestBody EmailSendRequest emailSendRequest,
+            HttpServletRequest httpRequest
+    ) {
+        String clientIp = IpUtils.getClientIp(httpRequest);
+        EmailSendResponse response = authEmailService.sendCode(emailSendRequest, clientIp);
+        return ResponseEntity.ok(response);
+    }
 
 
-  @PutMapping("/me/email")
+    @PutMapping("/me/email")
     public ResponseEntity<Void> updateEmail(@LoginUser User loginUser, @RequestBody EmailVerifyRequest emailVerifyRequest) {
       myPageService.verifyEmailCode(emailVerifyRequest);
       myPageService.updateEmail(loginUser, emailVerifyRequest.getEmail());
