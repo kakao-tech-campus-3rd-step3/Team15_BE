@@ -1,0 +1,60 @@
+.btn-back {
+    display: inline-flex;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: #ffffff;
+    color: #495057;
+    text-decoration: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    border: 1px solid #dee2e6;
+    transition: all 0.2s;
+}
+.btn-back:hover {
+    background-color: #f8f9fa;
+    border-color: #5CB85C;
+    color: #5CB85C;
+}
+
+/* 상세 카드 */
+.detail-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+.badge-id {
+    background-color: #e9ecef;
+    color: #495057;
+    padding: 6px 14px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 600;
+}
+.detail-divider {
+    height: 1px;
+    background-color: #e9ecef;
+    margin: 20px 0;
+}
+
+/* 정보 영역 */
+.info-section {
+    display: grid;
+    gap: 16px;
+    margin-bottom: 20px;
+}
+.info-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.info-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #495057;
+    min-width: 80px;
+}
+.info-value {
+    font-size: 14px;
+    color: #212

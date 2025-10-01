@@ -1,45 +1,72 @@
 <meta charset="UTF-8">
-<!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout(~{::body})}">
-<body>
-<div class="container">
-    <h1>게시글 상세</h1>
+<div th:fragment="content">
+    <!-- 뒤로가기 -->
+    <div class="back-bar">
+        <a th:href="@{/admin/posts}" class="btn-back">← 목록으로</a>
+    </div>
 
-    <dl class="row">
-        <dt class="col-sm-2">ID</dt>
-        <dd class="col-sm-10" th:text="${post.id}"></dd>
+    <!-- 게시글 상세 카드 -->
+    <div class="card">
+        <div class="detail-header">
+            <h2 th:text="${post.title}">게시글 제목</h2>
+            <span class="badge-id" th:text="'ID: ' + ${post.id}">ID: 1</span>
+        </div>
 
-        <dt class="col-sm-2">제목</dt>
-        <dd class="col-sm-10" th:text="${post.title}"></dd>
+        <div class="detail-divider"></div>
 
-        <dt class="col-sm-2">작성자</dt>
-        <dd class="col-sm-10" th:text="${post.writerEmail}"></dd>
+        <!-- 작성자 정보 -->
+        <div class="info-section">
+            <div class="info-item">
+                <span class="info-label">작성자</span>
+                <div class="user-cell">
+                    <div class="user-avatar-small">
+                        <span th:text="${post.writerEmail != null ? post.writerEmail.substring(0,1).toUpperCase() : 'U'}">U</span>
+                    </div>
+                    <span th:text="${post.writerEmail}">user@example.com</span>
+                </div>
+            </div>
 
-        <dt class="col-sm-2">작성일</dt>
-        <dd class="col-sm-10" th:text="${#temporals.format(post.createdAt, 'yyyy-MM-dd HH:mm')}"></dd>
+            <div class="info-item">
+                <span class="info-label">작성일</span>
+                <span class="info-value" th:text="${#temporals.format(post.createdAt, 'yyyy-MM-dd HH:mm')}">2024-01-01 12:00</span>
+            </div>
 
-        <dt class="col-sm-2">내용</dt>
-        <dd class="col-sm-10" th:text="${post.content}"></dd>
-    </dl>
+            <div class="info-item">
+                <span class="info-label">상태</span>
+                <span class="badge"
+                      th:classappend="${post.hidden ? 'badge-warning' : 'badge-success'}"
+                      th:text="${post.hidden ? '숨김' : '노출중'}">노출중</span>
+            </div>
+        </div>
 
-    <a href="/admin/posts" class="btn btn-secondary mt-3">목록으로</a>
+        <div class="detail-divider"></div>
 
-    <!-- 숨김 -->
-    <form th:action="@{|/admin/posts/${post.id}/hide|}" method="post" style="display:inline;">
-        <button type="submit" class="btn btn-warning mt-3">숨김</button>
-    </form>
+        <!-- 내용 -->
+        <div class="content-section">
+            <h3>내용</h3>
+            <div class="post-content" th:text="${post.content}">게시글 본문 내용이 표시됩니다.</div>
+        </div>
 
-    <!-- 숨김 해제 -->
-    <form th:action="@{|/admin/posts/${post.id}/unhide|}" method="post" style="display:inline;">
-        <button type="submit" class="btn btn-success mt-3">숨김 해제</button>
-    </form>
+        <div class="detail-divider"></div>
 
-    <!-- 삭제 -->
-    <form th:action="@{|/admin/posts/${post.id}|}" method="post" style="display:inline;"
-          onsubmit="return confirm('정말 삭제하시겠습니까?');">
-        <input type="hidden" name="_method" value="delete"/>
-        <button type="submit" class="btn btn-danger mt-3">삭제</button>
-    </form>
+        <!-- 관리 버튼 -->
+        <div class="action-buttons">
+            <form th:action="@{|/admin/posts/${post.id}/hide|}" method="post">
+                <button type="submit" class="btn-small btn-warning"
+                        onclick="return confirm('이 게시글을 숨기시겠습니까?')">숨김</button>
+            </form>
+            <form th:action="@{|/admin/posts/${post.id}/unhide|}" method="post">
+                <button type="submit" class="btn-small btn-success-alt"
+                        onclick="return confirm('이 게시글을 다시 노출하시겠습니까?')">해제</button>
+            </form>
+            <form th:action="@{|/admin/posts/${post.id}|}" method="post"
+                  onsubmit="return confirm('정말 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.');">
+                <input type="hidden" name="_method" value="delete"/>
+                <button type="submit" class="btn-small btn-danger">삭제</button>
+            </form>
+        </div>
+    </div>
+
+    <link rel="stylesheet" th:href="@{/css/post-detail.css}"/>
+    <script th:src="@{/js/post-detail.js}"></script>
 </div>
-</body>
-</html>

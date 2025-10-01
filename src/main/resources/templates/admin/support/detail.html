@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>지원 사업 상세 - 관리자</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- 공통 스타일 -->
+    <link rel="stylesheet" th:href="@{/css/common.css}" />
+    <!-- 페이지 전용 스타일 -->
+    <link rel="stylesheet" th:href="@{/css/support-detail.css}" />
+</head>
+<body>
+<div class="container">
+    <div class="page-header">
+        <button class="btn-back" onclick="history.back()">← 뒤로</button>
+    </div>
+
+    <h1>지원 사업 상세</h1>
+
+    <div class="card">
+        <div id="view" class="message">
+            불러오는 중…
+        </div>
+    </div>
+
+    <div class="action-buttons" id="actionButtons" style="display: none;">
+        <button id="editBtn" class="btn btn-primary">✏️ 수정</button>
+        <a id="applyLink" class="btn btn-outline" target="_blank">🔗 신청 페이지 이동</a>
+        <button class="btn btn-secondary" onclick="history.back()">취소</button>
+    </div>
+</div>
+
+<script>
+    const id = new URLSearchParams(location.search).get('id');
+    const viewEl = document.getElementById('view');
+    const actionButtons = document.getElementById('actionButtons');
+
+    if (!id) {
+        viewEl.innerHTML = '<div class="message">❌ ID가 없습니다.</div>';
+    } else {
+        loadDetail();
+    }
+
+    async function loadDetail() {
+        try {
+            const res = await fetch(`/api/support-programs/${id}`);
+            if (!res.ok) {
+                viewEl.innerHTML = '<div class="message">⚠️ 조회에 실패했습니다.</div>';
+                return;
+            }
+            const d = await res.json();
+            renderDetail(d);
+        } catch (error) {
+            viewEl.innerHTML = '<div class="message">⚠️ 데이터를 불러오는 중 오류가 발생했습니다.</div>';
+            console.error(error);
+        }
+    }
+
+    function renderDetail(d) {
+        viewEl.innerHTML = `
+            <div class="info-grid">
+                <div class="info-row">
+                    <div class="info-label">제목</div>
+                    <div class="info-value">${escapeHtml(d.name || '-')}</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">제공기관</div>
+                    <div class="info-value">${escapeHtml(d.company || '-')}</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">상태</div>
+                    <div class="info-value">
+                        <span class="status-badge ${getStatusClass(d.status)}">
+                            ${getStatusText(d.status)}
+                        </span>
+                    </div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">신청기간</div>
+                    <div class="info-value">${dateRange(d.startDate, d.endDate)}</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">장소/지역</div>
+                    <div class="info-value">${escapeHtml(d.place || '-')}</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">신청 링크</div>
+                    <div class="info-value">
+                        ${d.applicationUrl
+            ? `<a href="${escapeHtml(d.applicationUrl)}" target="_blank">${escapeHtml(d.applicationUrl)}</a>`
+            : '-'}
+                    </div>
+                </div>
+                <div class="divider"></div>
+                <div class="info-row">
+                    <div class="info-label">상세 내용</div>
+                    <div class="info-value">
+                        <div class="content-box">${nl2br(escapeHtml(d.content || '내용이 없습니다.'))}</div>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        // 수정 버튼 설정
+        document.getElementById('editBtn').onclick = () => {
+            location.href = '/admin/supports/form.html?id=' + id;
+        };
+
+        // 신청 링크 설정
+        const applyLink = document.getElementById('applyLink');
+        if (d.applicationUrl) {
+            applyLink.href = d.applicationUrl;
+            applyLink.style.display = 'inline-block';
+        } else {
+            applyLink.style.display = 'none';
+        }
+
+        // 액션 버튼 표시
+        actionButtons.style.display = 'flex';
+    }
+
+    function getStatusClass(status) {
+        const statusMap = {
+            'ACTIVE': 'active',
+            'INACTIVE': 'inactive',
+            'UPCOMING': 'upcoming'
+        };
+        return statusMap[status] || 'active';
+    }
+
+    function getStatusText(status) {
+        const statusMap = {
+            'ACTIVE': '진행 중',
+            'INACTIVE': '종료',
+            'UPCOMING': '예정'
+        };
+        return statusMap[status] || status || '진행 중';
+    }
+
+    function dateRange(s, e) {
+        if (!s && !e) return '-';
+        const start = s ? fmt(s) : '';
+        const end = e ? fmt(e) : '';
+        if (start && end) return `${start} ~ ${end}`;
+        return start || end || '-';
+    }
+
+    function fmt(x) {
+        if (!x) return '';
+        const date = new Date(x);
+        return date.toLocaleDateString('ko-KR', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    }
+
+    function nl2br(s) {
+        return s.replace(/\n/g, '<br/>');
+    }
+
+    function escapeHtml(s) {
+        if (!s) return '';
+        return String(s).replace(/[&<>"']/g, m => ({
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#39;'
+        }[m]));
+    }
+</script>
+</body>
+</html>

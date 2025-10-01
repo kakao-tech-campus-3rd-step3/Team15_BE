@@ -1,25 +1,98 @@
-<!-- templates/admin/users.html -->
-<meta charset="UTF-8">
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{admin/layout :: layout(~{::content})}">
+
 <div th:fragment="content">
-    <h2>회원 목록</h2>
-    <table border="1">
-        <thead>
-        <tr>
-            <th>ID</th>
-            <th>이메일</th>
-            <th>닉네임</th>
-            <th>상태</th>
-            <th>가입일</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="user : ${users}">
-            <td th:text="${user.id}"></td>
-            <td th:text="${user.email}"></td>
-            <td th:text="${user.nickname}"></td>
-            <td th:text="${user.status}"></td>
-            <td th:text="${#temporals.format(user.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
-        </tr>
-        </tbody>
-    </table>
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-label">전체 회원</div>
+            <div class="stat-value" th:text="${users.size()}">0</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">활성 회원</div>
+            <div class="stat-value" th:text="${#lists.size(users.?[status == 'ACTIVE'])}">0</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">정지된 회원</div>
+            <div class="stat-value" th:text="${#lists.size(users.?[status == 'SUSPENDED'])}">0</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">탈퇴 회원</div>
+            <div class="stat-value" th:text="${#lists.size(users.?[status == 'DELETED'])}">0</div>
+        </div>
+    </div>
+
+    <div class="card" style="margin-bottom: 20px;">
+        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+            <select class="filter-select" onchange="filterUsers(this.value)">
+                <option value="all">전체 상태</option>
+                <option value="ACTIVE">활성</option>
+                <option value="SUSPENDED">정지</option>
+                <option value="DELETED">탈퇴</option>
+            </select>
+            <input type="text" class="search-input" placeholder="ID 검색" onkeyup="searchUsers(this.value)">
+            <select class="filter-select" onchange="sortUsers(this.value)">
+                <option value="recent">최근 가입순</option>
+                <option value="oldest">오래된 순</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h3>회원 목록</h3>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                <tr>
+                    <th style="width: 60px;">ID</th>
+                    <th style="width: 100px;">상태</th>
+                    <th style="width: 150px;">관리</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="user : ${users}"
+                    th:attr="data-status=${user.status}, data-id=${user.userId}">
+                    <td th:text="${user.userId}">1</td>
+                    <td>
+                        <span class="badge"
+                              th:classappend="${user.status == 'ACTIVE' ? 'badge-success' :
+                                               user.status == 'SUSPENDED' ? 'badge-danger' :
+                                               user.status == 'DELETED' ? 'badge-secondary' : 'badge-type'}"
+                              th:text="${user.status == 'ACTIVE' ? '활성' :
+                                       user.status == 'SUSPENDED' ? '정지' :
+                                       user.status == 'DELETED' ? '탈퇴' : user.status}">
+                            활성
+                        </span>
+                    </td>
+                    <td>
+                        <div style="display: flex; gap: 5px;">
+                            <button class="btn-small btn-detail" th:onclick="'viewUser(' + ${user.userId} + ')'">상세</button>
+                            <button class="btn-small btn-warning"
+                                    th:if="${user.status == 'ACTIVE'}"
+                                    th:onclick="'suspendUser(' + ${user.userId} + ')'">
+                                정지
+                            </button>
+                            <button class="btn-small btn-success"
+                                    th:if="${user.status == 'SUSPENDED'}"
+                                    th:onclick="'activateUser(' + ${user.userId} + ')'">
+                                활성화
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                <tr th:if="${users.isEmpty()}">
+                    <td colspan="3" style="text-align: center; padding: 40px; color: #868e96;">
+                        등록된 회원이 없습니다.
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <link rel="stylesheet" th:href="@{/css/users.css}"/>
+    <script th:src="@{/js/users.js}"></script>
 </div>
+</html>
