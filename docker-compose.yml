@@ -10,7 +10,7 @@ services:
       redis:
         condition: service_started
     environment:
-      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILE}
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
       DB_HOST: ${DB_HOST}
       DB_PORT: ${DB_PORT}
       DB_NAME: ${DB_NAME}
