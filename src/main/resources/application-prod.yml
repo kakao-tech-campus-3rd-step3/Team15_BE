@@ -1,7 +1,7 @@
 spring:
   jpa:
     hibernate:
-      ddl-auto: update   # 운영은 validate 권장
+      ddl-auto: update
     properties:
       hibernate:
         format_sql: true
