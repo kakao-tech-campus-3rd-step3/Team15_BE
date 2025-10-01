@@ -4,9 +4,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.Objects;
 
+@Slf4j
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -28,9 +30,12 @@ public class GlobalExceptionHandler {
                 .body(ErrorResponse.from(ErrorCode.INVALID_INPUT, message));
     }
 
-  @ExceptionHandler(Exception.class)
-  public ResponseEntity<ErrorResponse> handleException(Exception e) {
-    ErrorCode errorCode = ErrorCode.INTERNAL_SERVER_ERROR;
-    return ResponseEntity.status(errorCode.getStatus()).body(ErrorResponse.from(errorCode));
-  }
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ErrorResponse> handleException(Exception e) {
+        log.error("Unexpected error occurred", e);
+        ErrorCode errorCode = ErrorCode.INTERNAL_SERVER_ERROR;
+        return ResponseEntity
+                .status(errorCode.getStatus())
+                .body(ErrorResponse.from(errorCode));
+    }
 }
