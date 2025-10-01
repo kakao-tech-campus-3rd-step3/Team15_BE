@@ -50,7 +50,7 @@ public class AuthService {
         userRepository.save(user);
 
         String encodedPassword = passwordEncoder.encode(request.getPassword());
-        ;
+
         UserAuth auth = UserAuth.createLocal(user, request, encodedPassword);
         userAuthRepository.save(auth);
 
