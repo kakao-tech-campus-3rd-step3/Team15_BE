@@ -38,6 +38,7 @@ logging:
   level:
     root: INFO
     org.springframework.web: DEBUG
+    katecam.hyuswim: DEBUG
 
 jwt:
   secret: ${JWT_SECRET}
