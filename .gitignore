@@ -39,6 +39,7 @@ out/
 ### env ###
 .env.dev
 .env.local
+.env.prod
 
 # MySQL local volume
 mysql-data/
