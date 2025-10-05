@@ -8,6 +8,9 @@ import katecam.hyuswim.auth.dto.EmailSendRequest;
 import katecam.hyuswim.auth.dto.EmailVerifyRequest;
 import katecam.hyuswim.auth.repository.UserAuthRepository;
 import katecam.hyuswim.auth.service.AuthEmailService;
+import katecam.hyuswim.badge.domain.Badge;
+import katecam.hyuswim.badge.domain.UserBadge;
+import katecam.hyuswim.badge.repository.BadgeRepository;
 import katecam.hyuswim.common.error.CustomException;
 import katecam.hyuswim.common.error.ErrorCode;
 import katecam.hyuswim.mission.progress.MissionProgress;
@@ -35,6 +38,7 @@ public class MyPageService {
   private final UserAuthRepository userAuthRepository;
   private final PasswordEncoder passwordEncoder;
   private final AuthEmailService authEmailService;
+  private final BadgeRepository badgeRepository;
 
 
 
@@ -261,6 +265,37 @@ public class MyPageService {
         UserAuth userAuth = userAuthRepository.findByUser(user)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
         userAuth.updateEmail(email);
+    }
+
+    @Transactional
+    public BadgeCollectionResponse selectBadgeCollection(User user) {
+
+        List<UserBadge> userBadges = user.getUserBadges();
+        Set<Badge> earnedBadgeSet = userBadges.stream()
+                .map(UserBadge::getBadge)
+                .collect(Collectors.toSet());
+
+        List<BadgeCollectionResponse.EarnedBadge> earnedBadges = userBadges.stream()
+                .map(ub -> new BadgeCollectionResponse.EarnedBadge(
+                        ub.getBadge().getName(),
+                        ub.getBadge().getKind(),
+                        ub.getBadge().getIconUrl(),
+                        ub.getEarnedAt()
+                ))
+                .collect(Collectors.toList());
+
+        List<Badge> allBadgeEntities = badgeRepository.findAll();
+
+        List<BadgeCollectionResponse.BadgeInfo> unearnedBadges = allBadgeEntities.stream()
+                .filter(badge -> !earnedBadgeSet.contains(badge))
+                .map(b -> new BadgeCollectionResponse.BadgeInfo(b.getName(), b.getKind(), b.getIconUrl()))
+                .collect(Collectors.toList());
+
+        List<BadgeCollectionResponse.BadgeInfo> allBadges = allBadgeEntities.stream()
+                .map(b -> new BadgeCollectionResponse.BadgeInfo(b.getName(), b.getKind(), b.getIconUrl()))
+                .collect(Collectors.toList());
+
+        return new BadgeCollectionResponse(earnedBadges, unearnedBadges, allBadges);
     }
 
 

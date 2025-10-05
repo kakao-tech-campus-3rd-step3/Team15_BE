@@ -10,6 +10,7 @@ import katecam.hyuswim.auth.dto.EmailVerifyRequest;
 import katecam.hyuswim.auth.service.AuthEmailService;
 import katecam.hyuswim.common.util.IpUtils;
 import katecam.hyuswim.user.dto.mypage.*;
+import org.apache.coyote.Response;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -101,6 +102,11 @@ public class MyPageController {
       myPageService.verifyEmailCode(emailVerifyRequest);
       myPageService.updateEmail(loginUser, emailVerifyRequest.getEmail());
       return ResponseEntity.ok().build();
+  }
+
+  @GetMapping("/me/badges")
+    public ResponseEntity<BadgeCollectionResponse> selectBadgeCollection(@LoginUser User loginUser) {
+      return ResponseEntity.ok(myPageService.selectBadgeCollection(loginUser));
   }
 
 
