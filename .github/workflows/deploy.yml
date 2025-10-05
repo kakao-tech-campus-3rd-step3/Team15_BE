@@ -89,7 +89,6 @@ jobs:
 
             echo "===== Docker Compose Restart ====="
             docker compose -f docker-compose.yml up -d --build app redis
-            fi
 
             echo "===== Container Status ====="
             docker compose ps
