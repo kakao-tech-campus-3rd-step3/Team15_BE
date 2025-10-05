@@ -88,10 +88,7 @@ jobs:
             EOF
 
             echo "===== Docker Compose Restart ====="
-            if [ "${GITHUB_REF_NAME}" = "develop" ]; then
-              docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d --build app
-            elif [ "${GITHUB_REF_NAME}" = "deploy" ]; then
-              docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build app
+            docker compose -f docker-compose.yml up -d --build app redis
             fi
 
             echo "===== Container Status ====="
