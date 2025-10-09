@@ -24,6 +24,9 @@ services:
       MAIL_PASSWORD: ${MAIL_PASSWORD}
       FRONTEND_URLS: ${FRONTEND_URLS}
       TZ: Asia/Seoul
+    depends_on:
+      redis:
+        condition: service_started
     restart: always
 
   redis:
