@@ -16,6 +16,7 @@ import katecam.hyuswim.admin.service.AdminUserService;
 public class AdminUserController {
 
     private final AdminUserService adminUserService;
+    private static final String ACTIVE_MENU = "users";
 
     public AdminUserController(AdminUserService adminUserService) {
         this.adminUserService = adminUserService;
@@ -25,9 +26,11 @@ public class AdminUserController {
     public String listUsers(Model model) {
         List<UserListResponse> users = adminUserService.findAll();
         model.addAttribute("users", users);
-        model.addAttribute("content", "admin/users :: content");
-        return "admin/layout";
+        model.addAttribute("pageTitle", "사용자 관리");
+        model.addAttribute("activeMenu", ACTIVE_MENU);
+        return "admin/users"; // ✅ users.html이 layout을 감쌈
     }
+
 
     @PostMapping("/{userId}/block")
     public String block(@PathVariable Long userId,
@@ -52,4 +55,3 @@ public class AdminUserController {
         return "redirect:/admin/users";
     }
 }
-

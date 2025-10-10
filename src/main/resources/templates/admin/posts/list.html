@@ -1,49 +1,52 @@
-<meta charset="UTF-8">
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout(~{::body})}">
-<body>
-<div class="container">
-    <h1>게시글 목록</h1>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{admin/layout :: layout(~{::content})}">
 
-    <table class="table table-striped">
-        <thead>
-        <tr>
-            <th>ID</th>
-            <th>제목</th>
-            <th>작성자</th>
-            <th>작성일</th>
-            <th>관리</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="post : ${posts}">
-            <td th:text="${post.id}"></td>
-            <td th:text="${post.title}"></td>
-            <td th:text="${post.writerEmail}"></td>
-            <td th:text="${#temporals.format(post.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
-            <td>
-                <a th:href="@{|/admin/posts/${post.id}|}" class="btn btn-sm btn-primary">보기</a>
+<div th:fragment="content">
+    <div class="card">
+        <div class="card-header">
+            <h3>게시글 관리</h3>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                <tr>
+                    <th style="width: 60px;">ID</th>
+                    <th style="width: 200px;">제목</th>
+                    <th style="width: 100px;">작성자</th>
+                    <th style="width: 150px;">상태</th>
+                    <th style="width: 150px;">관리</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="post : ${posts}">
+                    <td th:text="${post.id}">1</td>
+                    <td th:text="${post.title}">게시글 제목</td>
+                    <td th:text="${post.writer}">작성자</td>
+                    <td>
+                        <span class="badge"
+                              th:classappend="${post.status == 'ACTIVE' ? 'badge-success' :
+                                               post.status == 'DELETED' ? 'badge-secondary' : 'badge-type'}"
+                              th:text="${post.status == 'ACTIVE' ? '활성' :
+                                       post.status == 'DELETED' ? '삭제됨' : post.status}">
+                            활성
+                        </span>
+                    </td>
+                    <td>
+                        <a th:href="@{|/admin/posts/${post.id}|}" class="btn-detail">상세보기</a>
+                    </td>
+                </tr>
+                <tr th:if="${posts.isEmpty()}">
+                    <td colspan="5" style="text-align: center; padding: 40px; color: #868e96;">
+                        등록된 게시글이 없습니다.
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
 
-                <!-- 숨김 -->
-                <form th:action="@{|/admin/posts/${post.id}/hide|}" method="post" style="display:inline;">
-                    <button type="submit" class="btn btn-sm btn-warning">숨김</button>
-                </form>
-
-                <!-- 숨김 해제 -->
-                <form th:action="@{|/admin/posts/${post.id}/unhide|}" method="post" style="display:inline;">
-                    <button type="submit" class="btn btn-sm btn-success">숨김 해제</button>
-                </form>
-
-                <!-- 삭제 -->
-                <form th:action="@{|/admin/posts/${post.id}|}" method="post" style="display:inline;"
-                      onsubmit="return confirm('정말 삭제하시겠습니까?');">
-                    <input type="hidden" name="_method" value="delete"/>
-                    <button type="submit" class="btn btn-sm btn-danger">삭제</button>
-                </form>
-            </td>
-        </tr>
-        </tbody>
-    </table>
+    <link rel="stylesheet" th:href="@{/css/posts.css}"/>
+    <script th:src="@{/js/posts.js}"></script>
 </div>
-</body>
 </html>

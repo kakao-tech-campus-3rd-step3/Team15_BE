@@ -1,34 +1,115 @@
-<meta charset="UTF-8">
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout(~{::body})}">
-<body>
-<div class="container">
-    <h1>신고 목록</h1>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{/admin/layout :: layout(~{::content})}">
 
-    <div th:if="${msg}" class="alert alert-success" th:text="${msg}"></div>
+<div th:fragment="content">
 
-    <table class="table table-striped">
-        <thead>
-        <tr>
-            <th>ID</th>
-            <th>신고자</th>
-            <th>게시글</th>
-            <th>상태</th>
-            <th>상세</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="report : ${reports}">
-            <td th:text="${report.id}"></td>
-            <td th:text="${report.reporterEmail}"></td>
-            <td th:text="${report.postTitle}"></td>
-            <td th:text="${report.status}"></td>
-            <td>
-                <a th:href="@{|/admin/reports/${report.id}|}" class="btn btn-sm btn-primary">보기</a>
-            </td>
-        </tr>
-        </tbody>
-    </table>
+    <div th:if="${msg}" class="alert-success">
+        <span class="alert-icon">✓</span>
+        <span th:text="${msg}">처리가 완료되었습니다.</span>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-label">전체 신고</div>
+            <div class="stat-value" th:text="${reports.size()}">0</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">대기 중</div>
+            <div class="stat-value"
+                 th:text="${#lists.size(reports.?[status.name() == 'PENDING'])}">0</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">처리 중</div>
+            <div class="stat-value"
+                 th:text="${#lists.size(reports.?[status.name() == 'IN_PROGRESS'])}">0</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">처리 완료</div>
+            <div class="stat-value"
+                 th:text="${#lists.size(reports.?[status.name() == 'RESOLVED'])}">0</div>
+        </div>
+    </div>
+
+    <div class="card" style="margin-bottom: 20px;">
+        <div class="filter-bar">
+            <select class="filter-select" onchange="filterReports(this.value)">
+                <option value="all">전체 상태</option>
+                <option value="PENDING">대기 중</option>
+                <option value="IN_PROGRESS">처리 중</option>
+                <option value="RESOLVED">처리 완료</option>
+                <option value="REJECTED">반려</option>
+            </select>
+            <input type="text" class="search-input" placeholder="신고자 또는 게시글 검색"
+                   onkeyup="searchReports(this.value)">
+            <select class="filter-select" onchange="sortReports(this.value)">
+                <option value="recent">최근 신고순</option>
+                <option value="oldest">오래된 순</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h3>신고 목록</h3>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                <tr>
+                    <th style="width: 60px;">ID</th>
+                    <th style="width: 180px;">신고자</th>
+                    <th style="width: auto;">게시글</th>
+                    <th style="width: 120px;">상태</th>
+                    <th style="width: 100px;">관리</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="report : ${reports}"
+                    th:attr="data-status=${report.status.name()},
+                             data-reporter=${report.reporterEmail},
+                             data-post=${report.postTitle}">
+                    <td th:text="${report.id}">1</td>
+                    <td>
+                        <div class="reporter-cell">
+                            <div class="user-avatar-small">
+                                <span th:text="${report.reporterEmail != null ? report.reporterEmail.substring(0,1).toUpperCase() : 'U'}">U</span>
+                            </div>
+                            <span th:text="${report.reporterEmail}">reporter@example.com</span>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="post-title-cell" th:text="${report.postTitle}">
+                            신고된 게시글 제목입니다
+                        </div>
+                    </td>
+                    <td>
+                        <span class="badge"
+                              th:classappend="${report.status.name() == 'PENDING' ? 'badge-pending' :
+                                               report.status.name() == 'IN_PROGRESS' ? 'badge-progress' :
+                                               report.status.name() == 'RESOLVED' ? 'badge-success' : 'badge-danger'}"
+                              th:text="${report.status.name() == 'PENDING' ? '대기중' :
+                                       report.status.name() == 'IN_PROGRESS' ? '처리중' :
+                                       report.status.name() == 'RESOLVED' ? '해결됨' :
+                                       report.status.name() == 'REJECTED' ? '반려' : report.status.name()}">
+                            대기중
+                        </span>
+                    </td>
+                    <td>
+                        <a th:href="@{|/admin/reports/${report.id}|}" class="btn-detail">상세보기</a>
+                    </td>
+                </tr>
+                <tr th:if="${reports.isEmpty()}">
+                    <td colspan="5" style="text-align: center; padding: 40px; color: #868e96;">
+                        신고 내역이 없습니다.
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <link rel="stylesheet" th:href="@{/css/report-list.css}"/>
+    <script th:src="@{/js/report-list.js}"></script>
 </div>
-</body>
 </html>

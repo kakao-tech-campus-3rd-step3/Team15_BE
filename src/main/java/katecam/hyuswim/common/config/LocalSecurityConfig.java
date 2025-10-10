@@ -16,7 +16,7 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
 import jakarta.servlet.http.HttpServletResponse;
-import katecam.hyuswim.auth.jwt.JwtFilter;
+import katecam.hyuswim.auth.filter.JwtFilter;
 
 @Configuration
 @Profile("local")

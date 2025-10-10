@@ -59,4 +59,12 @@ public class UserAuth {
     public static UserAuth createGoogle(User user, String googleId) {
         return new UserAuth(user, AuthProvider.GOOGLE, googleId, null, null);
     }
+
+    public void updatePassword(String password) {
+        this.password = password;
+    }
+
+    public void updateEmail(String email) {
+        this.email = email;
+    }
 }

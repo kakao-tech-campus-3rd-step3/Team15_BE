@@ -1,25 +1,31 @@
-<!-- templates/admin/layout.html -->
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      th:fragment="layout(content)">
 <head>
     <meta charset="UTF-8">
-    <title>관리자 페이지</title>
-    <link rel="stylesheet" th:href="@{/css/admin.css}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${pageTitle ?: '관리자 페이지'}">관리자 페이지</title>
+
+    <!-- 공통 CSS -->
+    <link rel="stylesheet" th:href="@{/css/common.css}">
+    <link rel="stylesheet" th:href="@{/css/admin-layout.css}">
 </head>
 <body>
-<header>
-    <h1>관리자 페이지</h1>
-    <nav>
-        <a th:href="@{/admin/reports}">신고 관리</a> |
-        <a th:href="@{/admin/posts}">게시글 관리</a> |
-        <a th:href="@{/admin/users}">회원 관리</a>
-    </nav>
-</header>
+<!-- 사이드바 -->
+<div th:replace="admin/fragments/sidebar :: sidebar"></div>
 
-<main>
-    <!-- 여기에 페이지별 컨텐츠 들어옴 -->
-    <div th:replace="${content}"></div>
-</main>
+<!-- 메인 영역 -->
+<div class="main-wrapper">
+    <div th:replace="admin/fragments/header :: header"></div>
 
+    <main class="main-content">
+        <!-- content fragment를 삽입 -->
+        <div th:replace="${content}"></div>
+    </main>
+</div>
+
+<!-- 공통 JS -->
+<script th:src="@{/js/common.js}"></script>
+<script th:src="@{/js/admin-layout.js}"></script>
 </body>
 </html>

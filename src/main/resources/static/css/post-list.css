@@ -1,0 +1,131 @@
+/* 필터 UI */
+.filter-select {
+    padding: 10px 15px;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    font-size: 14px;
+    color: #495057;
+    background-color: white;
+    cursor: pointer;
+    transition: border-color 0.2s;
+}
+.filter-select:hover,
+.filter-select:focus {
+    border-color: #5CB85C;
+    outline: none;
+}
+
+.search-input {
+    padding: 10px 15px;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    font-size: 14px;
+    color: #495057;
+    flex: 1;
+    min-width: 200px;
+    transition: border-color 0.2s;
+}
+.search-input:focus {
+    border-color: #5CB85C;
+    outline: none;
+}
+
+/* 테이블 */
+.post-title-cell {
+    text-align: left;
+    max-width: 400px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-weight: 500;
+    color: #212529;
+}
+.user-cell {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.user-avatar-small {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #5CB85C, #4CAF50);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
+    font-size: 12px;
+    flex-shrink: 0;
+}
+
+/* 상태 뱃지 */
+.badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+}
+.badge-success {
+    background-color: #d1e7dd;
+    color: #0f5132;
+}
+.badge-warning {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+/* 버튼 */
+.btn-small {
+    padding: 5px 12px;
+    border: none;
+    border-radius: 6px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-weight: 500;
+    text-decoration: none;
+    display: inline-block;
+}
+.btn-detail {
+    background-color: #5CB85C;
+    color: white;
+}
+.btn-detail:hover {
+    background-color: #4CAF50;
+}
+.btn-warning {
+    background-color: #ffc107;
+    color: #000;
+}
+.btn-warning:hover {
+    background-color: #ffb300;
+}
+.btn-success-alt {
+    background-color: #28a745;
+    color: white;
+}
+.btn-success-alt:hover {
+    background-color: #218838;
+}
+.btn-danger {
+    background-color: #dc3545;
+    color: white;
+}
+.btn-danger:hover {
+    background-color: #c82333;
+}
+
+/* 기타 */
+.empty-row {
+    text-align: center;
+    padding: 40px;
+    color: #868e96;
+}
+.action-buttons {
+    display: flex;
+    gap: 5px;
+    justify-content: center;
+    flex-wrap: wrap;
+}

@@ -1,0 +1,25 @@
+# 빌드 결과물 제외
+target/
+build/
+out/
+
+# Git
+.git
+.gitignore
+
+# IDE 관련
+.idea/
+*.iws
+*.iml
+*.ipr
+
+### Logs ###
+*.log
+
+# OS 별 불필요한 파일
+.DS_Store
+Thumbs.db
+
+# 로컬 환경 변수
+.env.dev
+.env.local

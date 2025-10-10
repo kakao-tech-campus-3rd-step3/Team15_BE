@@ -8,7 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import katecam.hyuswim.auth.login.LoginUser;
+import katecam.hyuswim.auth.annotation.LoginUser;
 import katecam.hyuswim.comment.dto.CommentDetailResponse;
 import katecam.hyuswim.comment.dto.CommentListResponse;
 import katecam.hyuswim.comment.dto.CommentRequest;

@@ -1,21 +1,20 @@
 package katecam.hyuswim.auth.util;
 
+import katecam.hyuswim.common.config.AppProperties;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
 public class RedirectUrlBuilder {
 
-    @Value("${frontend.urls}")
-    private String[] frontendUrls;
+    private final AppProperties appProperties;
 
     public String buildGoogleRedirectUrl(String accessToken) {
-        return frontendUrls[1] + "/oauth/callback/google#accessToken=" + accessToken;
+        return appProperties.frontendUrlList().get(1) + "/oauth/callback/google#accessToken=" + accessToken;
     }
 
     public String buildKakaoRedirectUrl(String accessToken) {
-        return frontendUrls[1] + "/oauth/callback/kakao#accessToken=" + accessToken;
+        return appProperties.frontendUrlList().get(1) + "/oauth/callback/kakao#accessToken=" + accessToken;
     }
 }

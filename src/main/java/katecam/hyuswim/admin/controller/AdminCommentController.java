@@ -15,13 +15,19 @@ import java.util.List;
 public class AdminCommentController {
 
     private final AdminCommentService adminCommentService;
+    private static final String ACTIVE_MENU = "comments";
 
     @GetMapping
     public String comments(Model model) {
         List<AdminCommentResponse> comments = adminCommentService.getComments();
         model.addAttribute("comments", comments);
-        return "admin/comment-list";
+        model.addAttribute("commentsActiveCount", comments.stream().filter(c -> !c.deleted()).count());
+        model.addAttribute("commentsDeletedCount", comments.stream().filter(AdminCommentResponse::deleted).count());
+        model.addAttribute("pageTitle", "댓글 관리");
+        model.addAttribute("activeMenu", "comments");
+        return "admin/comments/list"; // ✅ 여기서 layout 말고 list.html 리턴
     }
+
 
     @PostMapping("/{id}/hide")
     public String hideComment(@PathVariable Long id) {

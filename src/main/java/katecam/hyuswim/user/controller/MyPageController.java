@@ -3,11 +3,18 @@ package katecam.hyuswim.user.controller;
 import java.util.List;
 import java.util.Map;
 
+import jakarta.servlet.http.HttpServletRequest;
+import katecam.hyuswim.auth.dto.EmailSendRequest;
+import katecam.hyuswim.auth.dto.EmailSendResponse;
+import katecam.hyuswim.auth.dto.EmailVerifyRequest;
+import katecam.hyuswim.auth.service.AuthEmailService;
+import katecam.hyuswim.common.util.IpUtils;
 import katecam.hyuswim.user.dto.mypage.*;
+import org.apache.coyote.Response;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import katecam.hyuswim.auth.login.LoginUser;
+import katecam.hyuswim.auth.annotation.LoginUser;
 import katecam.hyuswim.user.domain.User;
 import katecam.hyuswim.user.service.MyPageService;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +25,7 @@ import lombok.RequiredArgsConstructor;
 public class MyPageController {
 
   private final MyPageService myPageService;
+  private final AuthEmailService authEmailService;
 
   @GetMapping("/me/stats")
   public ResponseEntity<MyOverviewResponse> myOverview(@LoginUser User loginUser) {
@@ -37,6 +45,11 @@ public class MyPageController {
   @GetMapping("/me/likes")
   public ResponseEntity<List<MyLikedPostResponse>> myLikedPostList(@LoginUser User loginUser) {
     return ResponseEntity.ok(myPageService.selectMyLikedPostList(loginUser));
+  }
+
+  @GetMapping("/me/profile/edit")
+  public ResponseEntity<MyProfileEditResponse> selectMyProfileEdit(@LoginUser User loginUser) {
+      return ResponseEntity.ok(myPageService.selectMyProfileEdit(loginUser));
   }
 
   @PatchMapping("/me/profile/edit/info")
@@ -61,4 +74,40 @@ public class MyPageController {
     public ResponseEntity<MyProfileReponse> myProfile(@LoginUser User loginUser) {
       return ResponseEntity.ok(myPageService.selectMyProfile(loginUser));
   }
+
+  @PutMapping("/me/password")
+    public ResponseEntity<Void> updatePassword(@LoginUser User loginUser, @RequestBody PasswordUpdateRequest passwordUpdateRequest) {
+      myPageService.updatePassword(loginUser, passwordUpdateRequest);
+      return ResponseEntity.ok().build();
+  }
+
+  @GetMapping("/me/email")
+    public ResponseEntity<Map<String,String>> myEmail(@LoginUser User loginUser) {
+      return ResponseEntity.ok(myPageService.selectEmail(loginUser));
+  }
+
+    @PostMapping("/me/email/send")
+    public ResponseEntity<EmailSendResponse> sendEmailCode(
+            @RequestBody EmailSendRequest emailSendRequest,
+            HttpServletRequest httpRequest
+    ) {
+        String clientIp = IpUtils.getClientIp(httpRequest);
+        EmailSendResponse response = authEmailService.sendCode(emailSendRequest, clientIp);
+        return ResponseEntity.ok(response);
+    }
+
+
+    @PutMapping("/me/email")
+    public ResponseEntity<Void> updateEmail(@LoginUser User loginUser, @RequestBody EmailVerifyRequest emailVerifyRequest) {
+      myPageService.verifyEmailCode(emailVerifyRequest);
+      myPageService.updateEmail(loginUser, emailVerifyRequest.getEmail());
+      return ResponseEntity.ok().build();
+  }
+
+  @GetMapping("/me/badges")
+    public ResponseEntity<BadgeCollectionResponse> selectBadgeCollection(@LoginUser User loginUser) {
+      return ResponseEntity.ok(myPageService.selectBadgeCollection(loginUser));
+  }
+
+
 }

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      th:replace="admin/layout :: layout(~{::content})">
+
+<main th:fragment="content">
+    <div class="container">
+        <div class="page-header">
+            <button class="btn-back" onclick="history.back()">← 뒤로</button>
+        </div>
+
+        <h1 id="pageTitle">지원 사업 등록</h1>
+
+        <div class="card">
+            <form id="supportForm" onsubmit="submitForm(event)">
+                <!-- 기본 정보 -->
+                <div class="form-group">
+                    <label>제목<span class="required">*</span></label>
+                    <input id="name" type="text" required maxlength="200" placeholder="지원 사업 제목을 입력하세요" />
+                </div>
+
+                <div class="form-group">
+                    <label>제공기관<span class="required">*</span></label>
+                    <input id="company" type="text" required maxlength="120" placeholder="예: 중소벤처기업부, 고용노동부" />
+                </div>
+
+                <div class="divider"></div>
+
+                <!-- 날짜 및 상태 -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>신청 시작<span class="required">*</span></label>
+                        <input id="startDate" type="datetime-local" required />
+                    </div>
+                    <div class="form-group">
+                        <label>신청 마감<span class="required">*</span></label>
+                        <input id="endDate" type="datetime-local" required />
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>상태<span class="required">*</span></label>
+                        <select id="status" required>
+                            <option value="DRAFT">임시저장</option>
+                            <option value="PUBLISHED">게시됨</option>
+                            <option value="CLOSED">종료</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>유형</label>
+                        <input id="supportType" type="text" placeholder="예: EMPLOYMENT, STARTUP" />
+                        <span class="help-text">지원 사업 카테고리를 입력하세요</span>
+                    </div>
+                </div>
+
+                <div class="divider"></div>
+
+                <!-- URL 정보 -->
+                <div class="form-group">
+                    <label>신청 URL<span class="required">*</span></label>
+                    <input id="applicationUrl" type="url" required placeholder="https://example.com/apply" />
+                    <span class="help-text">사업 신청 페이지 링크를 입력하세요</span>
+                </div>
+
+                <div class="form-group">
+                    <label>이미지 URL</label>
+                    <input id="imageUrl" type="url" placeholder="https://example.com/image.jpg" />
+                    <span class="help-text">대표 이미지 링크 (선택사항)</span>
+                </div>
+
+                <div class="divider"></div>
+
+                <!-- 상세 정보 -->
+                <div class="form-group">
+                    <label>장소/지역</label>
+                    <input id="place" type="text" placeholder="예: 서울, 전국, 온라인" />
+                </div>
+
+                <div class="form-group">
+                    <label>상세 내용</label>
+                    <textarea id="content" rows="10" placeholder="지원 사업에 대한 상세 내용을 입력하세요"></textarea>
+                    <span class="help-text">지원 대상, 혜택, 신청 방법 등을 자세히 작성해주세요</span>
+                </div>
+
+                <!-- 액션 버튼 -->
+                <div class="form-actions">
+                    <button type="button" class="btn btn-cancel" onclick="history.back()">취소</button>
+                    <button type="submit" class="btn btn-primary" id="submitBtn">💾 저장</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</main>
+
+<!-- 페이지 전용 CSS/JS -->
+<link rel="stylesheet" th:href="@{/css/support-form.css}">
+<script th:src="@{/js/support-form.js}"></script>
+</html>

@@ -7,7 +7,7 @@ import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import katecam.hyuswim.auth.login.LoginUserArgumentResolver;
+import katecam.hyuswim.auth.resolver.LoginUserArgumentResolver;
 import lombok.RequiredArgsConstructor;
 
 @Configuration

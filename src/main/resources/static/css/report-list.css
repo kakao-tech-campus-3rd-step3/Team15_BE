@@ -1,0 +1,130 @@
+.alert-success {
+    background-color: #d1e7dd;
+    color: #0f5132;
+    padding: 16px 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-left: 4px solid #5CB85C;
+}
+
+.alert-icon {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.filter-bar {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.filter-select {
+    padding: 10px 15px;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    font-size: 14px;
+    color: #495057;
+    background-color: white;
+    cursor: pointer;
+    transition: border-color 0.2s;
+}
+
+.filter-select:hover,
+.filter-select:focus {
+    border-color: #5CB85C;
+    outline: none;
+}
+
+.search-input {
+    padding: 10px 15px;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    font-size: 14px;
+    color: #495057;
+    flex: 1;
+    min-width: 200px;
+    transition: border-color 0.2s;
+}
+
+.search-input:focus {
+    border-color: #5CB85C;
+    outline: none;
+}
+
+.user-avatar-small {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #5CB85C, #4CAF50);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
+    font-size: 12px;
+    flex-shrink: 0;
+}
+
+.reporter-cell {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.post-title-cell {
+    text-align: left;
+    max-width: 400px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-weight: 500;
+    color: #212529;
+}
+
+.badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.badge-pending {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.badge-progress {
+    background-color: #cfe2ff;
+    color: #084298;
+}
+
+.badge-success {
+    background-color: #d1e7dd;
+    color: #0f5132;
+}
+
+.badge-danger {
+    background-color: #f8d7da;
+    color: #842029;
+}
+
+.btn-detail {
+    display: inline-block;
+    padding: 6px 14px;
+    background-color: #5CB85C;
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+    font-size: 13px;
+    transition: background-color 0.2s;
+    font-weight: 500;
+}
+
+.btn-detail:hover {
+    background-color: #4CAF50;
+}

@@ -7,7 +7,6 @@ import lombok.Getter;
 @AllArgsConstructor
 public class MyProfileEditResponse {
 
-    private String profileImage;
     private String nickname;
     private String introduction;
 }

@@ -1,0 +1,82 @@
+/* 상세 전용 스타일 */
+.info-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.info-row {
+    display: grid;
+    grid-template-columns: 140px 1fr;
+    gap: 16px;
+    align-items: start;
+}
+
+.info-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #495057;
+    padding-top: 4px;
+}
+
+.info-value {
+    font-size: 15px;
+    color: #212529;
+    line-height: 1.6;
+}
+
+.info-value a {
+    color: #5CB85C;
+    text-decoration: none;
+    word-break: break-all;
+}
+
+.info-value a:hover {
+    text-decoration: underline;
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 6px 14px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.status-badge.active {
+    background-color: #d1e7dd;
+    color: #0f5132;
+}
+
+.status-badge.inactive {
+    background-color: #f8d7da;
+    color: #842029;
+}
+
+.status-badge.upcoming {
+    background-color: #cfe2ff;
+    color: #084298;
+}
+
+.content-box {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    border-left: 4px solid #5CB85C;
+    line-height: 1.8;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+    .info-row {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+}

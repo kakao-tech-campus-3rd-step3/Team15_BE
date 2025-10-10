@@ -9,11 +9,26 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
+import jakarta.annotation.PostConstruct;
+import java.util.TimeZone;
+
 @SpringBootApplication
 @EnableJpaAuditing
-@EnableConfigurationProperties({AppProperties.class,KakaoProperties.class, GoogleProperties.class,CookieProperties.class})
+@EnableConfigurationProperties({
+        AppProperties.class,
+        KakaoProperties.class,
+        GoogleProperties.class,
+        CookieProperties.class
+})
 public class HyuswimApplication {
-  public static void main(String[] args) {
-    SpringApplication.run(HyuswimApplication.class, args);
-  }
+
+    public static void main(String[] args) {
+        SpringApplication.run(HyuswimApplication.class, args);
+    }
+
+    @PostConstruct
+    public void init() {
+        TimeZone.setDefault(TimeZone.getTimeZone("Asia/Seoul"));
+    }
 }
+
