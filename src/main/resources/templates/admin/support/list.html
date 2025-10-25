@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{admin/layout :: layout(~{::content})}">
+
+<main th:fragment="content">
+    <h1>지원 사업 관리</h1>
+
+    <div class="stats-grid" id="statsGrid">
+        <div class="stat-card">
+            <div class="stat-label">전체 사업</div>
+            <div class="stat-value" id="totalCount">0</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">게시됨</div>
+            <div class="stat-value" id="publishedCount">0</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">임시저장</div>
+            <div class="stat-value" id="draftCount">0</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">종료</div>
+            <div class="stat-value" id="closedCount">0</div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="toolbar">
+            <input id="search" type="text" class="search-input" placeholder="제목 또는 기관명으로 검색" />
+            <select id="statusFilter" class="filter-select">
+                <option value="">상태 (전체)</option>
+                <option value="PUBLISHED">게시됨</option>
+                <option value="DRAFT">임시저장</option>
+                <option value="CLOSED">종료</option>
+            </select>
+            <button class="btn btn-search" onclick="loadSupports()">🔍 검색</button>
+            <button class="btn btn-primary" onclick="location.href='/admin/supports/form.html'">➕ 새로 만들기</button>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="table-container">
+            <table>
+                <thead>
+                <tr>
+                    <th style="width: 60px;">ID</th>
+                    <th>제목</th>
+                    <th style="width: 180px;">제공기관</th>
+                    <th style="width: 200px;">신청기간</th>
+                    <th style="width: 100px;">상태</th>
+                    <th style="width: 180px;">관리</th>
+                </tr>
+                </thead>
+                <tbody id="tbody">
+                <tr>
+                    <td colspan="6" class="message">불러오는 중…</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <link rel="stylesheet" th:href="@{/css/admin-support.css}" />
+    <script th:src="@{/js/admin-support.js}" defer></script>
+</main>
+
+</html>

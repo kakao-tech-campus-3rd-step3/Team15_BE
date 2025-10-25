@@ -1,8 +1,8 @@
 package katecam.hyuswim.auth.controller;
 
+import jakarta.validation.Valid;
 import katecam.hyuswim.auth.dto.EmailSendRequest;
 import katecam.hyuswim.auth.dto.EmailVerifyRequest;
-import katecam.hyuswim.auth.dto.EmailResponse;
 import katecam.hyuswim.auth.service.AuthEmailService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -16,15 +16,17 @@ public class AuthEmailController {
     private final AuthEmailService authEmailService;
 
     @PostMapping("/send")
-    public ResponseEntity<EmailResponse> sendCode(@RequestBody EmailSendRequest request) {
+    public ResponseEntity<Void> sendCode(
+            @Valid @RequestBody EmailSendRequest request
+    ) {
         authEmailService.sendCode(request);
-        return ResponseEntity.ok(new EmailResponse("인증번호 발송 완료"));
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/verify")
-    public ResponseEntity<EmailResponse> verifyCode(@RequestBody EmailVerifyRequest request) {
+    public ResponseEntity<Void> verifyCode(@RequestBody EmailVerifyRequest request) {
         authEmailService.verifyCode(request.getEmail(), request.getCode());
-        return ResponseEntity.ok(new EmailResponse("인증 성공"));
+        return ResponseEntity.ok().build();
     }
 }
 

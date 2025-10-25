@@ -12,6 +12,7 @@ import katecam.hyuswim.user.domain.User;
 import katecam.hyuswim.user.domain.UserStatus;
 import katecam.hyuswim.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -42,7 +43,7 @@ public class AuthService {
         userRepository.save(user);
 
         String encodedPassword = passwordEncoder.encode(request.getPassword());
-        ;
+
         UserAuth auth = UserAuth.createLocal(user, request, encodedPassword);
         userAuthRepository.save(auth);
 

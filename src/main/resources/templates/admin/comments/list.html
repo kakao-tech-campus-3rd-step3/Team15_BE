@@ -1,0 +1,104 @@
+<meta charset="UTF-8">
+<div th:fragment="content">
+    <!-- 통계 카드 -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-label">전체 댓글</div>
+            <div class="stat-value" th:text="${comments.size()}">0</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">노출 중</div>
+            <div class="stat-value" th:text="${activeCount}">0</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">삭제됨</div>
+            <div class="stat-value" th:text="${deletedCount}">0</div>
+        </div>
+    </div>
+
+    <!-- 필터 및 검색 영역 -->
+    <div class="card" style="margin-bottom: 20px;">
+        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+            <select class="filter-select" onchange="filterComments(this.value)">
+                <option value="all">전체 상태</option>
+                <option value="active">노출 중</option>
+                <option value="deleted">삭제됨</option>
+            </select>
+            <input type="text" class="search-input" placeholder="내용 검색" onkeyup="searchComments(this.value)">
+            <select class="filter-select" onchange="sortComments(this.value)">
+                <option value="recent">최근 작성순</option>
+                <option value="oldest">오래된 순</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- 댓글 목록 테이블 -->
+    <div class="card">
+        <div class="card-header">
+            <h3>댓글 목록</h3>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                <tr>
+                    <th style="width: 60px;">ID</th>
+                    <th style="width: 400px;">내용</th>
+                    <th style="width: 160px;">작성일</th>
+                    <th style="width: 100px;">상태</th>
+                    <th style="width: 150px;">관리</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="comment : ${comments}"
+                    th:attr="data-status=${comment.deleted ? 'deleted' : 'active'},
+                             data-content=${comment.content}">
+                    <td th:text="${comment.id}">1</td>
+                    <td>
+                        <div class="comment-content">
+                            <p th:text="${comment.content}">댓글 내용이 표시됩니다.</p>
+                        </div>
+                    </td>
+                    <td th:text="${#temporals.format(comment.createdAt, 'yyyy-MM-dd HH:mm')}">2024-01-01 12:00</td>
+                    <td>
+                        <span class="badge"
+                              th:classappend="${comment.deleted ? 'badge-danger' : 'badge-success'}"
+                              th:text="${comment.deleted ? '삭제됨' : '노출중'}">
+                            노출중
+                        </span>
+                    </td>
+                    <td>
+                        <div style="display: flex; gap: 5px; justify-content: center;">
+                            <form th:if="${!comment.deleted}"
+                                  th:action="@{/admin/comments/{id}/hide(id=${comment.id})}"
+                                  method="post"
+                                  style="display: inline;">
+                                <button type="submit" class="btn-small btn-warning" onclick="return confirm('이 댓글을 숨기시겠습니까?')">
+                                    숨김
+                                </button>
+                            </form>
+                            <form th:action="@{/admin/comments/{id}/delete(id=${comment.id})}"
+                                  method="post"
+                                  style="display: inline;">
+                                <button type="submit" class="btn-small btn-danger" onclick="return confirm('이 댓글을 삭제하시겠습니까?')">
+                                    삭제
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                <tr th:if="${comments.isEmpty()}">
+                    <td colspan="5" style="text-align: center; padding: 40px; color: #868e96;">
+                        등록된 댓글이 없습니다.
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 외부 CSS -->
+    <link rel="stylesheet" th:href="@{/css/comments.css}"/>
+
+    <!-- 외부 JS -->
+    <script th:src="@{/js/comments.js}"></script>
+</div>
