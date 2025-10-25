@@ -27,7 +27,6 @@ import java.util.Optional;
 public class AuthService {
 
     private final JwtUtil jwtUtil;
-//    private final RedisTemplate<String, String> redisTemplate;
     private final PasswordEncoder passwordEncoder;
     private final RefreshTokenService refreshTokenService;
     private final UserRepository userRepository;
@@ -36,12 +35,6 @@ public class AuthService {
     @Transactional
     public User signup(SignupRequest request) {
         String email = request.getEmail();
-
-//        String verified = redisTemplate.opsForValue().get("auth:email:verified:" + email);
-//
-//        if (!"true".equals(verified)) {
-//            throw new CustomException(ErrorCode.EMAIL_NOT_VERIFIED);
-//        }
 
         userAuthRepository.findByEmailAndProvider(email, AuthProvider.LOCAL)
                 .ifPresent(auth -> validateReSignup(auth.getUser()));
