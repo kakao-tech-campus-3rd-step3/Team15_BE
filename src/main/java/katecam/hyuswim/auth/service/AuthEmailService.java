@@ -8,6 +8,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
+import java.security.SecureRandom;
 
 @Service
 @RequiredArgsConstructor
@@ -15,6 +16,7 @@ public class AuthEmailService {
 
     private final RedisTemplate<String, String> redisTemplate;
     private final EmailSenderService emailSenderService;
+    private static final SecureRandom secureRandom = new SecureRandom();
 
     private static final Duration CODE_TTL = Duration.ofMinutes(3);
 
@@ -62,6 +64,6 @@ public class AuthEmailService {
     }
 
     private String generate6DigitCode() {
-        return String.valueOf((int) (Math.random() * 900000) + 100000);
+        return String.valueOf(secureRandom.nextInt(900000) + 100000);
     }
 }
