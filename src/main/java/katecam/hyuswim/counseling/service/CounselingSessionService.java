@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import katecam.hyuswim.ai.dto.Message;
 import katecam.hyuswim.common.error.CustomException;
 import katecam.hyuswim.common.error.ErrorCode;
-import katecam.hyuswim.counseling.repository.CounselingSessionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
@@ -19,7 +18,6 @@ public class CounselingSessionService {
 
     private final StringRedisTemplate redisTemplate;
     private final ObjectMapper objectMapper;
-    private final CounselingSessionRepository counselingSessionRepository;
 
     private static final String PREFIX = "session:";
     private static final String MESSAGES_SUFFIX = ":messages";
@@ -28,8 +26,8 @@ public class CounselingSessionService {
 
     public void saveMessage(String sessionId, Message message) {
         String key = buildKey(sessionId, MESSAGES_SUFFIX);
-        String json = toJson(message);
         try {
+            String json = objectMapper.writeValueAsString(message);
             redisTemplate.opsForList().rightPush(key, json);
             redisTemplate.expire(key, TTL);
         } catch (Exception e) {
@@ -39,18 +37,15 @@ public class CounselingSessionService {
 
     public List<Message> getMessages(String sessionId) {
         String key = buildKey(sessionId, MESSAGES_SUFFIX);
-        List<String> jsonList;
         try {
-            jsonList = redisTemplate.opsForList().range(key, 0, -1);
+            List<String> jsonList = redisTemplate.opsForList().range(key, 0, -1);
+            if (jsonList == null || jsonList.isEmpty()) return List.of();
+            return jsonList.stream()
+                    .map(this::fromJson)
+                    .collect(Collectors.toList());
         } catch (Exception e) {
             throw new CustomException(ErrorCode.REDIS_OPERATION_FAILED);
         }
-
-        if (jsonList == null || jsonList.isEmpty()) return List.of();
-
-        return jsonList.stream()
-                .map(this::fromJson)
-                .collect(Collectors.toList());
     }
 
     public void saveStep(String sessionId, String step) {
@@ -66,7 +61,7 @@ public class CounselingSessionService {
         String key = buildKey(sessionId, STEP_SUFFIX);
         try {
             String step = redisTemplate.opsForValue().get(key);
-            return step != null ? step : "START";
+            return step != null ? step : "ACTIVE";
         } catch (Exception e) {
             throw new CustomException(ErrorCode.REDIS_OPERATION_FAILED);
         }
@@ -74,12 +69,6 @@ public class CounselingSessionService {
 
     public void endSession(String sessionId) {
         try {
-            counselingSessionRepository.findById(sessionId)
-                    .ifPresent(session -> {
-                        session.end(); // endedAt = now
-                        counselingSessionRepository.save(session);
-                    });
-
             redisTemplate.delete(buildKey(sessionId, MESSAGES_SUFFIX));
             redisTemplate.delete(buildKey(sessionId, STEP_SUFFIX));
         } catch (Exception e) {
@@ -91,14 +80,6 @@ public class CounselingSessionService {
         return PREFIX + sessionId + suffix;
     }
 
-    private String toJson(Object obj) {
-        try {
-            return objectMapper.writeValueAsString(obj);
-        } catch (Exception e) {
-            throw new CustomException(ErrorCode.JSON_SERIALIZATION_FAILED);
-        }
-    }
-
     private Message fromJson(String json) {
         try {
             return objectMapper.readValue(json, Message.class);
@@ -107,5 +88,3 @@ public class CounselingSessionService {
         }
     }
 }
-
-
