@@ -3,14 +3,10 @@ package katecam.hyuswim.user.controller;
 import java.util.List;
 import java.util.Map;
 
-import jakarta.servlet.http.HttpServletRequest;
 import katecam.hyuswim.auth.dto.EmailSendRequest;
-import katecam.hyuswim.auth.dto.EmailSendResponse;
 import katecam.hyuswim.auth.dto.EmailVerifyRequest;
 import katecam.hyuswim.auth.service.AuthEmailService;
-import katecam.hyuswim.common.util.IpUtils;
 import katecam.hyuswim.user.dto.mypage.*;
-import org.apache.coyote.Response;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -87,15 +83,12 @@ public class MyPageController {
   }
 
     @PostMapping("/me/email/send")
-    public ResponseEntity<EmailSendResponse> sendEmailCode(
-            @RequestBody EmailSendRequest emailSendRequest,
-            HttpServletRequest httpRequest
+    public ResponseEntity<Void> sendEmailCode(
+            @RequestBody EmailSendRequest emailSendRequest
     ) {
-        String clientIp = IpUtils.getClientIp(httpRequest);
-        EmailSendResponse response = authEmailService.sendCode(emailSendRequest, clientIp);
-        return ResponseEntity.ok(response);
+        authEmailService.sendCode(emailSendRequest);
+        return ResponseEntity.ok().build();
     }
-
 
     @PutMapping("/me/email")
     public ResponseEntity<Void> updateEmail(@LoginUser User loginUser, @RequestBody EmailVerifyRequest emailVerifyRequest) {
