@@ -3,7 +3,7 @@ server:
 
 spring:
   profiles:
-    active: ${SPRING_PROFILE_ACTIVE:local}
+    active: ${SPRING_PROFILES_ACTIVE:local}
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -69,3 +69,12 @@ google:
   authorize-uri: https://accounts.google.com/o/oauth2/v2/auth
   token-uri: https://oauth2.googleapis.com/token
   user-info-uri: https://www.googleapis.com/oauth2/v2/userinfo
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: always
