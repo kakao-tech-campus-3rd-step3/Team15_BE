@@ -40,8 +40,20 @@ public class ProdSecurityConfig {
                     return config;
                 }))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/signup", "/api/auth/login","/api/auth/refresh","/api/counsel/**","/api/auth/email/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/**").permitAll()
+                        .requestMatchers(
+                                "/api/auth/signup",
+                                "/api/auth/login",
+                                "/api/auth/refresh",
+                                "/api/auth/email/**",
+                                "/api/counsel/**"
+                        ).permitAll()
+                        .requestMatchers(HttpMethod.GET,
+                                "/api/auth/**",
+                                "/api/posts/**",
+                                "/api/comments/**",
+                                "/api/missions/**",
+                                "/api/support-programs/**"
+                        ).permitAll()
                         .anyRequest().authenticated()
                 )
                 .csrf(csrf -> csrf.disable())
