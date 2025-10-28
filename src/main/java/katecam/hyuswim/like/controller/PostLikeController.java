@@ -21,7 +21,7 @@ public class PostLikeController {
   @PostMapping("/posts/{postId}/likes")
   public ResponseEntity<Void> addLike(@PathVariable Long postId, @LoginUser User user) {
     postLikeService.addLike(postId, user);
-    badgeService.checkAndGrant(user.getId(), BadgeKind.LOVE_EVANGELIST);
+    badgeService.checkAndGrant(user, BadgeKind.LOVE_EVANGELIST);
     return ResponseEntity.ok().build();
   }
 

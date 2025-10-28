@@ -3,6 +3,8 @@ package katecam.hyuswim.badge.service;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import katecam.hyuswim.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -35,13 +37,11 @@ public class BadgeService {
 
 
     @Transactional
-    public List<UserBadge> checkAndGrant(Long userId, BadgeKind kind) {
-        int progress = getCurrentProgress(userId, kind);
-        var user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found: " + userId));
+    public List<UserBadge> checkAndGrant(User user, BadgeKind kind) {
+        int progress = getCurrentProgress(user.getId(), kind);
 
         var badges = badgeRepository.findByKindOrderByThresholdAsc(kind);
-        var owned = userBadgeRepository.findOwnedBadgeIds(userId);
+        var owned = userBadgeRepository.findOwnedBadgeIds(user.getId());
 
         List<UserBadge> newlyGranted = new ArrayList<>();
 
@@ -49,6 +49,7 @@ public class BadgeService {
             boolean reached = progress >= badge.getThreshold();
             boolean alreadyOwned = owned.contains(badge.getId());
             if (!reached || alreadyOwned) continue;
+
             try {
                 var grant = new UserBadge(user, badge);
                 userBadgeRepository.save(grant);
@@ -61,14 +62,15 @@ public class BadgeService {
         return newlyGranted;
     }
 
+
     @Transactional
-    public void checkAndGrantAll(Long userId) {
-        Arrays.stream(BadgeKind.values()).forEach(kind -> checkAndGrant(userId, kind));
+    public void checkAndGrantAll(User user) {
+        Arrays.stream(BadgeKind.values()).forEach(kind -> checkAndGrant(user, kind));
     }
 
     @Transactional(readOnly = true)
-    public List<EarnedBadgeResponse> getEarnedBadges(Long userId) {
-        return userBadgeRepository.findAllByUser_Id(userId).stream()
+    public List<EarnedBadgeResponse> getEarnedBadges(User user) {
+        return userBadgeRepository.findAllByUser_Id(user.getId()).stream()
                 .map(EarnedBadgeResponse::from)
                 .toList();
     }
