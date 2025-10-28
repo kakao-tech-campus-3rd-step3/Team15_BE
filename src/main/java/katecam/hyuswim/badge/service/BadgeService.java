@@ -1,15 +1,16 @@
 package katecam.hyuswim.badge.service;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import katecam.hyuswim.badge.dto.EarnedBadgeResponse;
+import katecam.hyuswim.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import katecam.hyuswim.badge.domain.*;
+import katecam.hyuswim.badge.dto.EarnedBadgeResponse;
 import katecam.hyuswim.badge.repository.BadgeRepository;
 import katecam.hyuswim.badge.repository.UserBadgeRepository;
 import katecam.hyuswim.badge.view.BadgeCollectionVM;
@@ -34,77 +35,65 @@ public class BadgeService {
     private final MissionProgressRepository missionProgressRepository;
     private final UserVisitRepository userVisitRepository;
 
+
     @Transactional
-    public List<UserBadge> checkAndGrant(Long userId, BadgeKind kind) {
-        int current = currentProgress(userId, kind);
+    public List<UserBadge> checkAndGrant(User user, BadgeKind kind) {
+        int progress = getCurrentProgress(user.getId(), kind);
 
-        var user = userRepository.findById(userId).orElseThrow();
-        var allBadges = badgeRepository.findByKindOrderByThresholdAsc(kind);
-
-        // 보유 배지 id Set (O(1) 조회)
-        Set<Long> owned = userBadgeRepository.findOwnedBadgeIdsByUserId(userId);
+        var badges = badgeRepository.findByKindOrderByThresholdAsc(kind);
+        var owned = userBadgeRepository.findOwnedBadgeIds(user.getId());
 
         List<UserBadge> newlyGranted = new ArrayList<>();
-        for (Badge b : allBadges) {
-            if (current >= b.getThreshold() && !owned.contains(b.getId())) {
-                try {
-                    var ub = new UserBadge(user, b);
-                    newlyGranted.add(userBadgeRepository.save(ub));
-                    owned.add(b.getId()); // 동일 루프 내 중복 방지
-                } catch (DataIntegrityViolationException ignore) {
-                    // 유니크 제약과 경합 시 안전하게 무시 (멱등성)
-                }
+
+        for (Badge badge : badges) {
+            boolean reached = progress >= badge.getThreshold();
+            boolean alreadyOwned = owned.contains(badge.getId());
+            if (!reached || alreadyOwned) continue;
+
+            try {
+                var grant = new UserBadge(user, badge);
+                userBadgeRepository.save(grant);
+                newlyGranted.add(grant);
+                owned.add(badge.getId());
+            } catch (DataIntegrityViolationException ignored) {
+                // 멱등성 보장
             }
         }
         return newlyGranted;
     }
 
+
     @Transactional
-    public void checkAndGrantAll(Long userId) {
-        for (BadgeKind kind : BadgeKind.values()) {
-            checkAndGrant(userId, kind);
-        }
+    public void checkAndGrantAll(User user) {
+        Arrays.stream(BadgeKind.values()).forEach(kind -> checkAndGrant(user, kind));
     }
 
     @Transactional(readOnly = true)
-    public List<EarnedBadgeResponse> getEarnedBadges(Long userId) {
-        return userBadgeRepository.findAllByUserId(userId).stream()
+    public List<EarnedBadgeResponse> getEarnedBadges(User user) {
+        return userBadgeRepository.findAllByUser_Id(user.getId()).stream()
                 .map(EarnedBadgeResponse::from)
                 .toList();
     }
 
     @Transactional(readOnly = true)
     public BadgeCollectionVM getMyBadgeCollection(Long userId) {
-        // 1) 마스터 전체, 유저 보유 이력
-        List<Badge> allBadges = badgeRepository.findAll(); // 16개
-        var userBadges = userBadgeRepository.findAllByUserId(userId);
+        List<Badge> allBadges = badgeRepository.findAll();
+        var userBadges = userBadgeRepository.findAllByUser_Id(userId);
 
-        // 보유 배지 id -> earnedAt 맵
-        Map<Long, java.time.LocalDateTime> earnedAtByBadgeId =
-                userBadges.stream().collect(Collectors.toMap(
+        Map<Long, java.time.LocalDateTime> earnedAtMap = userBadges.stream()
+                .collect(Collectors.toMap(
                         ub -> ub.getBadge().getId(),
                         UserBadge::getEarnedAt
                 ));
 
-        // 2) 진행도(집계) 한 번만 계산
-        int likeCnt   = (int) postLikeRepository.countByUserId(userId);
-        int cmtCnt    = (int) commentRepository.countActiveByUserId(userId);
-        int missionDs = (int) missionProgressRepository.countDistinctDaysByUserId(userId);
-        int visitDs   = (int) userVisitRepository.countDaysByUserId(userId);
+        var progressMap = getProgressMap(userId);
 
-        // 3) 배지별 ViewItem 생성
-        List<BadgeViewItem> all = allBadges.stream()
+        List<BadgeViewItem> viewItems = allBadges.stream()
                 .map(b -> {
-                    int cur = switch (b.getKind()) {
-                        case LOVE_EVANGELIST    -> likeCnt;
-                        case DILIGENT_COMMENTER -> cmtCnt;
-                        case MISSION_KILLER     -> missionDs;
-                        case PERFECT_ATTENDANCE -> visitDs;
-                    };
-                    boolean earned = earnedAtByBadgeId.containsKey(b.getId());
-                    var earnedAt   = earned ? earnedAtByBadgeId.get(b.getId()) : null;
-                    int percent = Math.max(0, Math.min(100,
-                            (int) Math.round((cur * 100.0) / b.getThreshold())));
+                    int current = progressMap.get(b.getKind());
+                    boolean earned = earnedAtMap.containsKey(b.getId());
+                    LocalDateTime earnedAt = earned ? earnedAtMap.get(b.getId()) : null;
+                    int percent = Math.min(100, (int) Math.round(current * 100.0 / b.getThreshold()));
 
                     return BadgeViewItem.builder()
                             .badgeId(b.getId())
@@ -112,40 +101,33 @@ public class BadgeService {
                             .tier(b.getTier())
                             .name(b.getName())
                             .threshold(b.getThreshold())
-                            .current(cur)
+                            .current(current)
                             .earned(earned)
                             .earnedAt(earnedAt)
                             .percent(percent)
                             .build();
                 })
-                .sorted(Comparator
-                        .comparing((BadgeViewItem v) -> v.getKind().name())
+                .sorted(Comparator.comparing((BadgeViewItem v) -> v.getKind().name())
                         .thenComparing(BadgeViewItem::getThreshold))
                 .toList();
 
-        // 4) 분류
-        var earned = all.stream().filter(BadgeViewItem::isEarned).toList();
-        var inProgress = all.stream().filter(v -> !v.isEarned() && v.getCurrent() > 0).toList();
-        var locked = all.stream().filter(v -> !v.isEarned() && v.getCurrent() == 0).toList();
-
-        return BadgeCollectionVM.builder()
-                .totalCount(all.size())
-                .earnedCount(earned.size())
-                .inProgressCount(inProgress.size())
-                .lockedCount(locked.size())
-                .earned(earned)
-                .inProgress(inProgress)
-                .locked(locked)
-                .all(all)
-                .build();
+        return BadgeCollectionVM.of(viewItems);
     }
 
+    private Map<BadgeKind, Integer> getProgressMap(Long userId) {
+        return Map.of(
+                BadgeKind.LOVE_EVANGELIST, (int) postLikeRepository.countByUserId(userId),
+                BadgeKind.DILIGENT_COMMENTER, (int) commentRepository.countActiveByUserId(userId),
+                BadgeKind.MISSION_KILLER, (int) missionProgressRepository.countDistinctDaysByUserId(userId),
+                BadgeKind.PERFECT_ATTENDANCE, (int) userVisitRepository.countDaysByUserId(userId)
+        );
+    }
 
-    private int currentProgress(Long userId, BadgeKind kind) {
+    private int getCurrentProgress(Long userId, BadgeKind kind) {
         return switch (kind) {
-            case LOVE_EVANGELIST    -> (int) postLikeRepository.countByUserId(userId);
+            case LOVE_EVANGELIST -> (int) postLikeRepository.countByUserId(userId);
             case DILIGENT_COMMENTER -> (int) commentRepository.countActiveByUserId(userId);
-            case MISSION_KILLER     -> (int) missionProgressRepository.countDistinctDaysByUserId(userId);
+            case MISSION_KILLER -> (int) missionProgressRepository.countDistinctDaysByUserId(userId);
             case PERFECT_ATTENDANCE -> (int) userVisitRepository.countDaysByUserId(userId);
         };
     }

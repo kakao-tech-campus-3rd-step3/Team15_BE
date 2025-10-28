@@ -2,14 +2,14 @@ package katecam.hyuswim.comment.service;
 
 import katecam.hyuswim.ai.client.OpenAiClient;
 import katecam.hyuswim.ai.service.AiUserService;
-import katecam.hyuswim.badge.domain.BadgeKind;
-import katecam.hyuswim.badge.service.BadgeService;
 import katecam.hyuswim.comment.domain.AuthorTag;
 import katecam.hyuswim.comment.domain.AuthorTagResolver;
 import katecam.hyuswim.comment.dto.CommentTreeResponse;
+import katecam.hyuswim.comment.event.CommentCreatedEvent;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.context.ApplicationEventPublisher;
 
 import katecam.hyuswim.comment.domain.Comment;
 import katecam.hyuswim.comment.dto.CommentDetailResponse;
@@ -35,7 +35,7 @@ public class CommentService {
   private final AuthorTagResolver authorTagResolver;
   private final OpenAiClient openAiClient;
   private final AiUserService aiUserService;
-  private final BadgeService badgeService;
+  private final ApplicationEventPublisher eventPublisher;
 
   @Transactional
   public CommentDetailResponse createComment(User user, Long postId, CommentRequest request) {
@@ -56,7 +56,7 @@ public class CommentService {
 
     Comment saved = commentRepository.saveAndFlush(comment);
 
-    badgeService.checkAndGrant(user.getId(), BadgeKind.DILIGENT_COMMENTER);
+    eventPublisher.publishEvent(new CommentCreatedEvent(user.getId()));
 
     return CommentDetailResponse.from(saved, true);
 
@@ -114,7 +114,7 @@ public class CommentService {
 
       commentRepository.save(reply);
 
-      badgeService.checkAndGrant(user.getId(), BadgeKind.DILIGENT_COMMENTER);
+      eventPublisher.publishEvent(new CommentCreatedEvent(user.getId()));
 
       return CommentTreeResponse.from(reply,user.getId());
   }
