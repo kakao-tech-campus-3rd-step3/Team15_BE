@@ -37,24 +37,28 @@ public class BadgeService {
     @Transactional
     public List<UserBadge> checkAndGrant(Long userId, BadgeKind kind) {
         int progress = getCurrentProgress(userId, kind);
+        var user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found: " + userId));
 
-        var user = userRepository.findById(userId).orElseThrow();
-        var badgeList = badgeRepository.findByKindOrderByThresholdAsc(kind);
-        var ownedIds = userBadgeRepository.findOwnedBadgeIds(userId);
+        var badges = badgeRepository.findByKindOrderByThresholdAsc(kind);
+        var owned = userBadgeRepository.findOwnedBadgeIds(userId);
 
-        List<UserBadge> granted = new ArrayList<>();
+        List<UserBadge> newlyGranted = new ArrayList<>();
 
-        for (Badge badge : badgeList) {
-            if (progress >= badge.getThreshold() && !ownedIds.contains(badge.getId())) {
-                try {
-                    granted.add(userBadgeRepository.save(new UserBadge(user, badge)));
-                    ownedIds.add(badge.getId());
-                } catch (DataIntegrityViolationException ignore) {
-                    // Unique constraint 경쟁 시 무시 (멱등성 보장)
-                }
+        for (Badge badge : badges) {
+            boolean reached = progress >= badge.getThreshold();
+            boolean alreadyOwned = owned.contains(badge.getId());
+            if (!reached || alreadyOwned) continue;
+            try {
+                var grant = new UserBadge(user, badge);
+                userBadgeRepository.save(grant);
+                newlyGranted.add(grant);
+                owned.add(badge.getId());
+            } catch (DataIntegrityViolationException ignored) {
+                // 멱등성 보장
             }
         }
-        return granted;
+        return newlyGranted;
     }
 
     @Transactional

@@ -7,4 +7,5 @@ import katecam.hyuswim.badge.domain.*;
 
 public interface BadgeRepository extends JpaRepository<Badge, Long> {
     List<Badge> findByKindOrderByThresholdAsc(BadgeKind kind);
+    Optional<Badge> findByKindAndTier(BadgeKind kind, BadgeTier tier);
 }
