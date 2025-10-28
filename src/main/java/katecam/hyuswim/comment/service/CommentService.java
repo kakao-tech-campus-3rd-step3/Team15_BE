@@ -9,8 +9,8 @@ import katecam.hyuswim.comment.domain.AuthorTagResolver;
 import katecam.hyuswim.comment.dto.CommentTreeResponse;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.transaction.Transactional;
 import katecam.hyuswim.comment.domain.Comment;
 import katecam.hyuswim.comment.dto.CommentDetailResponse;
 import katecam.hyuswim.comment.dto.CommentListResponse;
@@ -58,7 +58,7 @@ public class CommentService {
 
     badgeService.checkAndGrant(user.getId(), BadgeKind.DILIGENT_COMMENTER);
 
-    return CommentDetailResponse.from(saved);
+    return CommentDetailResponse.from(saved, true);
 
   }
 
@@ -85,7 +85,7 @@ public class CommentService {
 
       commentRepository.save(aiComment);
 
-      CommentDetailResponse.from(aiComment);
+      CommentDetailResponse.from(aiComment,true);
   }
 
 
@@ -116,47 +116,53 @@ public class CommentService {
 
       badgeService.checkAndGrant(user.getId(), BadgeKind.DILIGENT_COMMENTER);
 
-      return CommentTreeResponse.from(reply);
+      return CommentTreeResponse.from(reply,user.getId());
   }
 
-  public PageResponse<CommentListResponse> getComments(Long postId, Pageable pageable) {
-    return new PageResponse<>(
-        commentRepository.findByPostIdAndParentIsNull(postId,pageable).map(comment -> CommentListResponse.from(
-                comment,
-                commentRepository.existsByParentIdAndIsDeletedFalse(comment.getId())
-        ))
-    );
-  }
+    public PageResponse<CommentListResponse> getComments(Long postId, Pageable pageable, User currentUser) {
+        Long currentUserId = (currentUser != null) ? currentUser.getId() : null;
 
-  public List<CommentTreeResponse> getReplies(Long parentId){
-      List<Comment> children = commentRepository.findByParentIdAndIsDeletedFalse(parentId);
-      return children.stream()
-              .map(CommentTreeResponse::from)
-              .toList();
-  }
-
-  public CommentDetailResponse getComment(Long id) {
-    Comment comment =
-        commentRepository
-            .findByIdAndIsDeletedFalse(id)
-            .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
-    return CommentDetailResponse.from(comment);
-  }
-
-  @Transactional
-  public CommentDetailResponse updateComment(Long id, User user, CommentRequest request) {
-    Comment comment =
-        commentRepository
-            .findByIdAndIsDeletedFalse(id)
-            .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
-
-    if (!comment.getUser().getId().equals(user.getId())) {
-      throw new CustomException(ErrorCode.COMMENT_ACCESS_DENIED);
+        return new PageResponse<>(
+                commentRepository.findByPostIdAndParentIsNull(postId, pageable)
+                        .map(comment -> {
+                            boolean isAuthor = currentUserId != null && comment.getUser().getId().equals(currentUserId);
+                            boolean hasChildren = commentRepository.existsByParentIdAndIsDeletedFalse(comment.getId());
+                            return CommentListResponse.from(comment, isAuthor, hasChildren);
+                        })
+        );
     }
 
-    comment.update(request.getContent());
-    return CommentDetailResponse.from(comment);
-  }
+    @Transactional(readOnly = true)
+    public List<CommentTreeResponse> getReplies(Long parentId, User currentUser) {
+        Long currentUserId = (currentUser != null) ? currentUser.getId() : null;
+        List<Comment> children = commentRepository.findByParentIdAndIsDeletedFalse(parentId);
+
+        return children.stream()
+                .map(child -> CommentTreeResponse.from(child, currentUserId)) // ⚡ userId 전달
+                .toList();
+    }
+
+    public CommentDetailResponse getComment(Long id, User currentUser) {
+        Comment comment = commentRepository.findByIdAndIsDeletedFalse(id)
+                .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
+
+        boolean isAuthor = currentUser != null && comment.getUser().getId().equals(currentUser.getId());
+        return CommentDetailResponse.from(comment, isAuthor);
+    }
+
+    @Transactional
+    public CommentDetailResponse updateComment(Long id, User user, CommentRequest request) {
+        Comment comment = commentRepository.findByIdAndIsDeletedFalse(id)
+                .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
+
+        if (!comment.getUser().getId().equals(user.getId())) {
+            throw new CustomException(ErrorCode.COMMENT_ACCESS_DENIED);
+        }
+
+        comment.update(request.getContent());
+        boolean isAuthor = true;
+        return CommentDetailResponse.from(comment, isAuthor);
+    }
 
   @Transactional
   public void deleteComment(Long id, User user) {

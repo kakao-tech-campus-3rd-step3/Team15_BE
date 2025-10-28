@@ -2,41 +2,52 @@ package katecam.hyuswim.comment.dto;
 
 import katecam.hyuswim.comment.domain.AuthorTag;
 import katecam.hyuswim.comment.domain.Comment;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 @Getter
-@RequiredArgsConstructor
+@AllArgsConstructor
+@Builder
 public class CommentTreeResponse {
-    private final Long id;
-    private final Long postId;
-    private final String content;
-    private final String author;
-    private final String handle;
-    private final AuthorTag authorTag;
-    private final boolean isDeleted;
-    private final LocalDateTime createdAt;
-    private final LocalDateTime updatedAt;
-    private final List<CommentTreeResponse> children;
+    private Long id;
+    private Long postId;
+    private String content;
+    private Long authorId;
+    private String author;
+    private String handle;
+    private AuthorTag authorTag;
+    private Boolean isAuthor;
+    private Boolean isAnonymous;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+    private List<CommentTreeResponse> children;
 
-    public static CommentTreeResponse from(Comment comment){
-        return new CommentTreeResponse(
-                comment.getId(),
-                comment.getPost().getId(),
-                comment.getContent(),
-                comment.getUser().getDisplayName(),
-                comment.getUser().getHandle(),
-                comment.getAuthorTag(),
-                comment.getIsDeleted(),
-                comment.getCreatedAt(),
-                comment.getUpdatedAt(),
-                comment.getChildren().stream()
-                        .map(katecam.hyuswim.comment.dto.CommentTreeResponse::from)
-                        .toList()
+    public static CommentTreeResponse from(Comment comment, Long currentUserId) {
+        Long authorId = (comment.getUser() != null) ? comment.getUser().getId() : null;
+        boolean isAuthor = (currentUserId != null) && Objects.equals(authorId, currentUserId);
 
-        );
+        return CommentTreeResponse.builder()
+                .id(comment.getId())
+                .postId(comment.getPost().getId())
+                .content(comment.getContent())
+                .authorId(comment.getUser().getId())
+                .author(comment.getUser().getDisplayName())
+                .handle(comment.getUser().getHandle())
+                .authorTag(comment.getAuthorTag())
+                .isAuthor(isAuthor)
+                .isAnonymous(comment.getIsAnonymous())
+                .createdAt(comment.getCreatedAt())
+                .updatedAt(comment.getUpdatedAt())
+                .children(
+                        comment.getChildren().stream()
+                                .map(child -> CommentTreeResponse.from(child, currentUserId))
+                                .toList()
+                )
+                .build();
     }
 }
