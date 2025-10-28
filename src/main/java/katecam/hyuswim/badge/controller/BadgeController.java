@@ -23,6 +23,12 @@ public class BadgeController {
     private final BadgeRepository badgeRepository;
     private final UserBadgeRepository userBadgeRepository;
 
+    // 전체 배지 목록
+    @GetMapping
+    public ResponseEntity<List<Badge>> getBadges() {
+        return ResponseEntity.ok(badgeRepository.findAll());
+    }
+
     // 컬렉션(획득/진행중/잠김/전체)
     @GetMapping("/collection")
     public ResponseEntity<BadgeCollectionVM> getCollection(@LoginUser User loginUser) {
@@ -33,16 +39,9 @@ public class BadgeController {
         return ResponseEntity.ok(vm);
     }
 
-    // 전체 배지 목록
-    @GetMapping("/all")
-    public ResponseEntity<List<Badge>> getMaster() {
-        return ResponseEntity.ok(badgeRepository.findAll());
-    }
-
     // 내가 획득한 배지 목록
     @GetMapping("/me")
     public ResponseEntity<List<EarnedBadgeResponse>> getMyBadges(@LoginUser User loginUser) {
         return ResponseEntity.ok(badgeService.getEarnedBadges(loginUser.getId()));
     }
-
 }
