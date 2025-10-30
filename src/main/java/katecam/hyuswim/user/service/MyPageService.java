@@ -84,7 +84,7 @@ public class MyPageService {
 
   @Transactional
   public int selectMyLikesCount(Long userId) {
-    return postLikeRepository.countByUserId(userId);
+    return postLikeRepository.countByUserIdAndIsDeletedFalse(userId);
   }
 
   @Transactional

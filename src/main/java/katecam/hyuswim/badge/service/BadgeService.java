@@ -116,7 +116,7 @@ public class BadgeService {
 
     private Map<BadgeKind, Integer> getProgressMap(Long userId) {
         return Map.of(
-                BadgeKind.LOVE_EVANGELIST, (int) postLikeRepository.countByUserId(userId),
+                BadgeKind.LOVE_EVANGELIST, (int) postLikeRepository.countByUserIdAndIsDeletedFalse(userId),
                 BadgeKind.DILIGENT_COMMENTER, (int) commentRepository.countActiveByUserId(userId),
                 BadgeKind.MISSION_KILLER, (int) missionProgressRepository.countDistinctDaysByUserId(userId),
                 BadgeKind.PERFECT_ATTENDANCE, (int) userVisitRepository.countDaysByUserId(userId)
@@ -125,7 +125,7 @@ public class BadgeService {
 
     private int getCurrentProgress(Long userId, BadgeKind kind) {
         return switch (kind) {
-            case LOVE_EVANGELIST -> (int) postLikeRepository.countByUserId(userId);
+            case LOVE_EVANGELIST -> (int) postLikeRepository.countByUserIdAndIsDeletedFalse(userId);
             case DILIGENT_COMMENTER -> (int) commentRepository.countActiveByUserId(userId);
             case MISSION_KILLER -> (int) missionProgressRepository.countDistinctDaysByUserId(userId);
             case PERFECT_ATTENDANCE -> (int) userVisitRepository.countDaysByUserId(userId);
