@@ -15,8 +15,13 @@ RUN ./gradlew clean build -x test
 FROM openjdk:21-jdk-slim
 WORKDIR /app
 
+# 로그 버퍼링 방지 및 stdout 출력 통합
+ENV PYTHONUNBUFFERED=1
+ENV JAVA_TOOL_OPTIONS="-Djava.util.logging.ConsoleHandler.level=FINE -Dorg.slf4j.simpleLogger.log.org.springframework=debug"
+
 COPY --from=builder /app/build/libs/*.jar app.jar
 
 EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "app.jar"]
+
 
