@@ -22,20 +22,37 @@ public class PostListResponse {
   private Long likeCount;
   private Long viewCount;
   private Long commentCount;
+  private boolean isLiked;
   private LocalDateTime createdAt;
 
-  public static PostListResponse from(Post entity) {
+  public static PostListResponse from(Post post) {
     return PostListResponse.builder()
-        .id(entity.getId())
-        .title(entity.getTitle())
-        .postCategory(entity.getPostCategory().name())
-        .postCategoryName(entity.getPostCategory().getDisplayName())
-        .content(entity.getContent())
-        .author(entity.getUser().getDisplayName())
-        .likeCount((long) entity.getPostLikes().size())
-        .commentCount((long) entity.getComments().size())
-        .viewCount(entity.getViewCount())
-        .createdAt(entity.getCreatedAt())
+        .id(post.getId())
+        .title(post.getTitle())
+        .postCategory(post.getPostCategory().name())
+        .postCategoryName(post.getPostCategory().getDisplayName())
+        .content(post.getContent())
+        .author(post.getUser().getDisplayName())
+        .likeCount((long) post.getPostLikes().size())
+        .commentCount((long) post.getComments().size())
+        .viewCount(post.getViewCount())
+        .isLiked(false)
+        .createdAt(post.getCreatedAt())
         .build();
   }
+public static PostListResponse from(Post post, boolean isLiked) {
+    return PostListResponse.builder()
+            .id(post.getId())
+            .title(post.getTitle())
+            .postCategory(post.getPostCategory().name())
+            .postCategoryName(post.getPostCategory().getDisplayName())
+            .content(post.getContent())
+            .author(post.getUser().getDisplayName())
+            .likeCount((long) post.getPostLikes().size())
+            .commentCount((long) post.getComments().size())
+            .viewCount(post.getViewCount())
+            .isLiked(isLiked)
+            .createdAt(post.getCreatedAt())
+            .build();
+     }
 }

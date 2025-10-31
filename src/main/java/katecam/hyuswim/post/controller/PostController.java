@@ -32,12 +32,14 @@ public class PostController {
     return ResponseEntity.status(HttpStatus.CREATED).body(response);
   }
 
-  @GetMapping
-  public ResponseEntity<PageResponse<PostListResponse>> getPosts(
-      @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC, size = 10)
-          Pageable pageable) {
-    return ResponseEntity.ok(postService.getPosts(pageable));
-  }
+    @GetMapping
+    public ResponseEntity<PageResponse<PostListResponse>> getPosts(
+            @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC, size = 10)
+            Pageable pageable,
+            @LoginUser User user
+    ) {
+        return ResponseEntity.ok(postService.getPosts(pageable, user));
+    }
 
   @GetMapping("/{id}")
   public ResponseEntity<PostDetailResponse> getPost(@PathVariable Long id, @LoginUser User user) {

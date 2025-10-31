@@ -2,9 +2,12 @@ package katecam.hyuswim.post.service;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import katecam.hyuswim.comment.service.CommentService;
+import katecam.hyuswim.like.repository.PostLikeRepository;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,6 +28,7 @@ public class PostService {
 
   private final PostRepository postRepository;
   private final CommentService commentService;
+  private final PostLikeRepository postLikeRepository;
 
   @Transactional
   public PostDetailResponse createPost(PostRequest request, User user) {
@@ -43,12 +47,28 @@ public class PostService {
     return PostDetailResponse.from(saved, true);
   }
 
-  public PageResponse<PostListResponse> getPosts(Pageable pageable) {
-    return new PageResponse<>(
-        postRepository.findAllByIsDeletedFalse(pageable).map(PostListResponse::from));
-  }
+    @Transactional(readOnly = true)
+    public PageResponse<PostListResponse> getPosts(Pageable pageable, User currentUser) {
+        var postPage = postRepository.findAllByIsDeletedFalse(pageable);
 
-  public PostDetailResponse getPost(Long id, User currentUser) {
+        List<Long> postIds = postPage.stream()
+                .map(Post::getId)
+                .toList();
+
+        Set<Long> likedPostIds = (currentUser == null)
+                ? Set.of()
+                : new HashSet<>(postLikeRepository.findLikedPostIdsByUserIdAndPostIds(
+                currentUser.getId(), postIds));
+
+        var postListResponses = postPage.map(
+                post -> PostListResponse.from(post, likedPostIds.contains(post.getId()))
+        );
+
+        return new PageResponse<>(postListResponses);
+    }
+
+
+    public PostDetailResponse getPost(Long id, User currentUser) {
     Post post =
         postRepository
             .findByIdAndIsDeletedFalse(id)
