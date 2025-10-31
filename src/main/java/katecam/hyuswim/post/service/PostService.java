@@ -49,22 +49,22 @@ public class PostService {
 
     @Transactional(readOnly = true)
     public PageResponse<PostListResponse> getPosts(Pageable pageable, User currentUser) {
-    var postPage = postRepository.findAllByIsDeletedFalse(pageable);
+        var postPage = postRepository.findAllSummary(pageable);
 
-    List<Long> postIds = postPage.stream()
-            .map(Post::getId)
-            .toList();
+        List<Long> postIds = postPage.stream()
+                .map(PostListResponse::getId)
+                .toList();
 
-    Set<Long> likedPostIds = (currentUser == null)
-            ? Set.of()
-            : new HashSet<>(postLikeRepository.findLikedPostIdsByUserIdAndPostIds(
-            currentUser.getId(), postIds));
+        Set<Long> likedPostIds = (currentUser == null)
+                ? Set.of()
+                : new HashSet<>(postLikeRepository.findLikedPostIdsByUserIdAndPostIds(
+                currentUser.getId(), postIds));
 
-    var postListResponses = postPage.map(
-            post -> PostListResponse.from(post, likedPostIds.contains(post.getId()))
-    );
+        var postListResponses = postPage.map(
+                post -> post.withLiked(likedPostIds.contains(post.getId()))
+        );
 
-    return new PageResponse<>(postListResponses);
+        return new PageResponse<>(postListResponses);
     }
 
     @Transactional(readOnly = true)
@@ -94,14 +94,12 @@ public class PostService {
 
     @Transactional(readOnly = true)
     public PageResponse<PostListResponse> getPostsByCategory(
-            PostCategory category,
-            Pageable pageable,
-            User currentUser
+            PostCategory category, Pageable pageable, User currentUser
     ) {
-        var postPage = postRepository.findByPostCategoryAndIsDeletedFalse(category, pageable);
+        var postPage = postRepository.findByCategorySummary(category, pageable);
 
         List<Long> postIds = postPage.stream()
-                .map(Post::getId)
+                .map(PostListResponse::getId)
                 .toList();
 
         Set<Long> likedPostIds = (currentUser == null)
@@ -109,11 +107,11 @@ public class PostService {
                 : new HashSet<>(postLikeRepository.findLikedPostIdsByUserIdAndPostIds(
                 currentUser.getId(), postIds));
 
-        var postListResponses = postPage.map(
-                post -> PostListResponse.from(post, likedPostIds.contains(post.getId()))
+        var responses = postPage.map(
+                post -> post.withLiked(likedPostIds.contains(post.getId()))
         );
 
-        return new PageResponse<>(postListResponses);
+        return new PageResponse<>(responses);
     }
 
     @Transactional(readOnly = true)
@@ -122,44 +120,48 @@ public class PostService {
             Pageable pageable,
             User currentUser
     ) {
-        String keyword = request.getKeyword();
-        LocalDateTime startDateTime = null;
-        LocalDateTime endDateTime = null;
 
-        if (keyword == null || keyword.isBlank()) {
-            keyword = null;
-        }
+        String keyword = (request.getKeyword() == null || request.getKeyword().isBlank())
+                ? null
+                : request.getKeyword();
 
-        if (request.getStartDate() != null) {
-            startDateTime = request.getStartDate().atStartOfDay();
-        }
+        LocalDateTime startDateTime = request.getStartDate() != null
+                ? request.getStartDate().atStartOfDay()
+                : null;
 
-        if (request.getEndDate() != null) {
-            endDateTime = request.getEndDate().plusDays(1).atStartOfDay().minusNanos(1);
-        }
+        LocalDateTime endDateTime = request.getEndDate() != null
+                ? request.getEndDate().plusDays(1).atStartOfDay().minusNanos(1)
+                : null;
 
-        var postPage = postRepository.searchByCategoryAndKeywordAndPeriod(
-                keyword, request.getCategory(), startDateTime, endDateTime, pageable
+        var postPage = postRepository.searchSummary(
+                keyword,
+                request.getCategory(),
+                startDateTime,
+                endDateTime,
+                pageable
         );
 
         List<Long> postIds = postPage.stream()
-                .map(Post::getId)
+                .map(PostListResponse::getId)
                 .toList();
 
         Set<Long> likedPostIds = (currentUser == null)
                 ? Set.of()
-                : new HashSet<>(postLikeRepository.findLikedPostIdsByUserIdAndPostIds(
-                currentUser.getId(), postIds));
+                : new HashSet<>(
+                postLikeRepository.findLikedPostIdsByUserIdAndPostIds(
+                        currentUser.getId(), postIds
+                )
+        );
 
         var postListResponses = postPage.map(
-                post -> PostListResponse.from(post, likedPostIds.contains(post.getId()))
+                post -> post.withLiked(likedPostIds.contains(post.getId()))
         );
 
         return new PageResponse<>(postListResponses);
     }
 
-  @Transactional
-  public PostDetailResponse updatePost(Long id, PostRequest request, User currentUser) {
+    @Transactional
+    public PostDetailResponse updatePost(Long id, PostRequest request, User currentUser) {
     Post post =
         postRepository
             .findById(id)
