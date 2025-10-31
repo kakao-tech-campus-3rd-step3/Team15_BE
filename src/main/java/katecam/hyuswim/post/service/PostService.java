@@ -26,12 +26,12 @@ import lombok.RequiredArgsConstructor;
 @Transactional(readOnly = true)
 public class PostService {
 
-  private final PostRepository postRepository;
-  private final CommentService commentService;
-  private final PostLikeRepository postLikeRepository;
+    private final PostRepository postRepository;
+    private final CommentService commentService;
+    private final PostLikeRepository postLikeRepository;
 
-  @Transactional
-  public PostDetailResponse createPost(PostRequest request, User user) {
+    @Transactional
+    public PostDetailResponse createPost(PostRequest request, User user) {
     Post post =
         Post.create(
             request.getTitle(),
@@ -44,42 +44,47 @@ public class PostService {
 
     commentService.createAiComment(saved);
 
-    return PostDetailResponse.from(saved, true);
-  }
+    return PostDetailResponse.from(saved);
+    }
 
     @Transactional(readOnly = true)
     public PageResponse<PostListResponse> getPosts(Pageable pageable, User currentUser) {
-        var postPage = postRepository.findAllByIsDeletedFalse(pageable);
+    var postPage = postRepository.findAllByIsDeletedFalse(pageable);
 
-        List<Long> postIds = postPage.stream()
-                .map(Post::getId)
-                .toList();
+    List<Long> postIds = postPage.stream()
+            .map(Post::getId)
+            .toList();
 
-        Set<Long> likedPostIds = (currentUser == null)
-                ? Set.of()
-                : new HashSet<>(postLikeRepository.findLikedPostIdsByUserIdAndPostIds(
-                currentUser.getId(), postIds));
+    Set<Long> likedPostIds = (currentUser == null)
+            ? Set.of()
+            : new HashSet<>(postLikeRepository.findLikedPostIdsByUserIdAndPostIds(
+            currentUser.getId(), postIds));
 
-        var postListResponses = postPage.map(
-                post -> PostListResponse.from(post, likedPostIds.contains(post.getId()))
-        );
+    var postListResponses = postPage.map(
+            post -> PostListResponse.from(post, likedPostIds.contains(post.getId()))
+    );
 
-        return new PageResponse<>(postListResponses);
+    return new PageResponse<>(postListResponses);
     }
 
-
+    @Transactional(readOnly = true)
     public PostDetailResponse getPost(Long id, User currentUser) {
-    Post post =
-        postRepository
-            .findByIdAndIsDeletedFalse(id)
-            .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
+        Post post =
+            postRepository
+                .findByIdAndIsDeletedFalse(id)
+                .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
-    post.increaseViewCount();
-    postRepository.save(post);
+        post.increaseViewCount();
+        postRepository.save(post);
 
-    boolean isAuthor = (currentUser != null) && post.getUser().getId().equals(currentUser.getId());
+        if (currentUser == null) {
+            return PostDetailResponse.from(post);
+        }
 
-      return PostDetailResponse.from(post, isAuthor);
+        boolean isAuthor = post.getUser().getId().equals(currentUser.getId());
+        boolean isLiked = postLikeRepository.existsByUser_IdAndPost_Id(currentUser.getId(), post.getId());
+
+        return PostDetailResponse.from(post, isAuthor, isLiked);
   }
 
   public PageResponse<PostListResponse> searchPosts(PostSearchRequest request, Pageable pageable) {
@@ -119,7 +124,7 @@ public class PostService {
 
     post.update(request.getTitle(), request.getContent(), request.getPostCategory());
 
-      return PostDetailResponse.from(post, true);
+      return PostDetailResponse.from(post);
   }
 
   @Transactional

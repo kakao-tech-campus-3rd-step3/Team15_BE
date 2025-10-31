@@ -18,38 +18,54 @@ public class PostDetailResponse {
   private String postCategoryName;
   private String title;
   private String content;
-  private Long authorId;
   private String author;
   private String handle;
-  private Boolean isAuthor;
-  private Boolean isAnonymous;
-  private Boolean isDeleted;
-  private Boolean isLiked;
   private Long viewCount;
   private Long likeCount;
   private Long commentCount;
+  private Boolean isAuthor;
+  private Boolean isAnonymous;
+  private Boolean isLiked;
   private LocalDateTime createdAt;
   private LocalDateTime updatedAt;
 
-  public static PostDetailResponse from(Post post,boolean isAuthor) {
+  public static PostDetailResponse from(Post post) {
     return PostDetailResponse.builder()
         .id(post.getId())
         .postCategory(post.getPostCategory().name())
         .postCategoryName(post.getPostCategory().getDisplayName())
         .title(post.getTitle())
         .content(post.getContent())
-        .authorId(post.getUser().getId())
         .author(post.getUser().getDisplayName())
         .handle(post.getUser().getHandle())
-        .isAuthor(isAuthor)
-        .isAnonymous(post.getIsAnonymous())
-        .isDeleted(post.getIsDeleted())
-        .isLiked(false)
-        .viewCount(post.getViewCount())
         .likeCount((long) post.getPostLikes().size())
+        .viewCount(post.getViewCount())
         .commentCount((long) post.getComments().size())
+        .isAuthor(false)
+        .isAnonymous(post.getIsAnonymous())
+        .isLiked(false)
         .createdAt(post.getCreatedAt())
         .updatedAt(post.getUpdatedAt())
         .build();
   }
+
+    public static PostDetailResponse from(Post post,boolean isAuthor, boolean isLiked) {
+        return PostDetailResponse.builder()
+                .id(post.getId())
+                .postCategory(post.getPostCategory().name())
+                .postCategoryName(post.getPostCategory().getDisplayName())
+                .title(post.getTitle())
+                .content(post.getContent())
+                .author(post.getUser().getDisplayName())
+                .handle(post.getUser().getHandle())
+                .likeCount((long) post.getPostLikes().size())
+                .viewCount(post.getViewCount())
+                .commentCount((long) post.getComments().size())
+                .isAuthor(isAuthor)
+                .isAnonymous(post.getIsAnonymous())
+                .isLiked(isLiked)
+                .createdAt(post.getCreatedAt())
+                .updatedAt(post.getUpdatedAt())
+                .build();
+    }
 }
