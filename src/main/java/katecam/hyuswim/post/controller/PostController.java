@@ -27,8 +27,8 @@ public class PostController {
 
   @PostMapping
   public ResponseEntity<PostDetailResponse> createPost(
-      @RequestBody PostRequest request, @LoginUser User user) {
-    PostDetailResponse response = postService.createPost(request, user);
+      @RequestBody PostRequest request, @LoginUser User currentUser) {
+    PostDetailResponse response = postService.createPost(request, currentUser);
     return ResponseEntity.status(HttpStatus.CREATED).body(response);
   }
 
@@ -36,14 +36,14 @@ public class PostController {
     public ResponseEntity<PageResponse<PostListResponse>> getPosts(
             @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC, size = 10)
             Pageable pageable,
-            @LoginUser User user
+            @LoginUser User currentUser
     ) {
-        return ResponseEntity.ok(postService.getPosts(pageable, user));
+        return ResponseEntity.ok(postService.getPosts(pageable, currentUser));
     }
 
   @GetMapping("/{id}")
-  public ResponseEntity<PostDetailResponse> getPost(@PathVariable Long id, @LoginUser User user) {
-    PostDetailResponse response = postService.getPost(id,user);
+  public ResponseEntity<PostDetailResponse> getPost(@PathVariable Long id, @LoginUser User currentUser) {
+    PostDetailResponse response = postService.getPost(id,currentUser);
     return ResponseEntity.ok(response);
   }
 
@@ -56,21 +56,22 @@ public class PostController {
       @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
           LocalDate endDate,
       @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC, size = 10)
-          Pageable pageable) {
+          Pageable pageable,
+      @LoginUser User currentUser) {
     PostSearchRequest request = new PostSearchRequest(keyword, category, startDate, endDate);
-    return ResponseEntity.ok(postService.searchPosts(request, pageable));
+    return ResponseEntity.ok(postService.searchPosts(request, pageable, currentUser));
   }
 
   @PatchMapping("/{id}")
   public ResponseEntity<PostDetailResponse> updatePost(
-      @PathVariable Long id, @RequestBody PostRequest request, @LoginUser User user) {
-    PostDetailResponse response = postService.updatePost(id, request, user);
+      @PathVariable Long id, @RequestBody PostRequest request, @LoginUser User currentUser) {
+    PostDetailResponse response = postService.updatePost(id, request, currentUser);
     return ResponseEntity.ok(response);
   }
 
   @DeleteMapping("/{id}")
-  public ResponseEntity<Void> deletePost(@PathVariable Long id, @LoginUser User user) {
-    postService.deletePost(id, user);
+  public ResponseEntity<Void> deletePost(@PathVariable Long id, @LoginUser User currentUser) {
+    postService.deletePost(id, currentUser);
     return ResponseEntity.noContent().build();
   }
 
@@ -83,7 +84,8 @@ public class PostController {
   public ResponseEntity<PageResponse<PostListResponse>> getPostsByCategory(
       @PathVariable PostCategory category,
       @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC, size = 10)
-          Pageable pageable) {
-    return ResponseEntity.ok(postService.getPostsByCategory(category, pageable));
+          Pageable pageable,
+      @LoginUser User currentUser) {
+    return ResponseEntity.ok(postService.getPostsByCategory(category, pageable,currentUser));
   }
 }

@@ -87,29 +87,76 @@ public class PostService {
         return PostDetailResponse.from(post, isAuthor, isLiked);
   }
 
-  public PageResponse<PostListResponse> searchPosts(PostSearchRequest request, Pageable pageable) {
-    String keyword = request.getKeyword();
-    LocalDateTime startDateTime = null;
-    LocalDateTime endDateTime = null;
-
-    if (keyword == null || keyword.isBlank()) {
-      keyword = null;
+    @Transactional(readOnly = true)
+    public List<PostCategoryResponse> getCategories() {
+        return Arrays.stream(PostCategory.values()).map(PostCategoryResponse::from).toList();
     }
 
-    if (request.getStartDate() != null) {
-      startDateTime = request.getStartDate().atStartOfDay();
+    @Transactional(readOnly = true)
+    public PageResponse<PostListResponse> getPostsByCategory(
+            PostCategory category,
+            Pageable pageable,
+            User currentUser
+    ) {
+        var postPage = postRepository.findByPostCategoryAndIsDeletedFalse(category, pageable);
+
+        List<Long> postIds = postPage.stream()
+                .map(Post::getId)
+                .toList();
+
+        Set<Long> likedPostIds = (currentUser == null)
+                ? Set.of()
+                : new HashSet<>(postLikeRepository.findLikedPostIdsByUserIdAndPostIds(
+                currentUser.getId(), postIds));
+
+        var postListResponses = postPage.map(
+                post -> PostListResponse.from(post, likedPostIds.contains(post.getId()))
+        );
+
+        return new PageResponse<>(postListResponses);
     }
 
-    if (request.getEndDate() != null) {
-      endDateTime = request.getEndDate().plusDays(1).atStartOfDay().minusNanos(1);
-    }
+    @Transactional(readOnly = true)
+    public PageResponse<PostListResponse> searchPosts(
+            PostSearchRequest request,
+            Pageable pageable,
+            User currentUser
+    ) {
+        String keyword = request.getKeyword();
+        LocalDateTime startDateTime = null;
+        LocalDateTime endDateTime = null;
 
-    return new PageResponse<>(
-        postRepository
-            .searchByCategoryAndKeywordAndPeriod(
-                keyword, request.getCategory(), startDateTime, endDateTime, pageable)
-            .map(PostListResponse::from));
-  }
+        if (keyword == null || keyword.isBlank()) {
+            keyword = null;
+        }
+
+        if (request.getStartDate() != null) {
+            startDateTime = request.getStartDate().atStartOfDay();
+        }
+
+        if (request.getEndDate() != null) {
+            endDateTime = request.getEndDate().plusDays(1).atStartOfDay().minusNanos(1);
+        }
+
+        var postPage = postRepository.searchByCategoryAndKeywordAndPeriod(
+                keyword, request.getCategory(), startDateTime, endDateTime, pageable
+        );
+
+        List<Long> postIds = postPage.stream()
+                .map(Post::getId)
+                .toList();
+
+        Set<Long> likedPostIds = (currentUser == null)
+                ? Set.of()
+                : new HashSet<>(postLikeRepository.findLikedPostIdsByUserIdAndPostIds(
+                currentUser.getId(), postIds));
+
+        var postListResponses = postPage.map(
+                post -> PostListResponse.from(post, likedPostIds.contains(post.getId()))
+        );
+
+        return new PageResponse<>(postListResponses);
+    }
 
   @Transactional
   public PostDetailResponse updatePost(Long id, PostRequest request, User currentUser) {
@@ -139,17 +186,5 @@ public class PostService {
     }
 
     post.delete();
-  }
-
-  public List<PostCategoryResponse> getCategories() {
-    return Arrays.stream(PostCategory.values()).map(PostCategoryResponse::from).toList();
-  }
-
-  public PageResponse<PostListResponse> getPostsByCategory(
-      PostCategory category, Pageable pageable) {
-    return new PageResponse<>(
-        postRepository
-            .findByPostCategoryAndIsDeletedFalse(category, pageable)
-            .map(PostListResponse::from));
   }
 }
