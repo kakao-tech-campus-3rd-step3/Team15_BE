@@ -11,10 +11,10 @@ import org.springframework.data.jpa.repository.Query;
 public interface PostLikeRepository extends JpaRepository<PostLike, Long> {
   Optional<PostLike> findByPostIdAndUserId(Long postId, Long userId);
 
-  boolean existsByPostIdAndUserId(Long postId, Long uesrId);
+    @Query("select count(pl) from PostLike pl where pl.post.id = :postId and pl.isDeleted = false")
+    int countByPostId(Long postId);
 
-    @Query("select count(pl) from PostLike pl where pl.user.id = :userId")
-    int countByUserId(Long userId);
+    int countByUserIdAndIsDeletedFalse(Long userId);
 
     List<PostLike> findByUserId(Long userId);
 

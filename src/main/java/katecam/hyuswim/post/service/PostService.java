@@ -40,7 +40,7 @@ public class PostService {
 
     commentService.createAiComment(saved);
 
-    return PostDetailResponse.from(saved);
+    return PostDetailResponse.from(saved, true);
   }
 
   public PageResponse<PostListResponse> getPosts(Pageable pageable) {
@@ -48,7 +48,7 @@ public class PostService {
         postRepository.findAllByIsDeletedFalse(pageable).map(PostListResponse::from));
   }
 
-  public PostDetailResponse getPost(Long id) {
+  public PostDetailResponse getPost(Long id, User currentUser) {
     Post post =
         postRepository
             .findByIdAndIsDeletedFalse(id)
@@ -57,7 +57,9 @@ public class PostService {
     post.increaseViewCount();
     postRepository.save(post);
 
-    return PostDetailResponse.from(post);
+    boolean isAuthor = (currentUser != null) && post.getUser().getId().equals(currentUser.getId());
+
+      return PostDetailResponse.from(post, isAuthor);
   }
 
   public PageResponse<PostListResponse> searchPosts(PostSearchRequest request, Pageable pageable) {
@@ -85,29 +87,29 @@ public class PostService {
   }
 
   @Transactional
-  public PostDetailResponse updatePost(Long id, PostRequest request, User user) {
+  public PostDetailResponse updatePost(Long id, PostRequest request, User currentUser) {
     Post post =
         postRepository
             .findById(id)
             .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
-    if (!post.getUser().getId().equals(user.getId())) {
+    if (!post.getUser().getId().equals(currentUser.getId())) {
       throw new CustomException(ErrorCode.POST_ACCESS_DENIED);
     }
 
     post.update(request.getTitle(), request.getContent(), request.getPostCategory());
 
-    return PostDetailResponse.from(post);
+      return PostDetailResponse.from(post, true);
   }
 
   @Transactional
-  public void deletePost(Long id, User user) {
+  public void deletePost(Long id, User currentUser) {
     Post post =
         postRepository
             .findById(id)
             .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
-    if (!post.getUser().getId().equals(user.getId())) {
+    if (!post.getUser().getId().equals(currentUser.getId())) {
       throw new CustomException(ErrorCode.POST_ACCESS_DENIED);
     }
 

@@ -1,47 +1,51 @@
 package katecam.hyuswim.like.service;
 
-import katecam.hyuswim.badge.domain.BadgeKind;
-import katecam.hyuswim.badge.service.BadgeService;
-import katecam.hyuswim.user.repository.UserRepository;
-import org.springframework.stereotype.Service;
-
-import jakarta.transaction.Transactional;
 import katecam.hyuswim.common.error.CustomException;
 import katecam.hyuswim.common.error.ErrorCode;
 import katecam.hyuswim.like.domain.PostLike;
+import katecam.hyuswim.like.dto.LikeToggleResponse;
+import katecam.hyuswim.like.event.PostLikedEvent;
 import katecam.hyuswim.like.repository.PostLikeRepository;
 import katecam.hyuswim.post.domain.Post;
 import katecam.hyuswim.post.repository.PostRepository;
 import katecam.hyuswim.user.domain.User;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
 public class PostLikeService {
 
-  private final PostLikeRepository postLikeRepository;
-  private final PostRepository postRepository;
-  private final BadgeService badgeService;
+    private final PostLikeRepository postLikeRepository;
+    private final PostRepository postRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
-  @Transactional
-  public void addLike(Long postId, User user) {
-    Post post =
-        postRepository
-            .findById(postId)
-            .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
+    @Transactional
+    public LikeToggleResponse toggleLike(Long postId, User user) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
-    postLikeRepository.saveAndFlush(new PostLike(post, user));
+        var existing = postLikeRepository.findByPostIdAndUserId(postId, user.getId());
+        boolean nowLiked;
+        boolean isFirstLike = false;
 
-      badgeService.checkAndGrant(user.getId(), BadgeKind.LOVE_EVANGELIST);
-  }
+        if (existing.isPresent()) {
+            PostLike like = existing.get();
+            like.toggle();
+            nowLiked = !like.isDeleted();
+        } else {
+            postLikeRepository.save(new PostLike(post, user));
+            nowLiked = true;
+            isFirstLike = true;
+        }
 
-  @Transactional
-  public void deleteLike(Long postId, User user) {
-    PostLike postLike =
-        postLikeRepository
-            .findByPostIdAndUserId(postId, user.getId())
-            .orElseThrow(() -> new CustomException(ErrorCode.LIKE_NOT_FOUND));
+        if (isFirstLike) {
+            eventPublisher.publishEvent(new PostLikedEvent(user.getId()));
+        }
 
-    postLikeRepository.delete(postLike);
-  }
+        int likeCount = postLikeRepository.countByPostId(postId);
+        return new LikeToggleResponse(nowLiked, likeCount);
+    }
 }

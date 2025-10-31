@@ -18,8 +18,10 @@ public class PostDetailResponse {
   private String postCategoryName;
   private String title;
   private String content;
+  private Long authorId;
   private String author;
   private String handle;
+  private Boolean isAuthor;
   private Boolean isAnonymous;
   private Boolean isDeleted;
   private Boolean isLiked;
@@ -29,15 +31,17 @@ public class PostDetailResponse {
   private LocalDateTime createdAt;
   private LocalDateTime updatedAt;
 
-  public static PostDetailResponse from(Post post) {
+  public static PostDetailResponse from(Post post,boolean isAuthor) {
     return PostDetailResponse.builder()
         .id(post.getId())
         .postCategory(post.getPostCategory().name())
         .postCategoryName(post.getPostCategory().getDisplayName())
         .title(post.getTitle())
         .content(post.getContent())
+        .authorId(post.getUser().getId())
         .author(post.getUser().getDisplayName())
         .handle(post.getUser().getHandle())
+        .isAuthor(isAuthor)
         .isAnonymous(post.getIsAnonymous())
         .isDeleted(post.getIsDeleted())
         .isLiked(false)

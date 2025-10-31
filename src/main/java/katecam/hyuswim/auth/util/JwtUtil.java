@@ -3,56 +3,62 @@ package katecam.hyuswim.auth.util;
 import java.util.Date;
 
 import io.jsonwebtoken.*;
+import io.jsonwebtoken.security.Keys;
 import katecam.hyuswim.auth.principal.UserPrincipal;
+import katecam.hyuswim.user.domain.UserRole;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
-import jakarta.annotation.PostConstruct;
-import katecam.hyuswim.user.domain.UserRole;
+import javax.crypto.SecretKey;
 
 @Component
 public class JwtUtil {
 
-  @Value("${jwt.secret}")
-  private String secret;
+    @Value("${jwt.secret}")
+    private String secret;
 
-  private JwtParser jwtParser;
+    private JwtParser jwtParser;
+    private SecretKey key;
 
-  private static final long ACCESS_TOKEN_EXPIRATION_TIME_MS = 60 * 60 * 1000; //1시간
-  private static final long REFRESH_TOKEN_EXPIRATION_MS = 7 * 24 * 60 * 60 * 1000;
+    private static final long ACCESS_TOKEN_EXPIRATION_TIME_MS = 60 * 60 * 1000; // 1시간
+    private static final long REFRESH_TOKEN_EXPIRATION_MS = 7 * 24 * 60 * 60 * 1000; // 7일
 
-  @PostConstruct
-  public void init() {
-    jwtParser = Jwts.parser().setSigningKey(secret).build();
-  }
+    @PostConstruct
+    public void init() {
+        this.key = Keys.hmacShaKeyFor(secret.getBytes());
+        this.jwtParser = Jwts.parser()
+                .verifyWith(key)
+                .build();
+    }
 
-  public String generateAccessToken(Long userId, UserRole role) {
-      long now = System.currentTimeMillis();
-      return Jwts.builder()
-              .setSubject(String.valueOf(userId))
-              .claim("role", role.name())
-              .setIssuedAt(new Date(now))
-              .setExpiration(new Date(now + ACCESS_TOKEN_EXPIRATION_TIME_MS))
-              .signWith(SignatureAlgorithm.HS256, secret)
-              .compact();
-  }
+    public String generateAccessToken(Long userId, UserRole role) {
+        long now = System.currentTimeMillis();
+        return Jwts.builder()
+                .subject(String.valueOf(userId))
+                .claim("role", role.name())
+                .issuedAt(new Date(now))
+                .expiration(new Date(now + ACCESS_TOKEN_EXPIRATION_TIME_MS))
+                .signWith(key)
+                .compact();
+    }
 
     public String generateRefreshToken(Long userId, UserRole role) {
         long now = System.currentTimeMillis();
         return Jwts.builder()
-                .setSubject(String.valueOf(userId))
+                .subject(String.valueOf(userId))
                 .claim("role", role.name())
-                .setIssuedAt(new Date(now))
-                .setExpiration(new Date(now + REFRESH_TOKEN_EXPIRATION_MS))
-                .signWith(SignatureAlgorithm.HS256, secret)
+                .issuedAt(new Date(now))
+                .expiration(new Date(now + REFRESH_TOKEN_EXPIRATION_MS))
+                .signWith(key)
                 .compact();
     }
 
     public Claims getClaims(String token) {
         try {
-            return jwtParser.parseClaimsJws(token).getBody();
+            return jwtParser.parseSignedClaims(token).getPayload();
         } catch (JwtException e) {
             return null;
         }
@@ -70,9 +76,6 @@ public class JwtUtil {
         UserRole role = UserRole.valueOf(claims.get("role", String.class));
 
         UserPrincipal principal = new UserPrincipal(userId, role);
-        return new UsernamePasswordAuthenticationToken(
-                principal, null, principal.getAuthorities()
-        );
+        return new UsernamePasswordAuthenticationToken(principal, null, principal.getAuthorities());
     }
-
 }

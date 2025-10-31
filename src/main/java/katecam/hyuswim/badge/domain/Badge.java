@@ -1,38 +1,48 @@
 package katecam.hyuswim.badge.domain;
 
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "badges",
-        uniqueConstraints = @UniqueConstraint(name = "uk_badge_kind_tier", columnNames = {"kind", "tier"}))
+@Table(
+        name = "badges",
+        uniqueConstraints = @UniqueConstraint(
+                name = "uk_badge_kind_tier",
+                columnNames = {"kind", "tier"}
+        )
+)
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Badge {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Enumerated(EnumType.STRING) @Column(nullable = false, length = 40)
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 40)
     private BadgeKind kind;
 
-    @Enumerated(EnumType.STRING) @Column(nullable = false, length = 20)
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
     private BadgeTier tier;
 
-    @Column(nullable = false)
-    private String name;      // 노출명: “사랑 전도사 1단계” 등
+    @Column(nullable = false, length = 100)
+    private String name; // 예: "사랑 전도사 1단계"
+
+    @Column(nullable = false, name = "icon_url", length = 255)
+    private String iconUrl; // 단계별 이미지 URL
 
     @Column(nullable = false)
-    private String IconUrl;  // 단계별 이미지
+    private int threshold; // 기준치 (1, 7, 15, 30 등)
 
-    @Column(nullable = false)
-    private int threshold;    // 기준치(1/7/15/30)
-
-    public Badge(BadgeKind kind, BadgeTier tier, String name, String IconUrl) {
+    public Badge(BadgeKind kind, BadgeTier tier, String name, String iconUrl) {
         this.kind = kind;
         this.tier = tier;
         this.name = name;
-        this.IconUrl = IconUrl;
+        this.iconUrl = iconUrl;
         this.threshold = tier.getThreshold();
     }
 }

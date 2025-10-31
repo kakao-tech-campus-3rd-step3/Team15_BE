@@ -21,28 +21,23 @@ public class BadgeController {
 
     private final BadgeService badgeService;
     private final BadgeRepository badgeRepository;
-    private final UserBadgeRepository userBadgeRepository;
-
-    // 컬렉션(획득/진행중/잠김/전체)
-    @GetMapping("/collection")
-    public ResponseEntity<BadgeCollectionVM> getCollection(@LoginUser User loginUser) {
-        // 보정: 임계치 달성했는데 과거에 미지급된 배지 지급
-        badgeService.checkAndGrantAll(loginUser.getId());
-
-        var vm = badgeService.getMyBadgeCollection(loginUser.getId());
-        return ResponseEntity.ok(vm);
-    }
 
     // 전체 배지 목록
-    @GetMapping("/all")
-    public ResponseEntity<List<Badge>> getMaster() {
+    @GetMapping
+    public ResponseEntity<List<Badge>> getBadges() {
         return ResponseEntity.ok(badgeRepository.findAll());
+    }
+
+    @GetMapping("/collection")
+    public ResponseEntity<BadgeCollectionVM> getCollection(@LoginUser User loginUser) {
+        badgeService.checkAndGrantAll(loginUser);
+        var vm = badgeService.getMyBadgeCollection(loginUser.getId());
+        return ResponseEntity.ok(vm);
     }
 
     // 내가 획득한 배지 목록
     @GetMapping("/me")
     public ResponseEntity<List<EarnedBadgeResponse>> getMyBadges(@LoginUser User loginUser) {
-        return ResponseEntity.ok(badgeService.getEarnedBadges(loginUser.getId()));
+        return ResponseEntity.ok(badgeService.getEarnedBadges(loginUser));
     }
-
 }

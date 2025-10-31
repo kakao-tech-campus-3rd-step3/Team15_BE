@@ -26,25 +26,29 @@ public class LoginUserArgumentResolver implements HandlerMethodArgumentResolver 
     return parameter.hasParameterAnnotation(LoginUser.class);
   }
 
-  @Override
-  public Object resolveArgument(
-      MethodParameter parameter,
-      ModelAndViewContainer mavContainer,
-      NativeWebRequest webRequest,
-      WebDataBinderFactory binderFactory)
-      throws Exception {
+    @Override
+    public Object resolveArgument(
+            MethodParameter parameter,
+            ModelAndViewContainer mavContainer,
+            NativeWebRequest webRequest,
+            WebDataBinderFactory binderFactory) throws Exception {
 
-      Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-      if (authentication == null || !(authentication.getPrincipal() instanceof UserPrincipal)) {
-          throw new CustomException(ErrorCode.INVALID_TOKEN);
-      }
+        // 비로그인 상태면 null 반환 (비로그인 GET 허용)
+        if (authentication == null ||
+                authentication.getPrincipal() == null ||
+                "anonymousUser".equals(authentication.getPrincipal())) {
+            return null;
+        }
 
-      UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
+        // 인증된 사용자만 UserPrincipal 캐스팅
+        if (!(authentication.getPrincipal() instanceof UserPrincipal principal)) {
+            throw new CustomException(ErrorCode.INVALID_TOKEN);
+        }
 
-      return userRepository
-              .findById(principal.getUserId())
-              .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
-
-  }
+        // DB에서 실제 User 엔티티 조회
+        return userRepository.findById(principal.getUserId())
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+    }
 }
