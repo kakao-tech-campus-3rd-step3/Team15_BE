@@ -32,12 +32,13 @@ public class PostLike {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    @Column(nullable = false)
+    private boolean isDeleted = false;
+
+
     @CreatedDate
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
-
-    @Column(nullable = false)
-    private boolean isDeleted = false;
 
     public PostLike(Post post, User user) {
         this.post = post;

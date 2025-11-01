@@ -54,7 +54,6 @@ public class CommentController {
     public ResponseEntity<List<CommentTreeResponse>> getReplies(
             @PathVariable Long parentId,
             @LoginUser User user) {
-        System.out.println(">>> currentUser: " + user);
         List<CommentTreeResponse> response = commentService.getReplies(parentId, user);
         return ResponseEntity.ok(response);
     }

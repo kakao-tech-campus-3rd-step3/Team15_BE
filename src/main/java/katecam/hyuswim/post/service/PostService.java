@@ -2,9 +2,12 @@ package katecam.hyuswim.post.service;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import katecam.hyuswim.comment.service.CommentService;
+import katecam.hyuswim.like.repository.PostLikeRepository;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,11 +26,12 @@ import lombok.RequiredArgsConstructor;
 @Transactional(readOnly = true)
 public class PostService {
 
-  private final PostRepository postRepository;
-  private final CommentService commentService;
+    private final PostRepository postRepository;
+    private final CommentService commentService;
+    private final PostLikeRepository postLikeRepository;
 
-  @Transactional
-  public PostDetailResponse createPost(PostRequest request, User user) {
+    @Transactional
+    public PostDetailResponse createPost(PostRequest request, User user) {
     Post post =
         Post.create(
             request.getTitle(),
@@ -40,54 +44,124 @@ public class PostService {
 
     commentService.createAiComment(saved);
 
-    return PostDetailResponse.from(saved, true);
-  }
-
-  public PageResponse<PostListResponse> getPosts(Pageable pageable) {
-    return new PageResponse<>(
-        postRepository.findAllByIsDeletedFalse(pageable).map(PostListResponse::from));
-  }
-
-  public PostDetailResponse getPost(Long id, User currentUser) {
-    Post post =
-        postRepository
-            .findByIdAndIsDeletedFalse(id)
-            .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
-
-    post.increaseViewCount();
-    postRepository.save(post);
-
-    boolean isAuthor = (currentUser != null) && post.getUser().getId().equals(currentUser.getId());
-
-      return PostDetailResponse.from(post, isAuthor);
-  }
-
-  public PageResponse<PostListResponse> searchPosts(PostSearchRequest request, Pageable pageable) {
-    String keyword = request.getKeyword();
-    LocalDateTime startDateTime = null;
-    LocalDateTime endDateTime = null;
-
-    if (keyword == null || keyword.isBlank()) {
-      keyword = null;
+    return PostDetailResponse.from(saved,true,false);
     }
 
-    if (request.getStartDate() != null) {
-      startDateTime = request.getStartDate().atStartOfDay();
+    @Transactional(readOnly = true)
+    public PageResponse<PostListResponse> getPosts(Pageable pageable, User currentUser) {
+        var postPage = postRepository.findAllSummary(pageable);
+
+        List<Long> postIds = postPage.stream()
+                .map(PostListResponse::getId)
+                .toList();
+
+        Set<Long> likedPostIds = (currentUser == null)
+                ? Set.of()
+                : new HashSet<>(postLikeRepository.findLikedPostIdsByUserIdAndPostIds(
+                currentUser.getId(), postIds));
+
+        var postListResponses = postPage.map(
+                post -> post.withLiked(likedPostIds.contains(post.getId()))
+        );
+
+        return new PageResponse<>(postListResponses);
     }
 
-    if (request.getEndDate() != null) {
-      endDateTime = request.getEndDate().plusDays(1).atStartOfDay().minusNanos(1);
-    }
+    @Transactional(readOnly = true)
+    public PostDetailResponse getPost(Long id, User currentUser) {
+        Post post =
+            postRepository
+                .findDetailById(id)
+                .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
-    return new PageResponse<>(
-        postRepository
-            .searchByCategoryAndKeywordAndPeriod(
-                keyword, request.getCategory(), startDateTime, endDateTime, pageable)
-            .map(PostListResponse::from));
+        post.increaseViewCount();
+        postRepository.save(post);
+
+        if (currentUser == null) {
+            return PostDetailResponse.from(post);
+        }
+
+        boolean isAuthor = post.getUser().getId().equals(currentUser.getId());
+        boolean isLiked = postLikeRepository.existsByUser_IdAndPost_Id(currentUser.getId(), post.getId());
+
+        return PostDetailResponse.from(post, isAuthor, isLiked);
   }
 
-  @Transactional
-  public PostDetailResponse updatePost(Long id, PostRequest request, User currentUser) {
+    @Transactional(readOnly = true)
+    public List<PostCategoryResponse> getCategories() {
+        return Arrays.stream(PostCategory.values()).map(PostCategoryResponse::from).toList();
+    }
+
+    @Transactional(readOnly = true)
+    public PageResponse<PostListResponse> getPostsByCategory(
+            PostCategory category, Pageable pageable, User currentUser
+    ) {
+        var postPage = postRepository.findByCategorySummary(category, pageable);
+
+        List<Long> postIds = postPage.stream()
+                .map(PostListResponse::getId)
+                .toList();
+
+        Set<Long> likedPostIds = (currentUser == null)
+                ? Set.of()
+                : new HashSet<>(postLikeRepository.findLikedPostIdsByUserIdAndPostIds(
+                currentUser.getId(), postIds));
+
+        var responses = postPage.map(
+                post -> post.withLiked(likedPostIds.contains(post.getId()))
+        );
+
+        return new PageResponse<>(responses);
+    }
+
+    @Transactional(readOnly = true)
+    public PageResponse<PostListResponse> searchPosts(
+            PostSearchRequest request,
+            Pageable pageable,
+            User currentUser
+    ) {
+
+        String keyword = (request.getKeyword() == null || request.getKeyword().isBlank())
+                ? null
+                : request.getKeyword();
+
+        LocalDateTime startDateTime = request.getStartDate() != null
+                ? request.getStartDate().atStartOfDay()
+                : null;
+
+        LocalDateTime endDateTime = request.getEndDate() != null
+                ? request.getEndDate().plusDays(1).atStartOfDay().minusNanos(1)
+                : null;
+
+        var postPage = postRepository.searchSummary(
+                keyword,
+                request.getCategory(),
+                startDateTime,
+                endDateTime,
+                pageable
+        );
+
+        List<Long> postIds = postPage.stream()
+                .map(PostListResponse::getId)
+                .toList();
+
+        Set<Long> likedPostIds = (currentUser == null)
+                ? Set.of()
+                : new HashSet<>(
+                postLikeRepository.findLikedPostIdsByUserIdAndPostIds(
+                        currentUser.getId(), postIds
+                )
+        );
+
+        var postListResponses = postPage.map(
+                post -> post.withLiked(likedPostIds.contains(post.getId()))
+        );
+
+        return new PageResponse<>(postListResponses);
+    }
+
+    @Transactional
+    public PostDetailResponse updatePost(Long id, PostRequest request, User currentUser) {
     Post post =
         postRepository
             .findById(id)
@@ -98,8 +172,9 @@ public class PostService {
     }
 
     post.update(request.getTitle(), request.getContent(), request.getPostCategory());
+    boolean Liked = postLikeRepository.existsByUser_IdAndPost_Id(currentUser.getId(), post.getId());
 
-      return PostDetailResponse.from(post, true);
+    return PostDetailResponse.from(post,true, Liked);
   }
 
   @Transactional
@@ -114,17 +189,5 @@ public class PostService {
     }
 
     post.delete();
-  }
-
-  public List<PostCategoryResponse> getCategories() {
-    return Arrays.stream(PostCategory.values()).map(PostCategoryResponse::from).toList();
-  }
-
-  public PageResponse<PostListResponse> getPostsByCategory(
-      PostCategory category, Pageable pageable) {
-    return new PageResponse<>(
-        postRepository
-            .findByPostCategoryAndIsDeletedFalse(category, pageable)
-            .map(PostListResponse::from));
   }
 }

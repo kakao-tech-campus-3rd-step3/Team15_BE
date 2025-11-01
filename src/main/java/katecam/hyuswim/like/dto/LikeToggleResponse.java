@@ -6,7 +6,7 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class LikeToggleResponse {
-    private final boolean liked;
+    private final boolean isLiked;
     private final int likeCount;
 }
 

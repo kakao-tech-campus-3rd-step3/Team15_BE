@@ -24,6 +24,10 @@ public class PostLikeService {
 
     @Transactional
     public LikeToggleResponse toggleLike(Long postId, User user) {
+        if (user == null) {
+            throw new CustomException(ErrorCode.LOGIN_REQUIRED);
+        }
+
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
