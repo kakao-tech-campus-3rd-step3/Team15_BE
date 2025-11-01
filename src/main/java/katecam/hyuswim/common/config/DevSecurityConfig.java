@@ -29,7 +29,7 @@ public class DevSecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    
+
     @Bean
     @Order(1)
     public SecurityFilterChain apiChain(HttpSecurity http, JwtFilter jwtFilter) throws Exception {
