@@ -9,6 +9,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -46,4 +48,9 @@ public class AdminSupportService {
                 .orElseThrow(() -> new CustomException(ErrorCode.SUPPORT_NOT_FOUND));
         supportRepository.delete(support);
     }
+
+    public List<Support> getAllSupports() {
+        return supportRepository.findAll();
+    }
+
 }

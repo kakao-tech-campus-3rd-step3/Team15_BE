@@ -11,6 +11,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/admin/support-links")
@@ -18,6 +20,14 @@ public class AdminSupportController {
 
     private final AdminSupportService adminSupportService;
 
+    /** ✅ 전체 목록 조회 */
+    @GetMapping
+    public ResponseEntity<List<Support>> getAllSupports() {
+        List<Support> supports = adminSupportService.getAllSupports();
+        return ResponseEntity.ok(supports);
+    }
+
+    /** ✅ 신규 등록 */
     @PostMapping
     public ResponseEntity<SupportDetailResponse> createSupport(@Validated @RequestBody CreateSupportRequest req) {
 
@@ -36,7 +46,21 @@ public class AdminSupportController {
                 .body(adminSupportService.createSupport(support));
     }
 
-    // 문자열로 넘어온 지원사업 유형을 Enum으로 안전하게 변환
+    /** ✅ 수정 */
+    @PatchMapping("/{id}")
+    public ResponseEntity<SupportDetailResponse> updateSupport(@PathVariable Long id,
+                                                               @RequestBody Support updateRequest) {
+        return ResponseEntity.ok(adminSupportService.updateSupport(id, updateRequest));
+    }
+
+    /** ✅ 삭제 */
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteSupport(@PathVariable Long id) {
+        adminSupportService.deleteSupport(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    /** 문자열로 넘어온 지원사업 유형을 Enum으로 안전하게 변환 */
     private SupportType parseSupportType(String type) {
         if (type == null || type.isBlank()) {
             return null;
@@ -46,17 +70,5 @@ public class AdminSupportController {
         } catch (IllegalArgumentException e) {
             return null;
         }
-    }
-
-    @PatchMapping("/{id}")
-    public ResponseEntity<SupportDetailResponse> updateSupport(@PathVariable Long id,
-                                                               @RequestBody Support updateRequest) {
-        return ResponseEntity.ok(adminSupportService.updateSupport(id, updateRequest));
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteSupport(@PathVariable Long id) {
-        adminSupportService.deleteSupport(id);
-        return ResponseEntity.noContent().build();
     }
 }
