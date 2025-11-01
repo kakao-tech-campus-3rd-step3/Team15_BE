@@ -48,9 +48,21 @@ public class PostListResponse {
         this.createdAt = createdAt;
     }
 
-    public PostListResponse withLiked(boolean Liked) {
-        this.Liked = Liked;
-        return this;
+    public PostListResponse withLiked(boolean isLiked) {
+        return PostListResponse.builder()
+                .id(this.id)
+                .postCategory(this.postCategory)
+                .postCategoryName(this.postCategoryName)
+                .title(this.title)
+                .content(this.content)
+                .author(this.author)
+                .likeCount(this.likeCount)
+                .viewCount(this.viewCount)
+                .commentCount(this.commentCount)
+                .Liked(isLiked)
+                .createdAt(this.createdAt)
+                .build();
     }
+
 }
 
