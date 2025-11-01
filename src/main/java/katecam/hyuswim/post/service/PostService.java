@@ -44,7 +44,7 @@ public class PostService {
 
     commentService.createAiComment(saved);
 
-    return PostDetailResponse.from(saved);
+    return PostDetailResponse.from(saved,true,false);
     }
 
     @Transactional(readOnly = true)
@@ -172,8 +172,9 @@ public class PostService {
     }
 
     post.update(request.getTitle(), request.getContent(), request.getPostCategory());
+    boolean Liked = postLikeRepository.existsByUser_IdAndPost_Id(currentUser.getId(), post.getId());
 
-      return PostDetailResponse.from(post);
+    return PostDetailResponse.from(post,true, Liked);
   }
 
   @Transactional
