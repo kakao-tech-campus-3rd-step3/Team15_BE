@@ -55,7 +55,7 @@ public class AdminSupportViewController {
                 .supportType(parseSupportType(form.supportType())) // ✅ 문자열 → Enum 변환
                 .build();
 
-        SupportDetailResponse saved = adminSupportService.createSupport(support);
+        adminSupportService.createSupport(support);
         return "redirect:/admin/supports";
     }
 
