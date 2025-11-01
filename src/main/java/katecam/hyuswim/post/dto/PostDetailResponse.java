@@ -25,7 +25,7 @@ public class PostDetailResponse {
   private Long commentCount;
   private Boolean isAuthor;
   private Boolean isAnonymous;
-  private Boolean isLiked;
+  private Boolean Liked;
   private LocalDateTime createdAt;
   private LocalDateTime updatedAt;
 
@@ -43,7 +43,7 @@ public class PostDetailResponse {
         .commentCount((long) post.getComments().size())
         .isAuthor(false)
         .isAnonymous(post.getIsAnonymous())
-        .isLiked(false)
+        .Liked(false)
         .createdAt(post.getCreatedAt())
         .updatedAt(post.getUpdatedAt())
         .build();
@@ -63,7 +63,7 @@ public class PostDetailResponse {
                 .commentCount((long) post.getComments().size())
                 .isAuthor(isAuthor)
                 .isAnonymous(post.getIsAnonymous())
-                .isLiked(isLiked)
+                .Liked(isLiked)
                 .createdAt(post.getCreatedAt())
                 .updatedAt(post.getUpdatedAt())
                 .build();
