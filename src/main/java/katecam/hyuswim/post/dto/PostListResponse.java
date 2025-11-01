@@ -23,7 +23,7 @@ public class PostListResponse {
     private Long likeCount;
     private Long viewCount;
     private Long commentCount;
-    private boolean Liked;
+    private boolean isLiked;
     private LocalDateTime createdAt;
 
     public PostListResponse(Long id,
@@ -44,7 +44,7 @@ public class PostListResponse {
         this.likeCount = likeCount;
         this.commentCount = commentCount;
         this.viewCount = viewCount;
-        this.Liked = false;
+        this.isLiked = false;
         this.createdAt = createdAt;
     }
 
@@ -59,7 +59,7 @@ public class PostListResponse {
                 .likeCount(this.likeCount)
                 .viewCount(this.viewCount)
                 .commentCount(this.commentCount)
-                .Liked(isLiked)
+                .isLiked(isLiked)
                 .createdAt(this.createdAt)
                 .build();
     }
