@@ -113,4 +113,31 @@ public class AdminUserService {
                 .map(u -> new UserListResponse(u.getId(), u.getStatus()))
                 .collect(Collectors.toList());
     }
+
+    public UserDetailResponse getUserDetail(Long userId) {
+        var user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 사용자가 존재하지 않습니다. ID: " + userId));
+
+        // 게시글 목록 (삭제되지 않은 것만)
+        List<UserDetailResponse.PostSummary> posts = postRepository.findAllByUser_IdAndIsDeletedFalse(userId).stream()
+                .sorted((p1, p2) -> p2.getCreatedAt().compareTo(p1.getCreatedAt())) // 최신순 정렬
+                .map(p -> new UserDetailResponse.PostSummary(
+                        p.getId(),
+                        p.getTitle(),
+                        p.getCreatedAt()
+                ))
+                .toList();
+
+        // 댓글 목록 (삭제되지 않은 것만)
+        List<UserDetailResponse.CommentSummary> comments = commentRepository.findAllByUserIdAndIsDeletedFalse(userId).stream()
+                .sorted((c1, c2) -> c2.getCreatedAt().compareTo(c1.getCreatedAt())) // 최신순 정렬
+                .map(c -> new UserDetailResponse.CommentSummary(
+                        c.getId(),
+                        c.getContent(),
+                        c.getCreatedAt()
+                ))
+                .toList();
+
+        return new UserDetailResponse(user.getId(), user.getStatus(), posts, comments);
+    }
 }

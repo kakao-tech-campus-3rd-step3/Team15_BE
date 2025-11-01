@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{admin/layout :: layout(~{::content})}">
+
+<div th:fragment="content">
+    <h2 th:text="'회원 상세보기 - ID ' + ${userDetail.userId}"></h2>
+
+    <div class="card">
+        <h3>회원 상태</h3>
+        <p th:text="'현재 상태: ' + ${userDetail.status}"></p>
+    </div>
+
+    <div class="card">
+        <h3>작성한 게시글</h3>
+        <table>
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>제목</th>
+                <th>작성일</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="post : ${userDetail.posts}">
+                <td th:text="${post.postId}"></td>
+                <td th:text="${post.title}"></td>
+                <td th:text="${#temporals.format(post.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="card">
+        <h3>작성한 댓글</h3>
+        <table>
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>내용</th>
+                <th>작성일</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="comment : ${userDetail.comments}">
+                <td th:text="${comment.commentId}"></td>
+                <td th:text="${comment.content}"></td>
+                <td th:text="${#temporals.format(comment.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <a th:href="@{/admin/users}" class="btn">목록으로 돌아가기</a>
+</div>
+</html>
