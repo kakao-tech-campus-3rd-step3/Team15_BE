@@ -71,7 +71,7 @@ public class PostService {
     public PostDetailResponse getPost(Long id, User currentUser) {
         Post post =
             postRepository
-                .findByIdAndIsDeletedFalse(id)
+                .findDetailById(id)
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
         post.increaseViewCount();

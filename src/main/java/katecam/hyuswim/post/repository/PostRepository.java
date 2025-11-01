@@ -98,7 +98,14 @@ public interface PostRepository extends JpaRepository<Post, Long> {
             Pageable pageable
     );
 
-    Optional<Post> findByIdAndIsDeletedFalse(Long id);
+    @Query("""
+    select p from Post p
+    join fetch p.user u
+    left join fetch p.postLikes pl
+    left join fetch p.comments c
+    where p.id = :id and p.isDeleted = false
+""")
+    Optional<Post> findDetailById(@Param("id") Long id);
 
     long countByIsDeletedFalse();
 
