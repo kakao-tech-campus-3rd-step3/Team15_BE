@@ -82,7 +82,7 @@ public class PostService {
         }
 
         boolean isAuthor = post.getUser().getId().equals(currentUser.getId());
-        boolean isLiked = postLikeRepository.existsByUser_IdAndPost_Id(currentUser.getId(), post.getId());
+        boolean isLiked = postLikeRepository.existsByUser_IdAndPost_IdAndIsDeletedFalse(currentUser.getId(), post.getId());
 
         return PostDetailResponse.from(post, isAuthor, isLiked);
   }
@@ -172,7 +172,7 @@ public class PostService {
     }
 
     post.update(request.getTitle(), request.getContent(), request.getPostCategory());
-    boolean Liked = postLikeRepository.existsByUser_IdAndPost_Id(currentUser.getId(), post.getId());
+    boolean Liked = postLikeRepository.existsByUser_IdAndPost_IdAndIsDeletedFalse(currentUser.getId(), post.getId());
 
     return PostDetailResponse.from(post,true, Liked);
   }
