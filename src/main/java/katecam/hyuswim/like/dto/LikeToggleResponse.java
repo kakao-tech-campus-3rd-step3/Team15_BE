@@ -2,11 +2,14 @@ package katecam.hyuswim.like.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
+@NoArgsConstructor
 @AllArgsConstructor
 public class LikeToggleResponse {
-    private final boolean isLiked;
-    private final int likeCount;
+    private boolean isLiked;
+    private int likeCount;
 }
+
 
