@@ -31,6 +31,18 @@ public class AdminUserController {
         return "admin/users"; // ✅ users.html이 layout을 감쌈
     }
 
+    @GetMapping("/{userId}")
+    public String getUserDetail(@PathVariable Long userId, Model model) {
+        var detail = adminUserService.getUserDetail(userId);
+
+        model.addAttribute("userDetail", detail);
+        model.addAttribute("pageTitle", "회원 상세 보기");
+        model.addAttribute("activeMenu", "users");
+
+        return "admin/user-detail"; 
+    }
+
+
 
     @PostMapping("/{userId}/block")
     public String block(@PathVariable Long userId,

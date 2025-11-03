@@ -7,6 +7,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -28,8 +29,9 @@ public class DevSecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    // API
+
     @Bean
+    @Order(1)
     public SecurityFilterChain apiChain(HttpSecurity http, JwtFilter jwtFilter) throws Exception {
         http.securityMatcher("/api/**")
                 .cors(cors -> cors.configurationSource(request -> {
@@ -41,7 +43,13 @@ public class DevSecurityConfig {
                     return config;
                 }))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/signup", "/api/auth/login","/api/auth/refresh","/api/counsel/**","/api/auth/email/**").permitAll()
+                        .requestMatchers(
+                                "/api/auth/signup",
+                                "/api/auth/login",
+                                "/api/auth/refresh",
+                                "/api/counsel/**",
+                                "/api/auth/email/**"
+                        ).permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/**").permitAll()
                         .anyRequest().authenticated()
                 )
@@ -68,19 +76,39 @@ public class DevSecurityConfig {
         return http.build();
     }
 
-    //관리자
+
     @Bean
+    @Order(2)
     public SecurityFilterChain adminChain(HttpSecurity http) throws Exception {
         http.securityMatcher("/admin/**")
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/css/**", "/js/**", "/images/**", "/webjars/**").permitAll()
                         .anyRequest().hasRole("ADMIN")
                 )
-                .formLogin(Customizer.withDefaults())
+                .formLogin(form -> form
+                        .defaultSuccessUrl("/admin/users", true)
+                )
                 .logout(lo -> lo.logoutSuccessUrl("/login?logout"))
-                .csrf(Customizer.withDefaults());
+                .csrf(csrf -> csrf.disable()); // 필요시 enable로 변경
+
+        return http.build();
+    }
+
+
+    @Bean
+    @Order(3)
+    public SecurityFilterChain loginChain(HttpSecurity http) throws Exception {
+        http.securityMatcher("/login", "/logout", "/css/**", "/js/**", "/images/**", "/webjars/**")
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/css/**", "/js/**", "/images/**", "/webjars/**").permitAll()
+                        .anyRequest().permitAll()
+                )
+                .formLogin(form -> form
+                        .defaultSuccessUrl("/admin/users", true)
+                )
+                .logout(lo -> lo.logoutSuccessUrl("/login?logout"))
+                .csrf(csrf -> csrf.disable());
 
         return http.build();
     }
 }
-
