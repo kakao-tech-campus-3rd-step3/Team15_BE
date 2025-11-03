@@ -49,7 +49,7 @@ public class PostLikeService {
             eventPublisher.publishEvent(new PostLikedEvent(user.getId()));
         }
 
-        int likeCount = postLikeRepository.countByPostId(postId);
+        int likeCount = postLikeRepository.countByPostIdAndIsDeletedFalse(postId);
         return new LikeToggleResponse(nowLiked, likeCount);
     }
 }

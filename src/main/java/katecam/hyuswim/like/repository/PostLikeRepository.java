@@ -27,8 +27,13 @@ public interface PostLikeRepository extends JpaRepository<PostLike, Long> {
     );
 
 
-    @Query("select count(pl) from PostLike pl where pl.post.id = :postId and pl.isDeleted = false")
-    int countByPostId(Long postId);
+    @Query("""
+    select count(pl)
+    from PostLike pl
+    where pl.post.id = :postId
+      and pl.isDeleted = false
+    """)
+    int countByPostIdAndIsDeletedFalse(@Param("postId") Long postId);
 
     int countByUserIdAndIsDeletedFalse(Long userId);
 

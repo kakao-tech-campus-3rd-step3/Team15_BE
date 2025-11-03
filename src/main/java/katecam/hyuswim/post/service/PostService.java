@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import katecam.hyuswim.comment.repository.CommentRepository;
 import katecam.hyuswim.comment.service.CommentService;
 import katecam.hyuswim.like.repository.PostLikeRepository;
 import org.springframework.data.domain.Pageable;
@@ -28,23 +29,26 @@ public class PostService {
 
     private final PostRepository postRepository;
     private final CommentService commentService;
+    private final CommentRepository commentRepository;
     private final PostLikeRepository postLikeRepository;
 
     @Transactional
     public PostDetailResponse createPost(PostRequest request, User user) {
-    Post post =
-        Post.create(
-            request.getTitle(),
-            request.getContent(),
-            request.getPostCategory(),
-            user,
-            request.getIsAnonymous());
+        Post post = Post.create(
+                request.getTitle(),
+                request.getContent(),
+                request.getPostCategory(),
+                user,
+                request.getIsAnonymous());
 
-    Post saved = postRepository.save(post);
+        Post saved = postRepository.save(post);
 
-    commentService.createAiComment(saved);
+        commentService.createAiComment(saved);
 
-    return PostDetailResponse.from(saved,true,false);
+        long likeCount = postLikeRepository.countByPostIdAndIsDeletedFalse(post.getId());
+        long commentCount = commentRepository.countByPostIdAndIsDeletedFalse(post.getId());
+
+        return PostDetailResponse.from(saved, true, false, likeCount, commentCount);
     }
 
     @Transactional(readOnly = true)
@@ -69,23 +73,24 @@ public class PostService {
 
     @Transactional(readOnly = true)
     public PostDetailResponse getPost(Long id, User currentUser) {
-        Post post =
-            postRepository
-                .findDetailById(id)
+        Post post = postRepository.findDetailById(id)
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
         post.increaseViewCount();
         postRepository.save(post);
 
+        long likeCount = postLikeRepository.countByPostIdAndIsDeletedFalse(post.getId());
+        long commentCount = commentRepository.countByPostIdAndIsDeletedFalse(post.getId());
+
         if (currentUser == null) {
-            return PostDetailResponse.from(post);
+            return PostDetailResponse.from(post, likeCount, commentCount);
         }
 
         boolean isAuthor = post.getUser().getId().equals(currentUser.getId());
         boolean isLiked = postLikeRepository.existsByUser_IdAndPost_IdAndIsDeletedFalse(currentUser.getId(), post.getId());
 
-        return PostDetailResponse.from(post, isAuthor, isLiked);
-  }
+        return PostDetailResponse.from(post, isAuthor, isLiked, likeCount, commentCount);
+    }
 
     @Transactional(readOnly = true)
     public List<PostCategoryResponse> getCategories() {
@@ -162,22 +167,24 @@ public class PostService {
 
     @Transactional
     public PostDetailResponse updatePost(Long id, PostRequest request, User currentUser) {
-    Post post =
-        postRepository
-            .findById(id)
-            .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
+        Post post = postRepository.findById(id)
+                .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
-    if (!post.getUser().getId().equals(currentUser.getId())) {
-      throw new CustomException(ErrorCode.POST_ACCESS_DENIED);
+        if (!post.getUser().getId().equals(currentUser.getId())) {
+            throw new CustomException(ErrorCode.POST_ACCESS_DENIED);
+        }
+
+        post.update(request.getTitle(), request.getContent(), request.getPostCategory());
+
+        boolean isLiked = postLikeRepository.existsByUser_IdAndPost_IdAndIsDeletedFalse(currentUser.getId(), post.getId());
+        long likeCount = postLikeRepository.countByPostIdAndIsDeletedFalse(post.getId());
+        long commentCount = commentRepository.countByPostIdAndIsDeletedFalse(post.getId());
+
+        return PostDetailResponse.from(post, true, isLiked, likeCount, commentCount);
     }
 
-    post.update(request.getTitle(), request.getContent(), request.getPostCategory());
-    boolean Liked = postLikeRepository.existsByUser_IdAndPost_IdAndIsDeletedFalse(currentUser.getId(), post.getId());
 
-    return PostDetailResponse.from(post,true, Liked);
-  }
-
-  @Transactional
+    @Transactional
   public void deletePost(Long id, User currentUser) {
     Post post =
         postRepository
