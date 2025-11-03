@@ -99,10 +99,10 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     );
 
     @Query("""
-    select p from Post p
+    select distinct p from Post p
     join fetch p.user u
-    left join fetch p.postLikes pl
-    left join fetch p.comments c
+    left join p.postLikes pl on pl.isDeleted = false
+    left join p.comments c on c.isDeleted = false
     where p.id = :id and p.isDeleted = false
 """)
     Optional<Post> findDetailById(@Param("id") Long id);

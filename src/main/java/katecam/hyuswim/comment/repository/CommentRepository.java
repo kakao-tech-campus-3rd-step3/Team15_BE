@@ -13,6 +13,14 @@ import katecam.hyuswim.comment.domain.Comment;
 
 public interface CommentRepository extends JpaRepository<Comment, Long> {
 
+    @Query("""
+        select count(c)
+        from Comment c
+        where c.post.id = :postId
+          and c.isDeleted = false
+    """)
+    int countByPostIdAndIsDeletedFalse(@Param("postId") Long postId);
+
     @Query(
             value = """
                 select c
