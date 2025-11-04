@@ -1,6 +1,6 @@
 package katecam.hyuswim.user.service;
 
-import katecam.hyuswim.post.domain.Post;
+import katecam.hyuswim.user.dto.UserSummaryResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,4 +23,10 @@ public class UserService {
       }
       user.delete();
     }
+
+    @Transactional(readOnly = true)
+    public UserSummaryResponse getNameAndHandle(User currentUser) {
+        return new UserSummaryResponse(currentUser.getNickname(), currentUser.getHandle());
+    }
+
 }
