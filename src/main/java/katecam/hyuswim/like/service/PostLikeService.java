@@ -38,7 +38,7 @@ public class PostLikeService {
         if (existing.isPresent()) {
             PostLike like = existing.get();
             like.toggle();
-            nowLiked = !like.isDeleted();
+            nowLiked = !like.getIsDeleted();
         } else {
             postLikeRepository.save(new PostLike(post, user));
             nowLiked = true;

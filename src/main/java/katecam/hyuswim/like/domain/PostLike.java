@@ -33,7 +33,7 @@ public class PostLike {
     private User user;
 
     @Column(nullable = false)
-    private boolean isDeleted = false;
+    private Boolean isDeleted = false;
 
 
     @CreatedDate

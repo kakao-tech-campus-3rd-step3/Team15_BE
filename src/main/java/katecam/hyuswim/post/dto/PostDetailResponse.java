@@ -25,7 +25,7 @@ public class PostDetailResponse {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    public static PostDetailResponse from(Post post, long likeCount, long commentCount) {
+    public static PostDetailResponse from(Post post, long likeCount, long commentCount, long viewCount) {
         return PostDetailResponse.builder()
                 .id(post.getId())
                 .postCategory(post.getPostCategory().name())
@@ -34,7 +34,7 @@ public class PostDetailResponse {
                 .content(post.getContent())
                 .author(post.getUser().getDisplayName())
                 .handle(post.getUser().getHandle())
-                .viewCount(post.getViewCount())
+                .viewCount(viewCount)
                 .likeCount(likeCount)
                 .commentCount(commentCount)
                 .isAuthor(false)
@@ -45,7 +45,7 @@ public class PostDetailResponse {
                 .build();
     }
 
-    public static PostDetailResponse from(Post post, boolean isAuthor, boolean isLiked, long likeCount, long commentCount) {
+    public static PostDetailResponse from(Post post, boolean isAuthor, boolean isLiked, long likeCount, long commentCount, long viewCount) {
         return PostDetailResponse.builder()
                 .id(post.getId())
                 .postCategory(post.getPostCategory().name())
@@ -54,7 +54,7 @@ public class PostDetailResponse {
                 .content(post.getContent())
                 .author(post.getUser().getDisplayName())
                 .handle(post.getUser().getHandle())
-                .viewCount(post.getViewCount())
+                .viewCount(viewCount)
                 .likeCount(likeCount)
                 .commentCount(commentCount)
                 .isAuthor(isAuthor)
