@@ -86,8 +86,8 @@ jobs:
             FRONTEND_URLS=${{ secrets.FRONTEND_URLS }}
             APP_PORT=${{ secrets.APP_PORT }}
 
-            GF_SECURITY_ADMIN_USER=${{ secrets.GRAFANA_USER }}
-            GF_SECURITY_ADMIN_PASSWORD=${{ secrets.GRAFANA_PASS }}
+            GF_SECURITY_ADMIN_USER=${{ secrets.GF_SECURITY_ADMIN_USER }}
+            GF_SECURITY_ADMIN_PASSWORD=${{ secrets.GF_SECURITY_ADMIN_PASSWORD }}
             EOF
 
             echo "===== Docker Compose Restart ====="
