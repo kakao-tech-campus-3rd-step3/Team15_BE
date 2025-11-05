@@ -65,4 +65,4 @@ volumes:
 
 networks:
   hyuswim-monitor:
-    driver: bridge
+    external: true
