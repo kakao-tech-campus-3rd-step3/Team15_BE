@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # 컨테이너 리소스 수집
   cadvisor:

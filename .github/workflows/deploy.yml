@@ -90,10 +90,14 @@ jobs:
             GF_SECURITY_ADMIN_PASSWORD=${{ secrets.GF_SECURITY_ADMIN_PASSWORD }}
             EOF
 
-            echo "===== Docker Compose Restart ====="
+            echo "===== App Docker Compose Restart ====="
             docker compose -f docker-compose.yml up -d --build app redis
 
+            echo "===== Monitoring Docker Compose Restart ====="
+            cd monitoring
+            docker compose --env-file ../.env up -d
+
             echo "===== Container Status ====="
+            cd ..
             docker compose ps
             docker logs --tail=200 hyuswim-app
-
