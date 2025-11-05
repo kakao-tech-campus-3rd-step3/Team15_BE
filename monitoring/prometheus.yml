@@ -1,20 +1,17 @@
 global:
-  scrape_interval: 5s
-  evaluation_interval: 5s
+  scrape_interval: 1h
+  evaluation_interval: 1h
 
 scrape_configs:
-  # Spring Boot (Actuator)
   - job_name: 'hyuswim-app'
     metrics_path: '/actuator/prometheus'
     static_configs:
       - targets: ['hyuswim-app:8080']
 
-  # Redis Exporter
   - job_name: 'hyuswim-redis'
     static_configs:
       - targets: ['hyuswim-redis-exporter:9121']
 
-  # cAdvisor (Docker metrics)
   - job_name: 'hyuswim-cadvisor'
     static_configs:
       - targets: ['hyuswim-cadvisor:8080']
