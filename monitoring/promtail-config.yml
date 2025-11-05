@@ -9,10 +9,11 @@ clients:
   - url: http://hyuswim-loki:3100/loki/api/v1/push
 
 scrape_configs:
-  - job_name: spring-logs
+  - job_name: hyuswim-app
     static_configs:
       - targets:
           - localhost
         labels:
-          job: spring
-          __path__: /var/log/app/*.log
+          job: hyuswim-app
+          container: hyuswim-app
+          __path__: /var/lib/docker/containers/*/*.log
