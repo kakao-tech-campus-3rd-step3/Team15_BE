@@ -31,13 +31,12 @@ services:
     image: grafana/promtail:2.9.2
     container_name: hyuswim-promtail
     volumes:
-      - /var/log:/var/log
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
-      - ./promtail-config.yaml:/etc/promtail/config.yaml
-    command: -config.file=/etc/promtail/config.yaml
-    restart: always
+      - ./promtail-config.yml:/etc/promtail/config.yml
+    command: -config.file=/etc/promtail/config.yml
     networks:
       - hyuswim-monitor
+    restart: always
 
   # Grafana (시각화)
   grafana:
