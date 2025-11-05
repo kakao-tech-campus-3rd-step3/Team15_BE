@@ -12,7 +12,7 @@ RUN chmod +x gradlew
 RUN ./gradlew clean build -x test
 
 # 2단계: 실행
-FROM openjdk:21-jdk-slim
+FROM eclipse-temurin:21-jdk
 WORKDIR /app
 
 # 로그 버퍼링 방지 및 stdout 출력 통합
@@ -23,5 +23,3 @@ COPY --from=builder /app/build/libs/*.jar app.jar
 
 EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "app.jar"]
-
-
