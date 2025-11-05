@@ -50,3 +50,9 @@ counsel-test.html
 
 #docker-example
 docker-compose-example.yml
+
+# Loki / Prometheus / Grafana runtime data
+monitoring/loki-data/
+monitoring/prometheus_data/
+monitoring/grafana_data/
+monitoring/*_data/
