@@ -6,14 +6,15 @@ server:
 
 common:
   path_prefix: /loki
-  storage:
-    filesystem:
-      directory: /loki/data
   replication_factor: 1
   ring:
     instance_addr: 127.0.0.1
     kvstore:
       store: inmemory
+
+storage_config:
+  filesystem:
+    directory: /loki/data
 
 schema_config:
   configs:
@@ -24,10 +25,6 @@ schema_config:
       index:
         prefix: index_
         period: 24h
-
-storage_config:
-  filesystem:
-    directory: /loki
 
 limits_config:
   reject_old_samples: true
