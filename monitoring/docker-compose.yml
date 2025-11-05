@@ -51,9 +51,9 @@ services:
       - ./loki-config.yaml:/etc/loki/config.yaml
       - ./loki-data:/loki
     command: -config.file=/etc/loki/config.yaml
-    restart: always
     networks:
       - hyuswim-monitor
+    restart: always
 
   # Promtail (로그 수집기)
   promtail:
@@ -62,11 +62,11 @@ services:
     volumes:
       - /var/log:/var/log
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
-      - /etc/promtail/config.yaml:/etc/promtail/config.yaml
+      - ./promtail-config.yaml:/etc/promtail/config.yaml
     command: -config.file=/etc/promtail/config.yaml
-    restart: always
     networks:
       - hyuswim-monitor
+    restart: always
 
   # Grafana (시각화)
   grafana:
