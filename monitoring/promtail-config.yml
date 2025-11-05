@@ -17,3 +17,9 @@ scrape_configs:
           job: hyuswim-app
           container: hyuswim-app
           __path__: /var/lib/docker/containers/*/*.log
+        pipeline_stages:
+          - json:
+              expressions:
+                log: log
+          - output:
+              source: log
