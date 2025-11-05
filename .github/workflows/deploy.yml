@@ -88,7 +88,7 @@ jobs:
 
             GF_SECURITY_ADMIN_USER=${{ secrets.GRAFANA_USER }}
             GF_SECURITY_ADMIN_PASSWORD=${{ secrets.GRAFANA_PASS }}
-            EOL
+            EOF
 
             echo "===== Docker Compose Restart ====="
             docker compose -f docker-compose.yml up -d --build app redis
@@ -97,4 +97,3 @@ jobs:
             docker compose ps
             docker logs --tail=200 hyuswim-app
 
-            EOF
