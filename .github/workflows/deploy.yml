@@ -85,7 +85,10 @@ jobs:
             MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}
             FRONTEND_URLS=${{ secrets.FRONTEND_URLS }}
             APP_PORT=${{ secrets.APP_PORT }}
-            EOF
+
+            GF_SECURITY_ADMIN_USER=${{ secrets.GRAFANA_USER }}
+            GF_SECURITY_ADMIN_PASSWORD=${{ secrets.GRAFANA_PASS }}
+            EOL
 
             echo "===== Docker Compose Restart ====="
             docker compose -f docker-compose.yml up -d --build app redis
@@ -93,3 +96,5 @@ jobs:
             echo "===== Container Status ====="
             docker compose ps
             docker logs --tail=200 hyuswim-app
+
+            EOF

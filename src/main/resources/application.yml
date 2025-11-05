@@ -78,7 +78,9 @@ management:
   endpoints:
     web:
       exposure:
-        include: health
+        include: health, metrics, prometheus
   endpoint:
     health:
       show-details: always
+    prometheus:
+      enabled: true
