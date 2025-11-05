@@ -1,18 +1,40 @@
+auth_enabled: false
+
 server:
-  http_listen_port: 9080
-  grpc_listen_port: 0
+  http_listen_port: 3100
+  grpc_listen_port: 9096
 
-positions:
-  filename: /tmp/positions.yaml
+common:
+  path_prefix: /loki
+  storage:
+    filesystem:
+      chunks_directory: /loki/chunks
+      rules_directory: /loki/rules
+  replication_factor: 1
+  ring:
+    instance_addr: 127.0.0.1
+    kvstore:
+      store: inmemory
 
-clients:
-  - url: http://hyuswim-loki:3100/loki/api/v1/push
+schema_config:
+  configs:
+    - from: 2024-01-01
+      store: tsdb
+      object_store: filesystem
+      schema: v13
+      index:
+        prefix: index_
+        period: 24h
 
-scrape_configs:
-  - job_name: docker
-    static_configs:
-      - targets:
-          - localhost
-        labels:
-          job: docker
-          __path__: /var/lib/docker/containers/*/*.log
+storage_config:
+  filesystem:
+    chunks_directory: /loki/chunks
+    rules_directory: /loki/rules
+
+limits_config:
+  reject_old_samples: true
+  reject_old_samples_max_age: 168h
+
+compactor:
+  working_directory: /loki/compactor
+  shared_store: filesystem
