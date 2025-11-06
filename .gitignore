@@ -56,3 +56,5 @@ monitoring/loki-data/
 monitoring/prometheus_data/
 monitoring/grafana_data/
 monitoring/*_data/
+
+logs/
