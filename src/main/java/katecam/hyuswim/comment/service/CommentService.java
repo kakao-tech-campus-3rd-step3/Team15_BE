@@ -2,6 +2,7 @@ package katecam.hyuswim.comment.service;
 
 import java.util.List;
 
+import katecam.hyuswim.notification.event.CommentCreatedNotificationEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -54,6 +55,7 @@ public class CommentService {
 
         Comment saved = commentRepository.saveAndFlush(comment);
         eventPublisher.publishEvent(new CommentCreatedEvent(user.getId()));
+        eventPublisher.publishEvent(new CommentCreatedNotificationEvent(saved));
 
         return CommentDetailResponse.from(saved, true);
     }

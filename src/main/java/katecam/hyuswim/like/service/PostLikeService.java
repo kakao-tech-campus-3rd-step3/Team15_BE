@@ -6,6 +6,7 @@ import katecam.hyuswim.like.domain.PostLike;
 import katecam.hyuswim.like.dto.LikeToggleResponse;
 import katecam.hyuswim.like.event.PostLikedEvent;
 import katecam.hyuswim.like.repository.PostLikeRepository;
+import katecam.hyuswim.notification.event.PostLikedNotificationEvent;
 import katecam.hyuswim.post.domain.Post;
 import katecam.hyuswim.post.repository.PostRepository;
 import katecam.hyuswim.user.domain.User;
@@ -47,6 +48,7 @@ public class PostLikeService {
 
         if (isFirstLike) {
             eventPublisher.publishEvent(new PostLikedEvent(user.getId()));
+            eventPublisher.publishEvent(new PostLikedNotificationEvent(user.getId(), post.getId()));
         }
 
         int likeCount = postLikeRepository.countByPostIdAndIsDeletedFalse(postId);
