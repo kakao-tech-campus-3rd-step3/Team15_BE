@@ -1,12 +1,10 @@
 package katecam.hyuswim.counseling.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import katecam.hyuswim.ai.client.OpenAiClient;
 import katecam.hyuswim.ai.dto.Message;
 import katecam.hyuswim.common.error.CustomException;
 import katecam.hyuswim.common.error.ErrorCode;
 import katecam.hyuswim.counseling.domain.CounselingSession;
-import katecam.hyuswim.counseling.domain.CounselingStep;
 import katecam.hyuswim.counseling.dto.CounselingResponse;
 import katecam.hyuswim.counseling.repository.CounselingSessionRepository;
 import lombok.RequiredArgsConstructor;
@@ -29,18 +27,17 @@ public class CounselingService {
 
     @Transactional
     public CounselingResponse startSession() {
-        CounselingSession session = new CounselingSession(CounselingStep.ACTIVE);
+        CounselingSession session = new CounselingSession();
         sessionRepository.save(session);
 
-        String greeting = openAiClient.generateCounselingReply(List.of(), CounselingStep.ACTIVE);
+        String greeting = openAiClient.generateCounselingReply(List.of());
         String cleanGreeting = sanitizeReply(greeting);
 
         sessionService.saveMessages(session.getId(), List.of(
                 new Message("assistant", cleanGreeting)
         ));
 
-        sessionService.saveStep(session.getId(), CounselingStep.ACTIVE.name());
-        return new CounselingResponse(session.getId(), cleanGreeting, CounselingStep.ACTIVE.name());
+        return new CounselingResponse(session.getId(), cleanGreeting);
     }
 
     @Transactional
@@ -56,7 +53,7 @@ public class CounselingService {
             return closeSession(session, "오늘은 충분히 얘기 나눈 것 같아, 여기서 마무리하자" + END_TOKEN);
         }
 
-        String reply = openAiClient.generateCounselingReply(history, session.getStep());
+        String reply = openAiClient.generateCounselingReply(history);
         String cleanReply = sanitizeReply(reply);
 
         sessionService.saveMessages(sessionId, List.of(
@@ -68,33 +65,20 @@ public class CounselingService {
             return closeSession(session, cleanReply);
         }
 
-        session.updateStep(CounselingStep.ACTIVE);
-        sessionRepository.save(session);
-        sessionService.saveStep(sessionId, CounselingStep.ACTIVE.name());
-
-        return new CounselingResponse(sessionId, cleanReply, CounselingStep.ACTIVE.name());
+        return new CounselingResponse(sessionId, cleanReply);
     }
 
     public void endSession(String sessionId) {
-        CounselingSession session = sessionRepository.findById(sessionId)
-                .orElseThrow(() -> new CustomException(ErrorCode.SESSION_NOT_FOUND));
-
-        session.end();
-        sessionRepository.save(session);
         sessionService.endSession(sessionId);
     }
 
     private CounselingResponse closeSession(CounselingSession session, String closingReply) {
         String clean = sanitizeReply(closingReply);
-        session.end();
-        sessionRepository.save(session);
-
         sessionService.saveMessages(session.getId(), List.of(
                 new Message("assistant", clean)
         ));
-
         sessionService.endSession(session.getId());
-        return new CounselingResponse(session.getId(), clean, CounselingStep.CLOSED.name());
+        return new CounselingResponse(session.getId(), clean);
     }
 
     private boolean isClosingReply(String reply) {

@@ -8,5 +8,4 @@ import lombok.Getter;
 public class CounselingResponse {
     private String sessionId;
     private String reply;
-    private String step;
 }

@@ -21,11 +21,10 @@ public class CounselingSessionService {
 
     private static final String PREFIX = "session:";
     private static final String MESSAGES_SUFFIX = ":messages";
-    private static final String STEP_SUFFIX = ":step";
     private static final Duration TTL = Duration.ofMinutes(20);
 
     public void saveMessages(String sessionId, List<Message> messages) {
-        String key = buildKey(sessionId, MESSAGES_SUFFIX);
+        String key = buildKey(sessionId);
         try {
             List<String> jsonList = messages.stream()
                     .map(m -> {
@@ -44,9 +43,8 @@ public class CounselingSessionService {
         }
     }
 
-
     public List<Message> getMessages(String sessionId) {
-        String key = buildKey(sessionId, MESSAGES_SUFFIX);
+        String key = buildKey(sessionId);
         try {
             List<String> jsonList = redisTemplate.opsForList().range(key, 0, -1);
             if (jsonList == null || jsonList.isEmpty()) return List.of();
@@ -58,36 +56,16 @@ public class CounselingSessionService {
         }
     }
 
-    public void saveStep(String sessionId, String step) {
-        String key = buildKey(sessionId, STEP_SUFFIX);
-        try {
-            redisTemplate.opsForValue().set(key, step, TTL);
-        } catch (Exception e) {
-            throw new CustomException(ErrorCode.REDIS_OPERATION_FAILED);
-        }
-    }
-
-    public String getStep(String sessionId) {
-        String key = buildKey(sessionId, STEP_SUFFIX);
-        try {
-            String step = redisTemplate.opsForValue().get(key);
-            return step != null ? step : "ACTIVE";
-        } catch (Exception e) {
-            throw new CustomException(ErrorCode.REDIS_OPERATION_FAILED);
-        }
-    }
-
     public void endSession(String sessionId) {
         try {
-            redisTemplate.delete(buildKey(sessionId, MESSAGES_SUFFIX));
-            redisTemplate.delete(buildKey(sessionId, STEP_SUFFIX));
+            redisTemplate.delete(buildKey(sessionId));
         } catch (Exception e) {
             throw new CustomException(ErrorCode.REDIS_OPERATION_FAILED);
         }
     }
 
-    private String buildKey(String sessionId, String suffix) {
-        return PREFIX + sessionId + suffix;
+    private String buildKey(String sessionId) {
+        return PREFIX + sessionId + MESSAGES_SUFFIX;
     }
 
     private Message fromJson(String json) {
