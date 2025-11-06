@@ -55,7 +55,9 @@ public class MyPageService {
 
   @Transactional
   public List<MyPostListResponse> selectMyPostList(User loginUser) {
-    List<Post> posts = loginUser.getPosts();
+      User user = userRepository.findById(loginUser.getId())
+              .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+    List<Post> posts = user.getPosts();
     List<MyPostListResponse> myPostListReponseList = new ArrayList<>();
     for (Post post : posts) {
       myPostListReponseList.add(MyPostListResponse.from(post));
@@ -65,7 +67,9 @@ public class MyPageService {
 
   @Transactional
   public List<MyCommentResponse> selectMyCommentList(User loginUser) {
-    List<Comment> comments = loginUser.getComments();
+      User user = userRepository.findById(loginUser.getId())
+              .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+    List<Comment> comments = user.getComments();
     List<MyCommentResponse> myCommentResponseList = new ArrayList<>();
     for (Comment comment : comments) {
       myCommentResponseList.add(MyCommentResponse.from(comment));
@@ -75,7 +79,9 @@ public class MyPageService {
 
   @Transactional
   public List<MyLikedPostResponse> selectMyLikedPostList(User loginUser) {
-    List<PostLike> postLikes = postLikeRepository.findByUserId(loginUser.getId());
+      User user = userRepository.findById(loginUser.getId())
+              .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+    List<PostLike> postLikes = postLikeRepository.findByUserId(user.getId());
     List<MyLikedPostResponse> myLikedPostResponseList = new ArrayList<>();
     for (PostLike postLike : postLikes) {
       myLikedPostResponseList.add(MyLikedPostResponse.from(postLike));
@@ -95,12 +101,16 @@ public class MyPageService {
 
   @Transactional
     public void updateCommentNotification(User loginUser, Boolean enabled) {
-      loginUser.updateCommentNotificationEnabled(enabled);
+      User user = userRepository.findById(loginUser.getId())
+              .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+      user.updateCommentNotificationEnabled(enabled);
   }
 
   @Transactional
     public void updateLikeNotification(User loginUser, Boolean enabled) {
-      loginUser.updateLikeNotificationEnabled(enabled);
+      User user = userRepository.findById(loginUser.getId())
+              .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+      user.updateLikeNotificationEnabled(enabled);
   }
 
   @Transactional
@@ -272,7 +282,9 @@ public class MyPageService {
     }
 
     @Transactional
-    public BadgeCollectionResponse selectBadgeCollection(User user) {
+    public BadgeCollectionResponse selectBadgeCollection(User loginUser) {
+        User user = userRepository.findById(loginUser.getId())
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         List<UserBadge> userBadges = user.getUserBadges();
         Set<Badge> earnedBadgeSet = userBadges.stream()
