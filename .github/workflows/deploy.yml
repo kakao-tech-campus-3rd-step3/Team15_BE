@@ -1,4 +1,4 @@
-name: CI/CD with Docker Compose (Optimized)
+name: CI/CD with Docker Compose (Optimized + Cached)
 
 on:
   push:
@@ -38,9 +38,21 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Build Docker Image (Locally)
+      # Docker layer cache (optional, 큰 속도 향상)
+      - name: Cache Docker layers
+        uses: actions/cache@v3
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-docker-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-docker-
+
+      - name: Build Docker Image (Cached)
         run: |
-          docker build -t hyuswim-app:latest -f Dockerfile .
+          docker build --cache-from=type=local,src=/tmp/.buildx-cache \
+                       --cache-to=type=local,dest=/tmp/.buildx-cache-new \
+                       -t hyuswim-app:latest -f Dockerfile .
+          mv /tmp/.buildx-cache-new /tmp/.buildx-cache || true
 
       - name: Save Docker Image to TAR
         run: docker save hyuswim-app:latest -o hyuswim-app.tar
@@ -71,7 +83,7 @@ jobs:
           source: hyuswim-app.tar
           target: ~/Team15_BE
 
-      - name: Run Docker Compose on EC2
+      - name: Run Docker Compose on EC2 (Cached Deploy)
         uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.EC2_HOST }}
@@ -102,7 +114,6 @@ jobs:
             MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}
             FRONTEND_URLS=${{ secrets.FRONTEND_URLS }}
             APP_PORT=${{ secrets.APP_PORT }}
-
             GF_SECURITY_ADMIN_USER=${{ secrets.GF_SECURITY_ADMIN_USER }}
             GF_SECURITY_ADMIN_PASSWORD=${{ secrets.GF_SECURITY_ADMIN_PASSWORD }}
             EOF
@@ -116,8 +127,8 @@ jobs:
             echo "===== Monitoring Docker Compose Restart ====="
             cd monitoring
             docker compose --env-file ../.env up -d
+            cd ..
 
             echo "===== Container Status ====="
-            cd ..
             docker compose ps
             docker logs --tail=200 hyuswim-app

@@ -99,10 +99,13 @@ public class NotificationService {
 
     @Transactional
     public void markAsRead(Long notificationId, User receiver){
-        Notification notification = notificationRepository.findById(notificationId).orElseThrow(()-> new CustomException(NOTIFICATION_NOT_FOUND));
-        if(!notification.getReceiver().equals(receiver)){
+        Notification notification = notificationRepository.findById(notificationId)
+                .orElseThrow(() -> new CustomException(NOTIFICATION_NOT_FOUND));
+
+        if (!notification.getReceiver().getId().equals(receiver.getId())) {
             throw new CustomException(NOTIFICATION_ACCESS_DENIED);
         }
+
         notification.markAsRead();
     }
 
