@@ -1,60 +1,191 @@
+/* ====== 기본 카드 ====== */
+.card {
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    padding: 24px;
+    margin-top: 20px;
+}
+
+/* ====== 뒤로가기 버튼 ====== */
+.back-bar {
+    margin-bottom: 16px;
+}
+
 .btn-back {
     display: inline-flex;
     align-items: center;
-    padding: 10px 20px;
-    background-color: #ffffff;
-    color: #495057;
-    text-decoration: none;
-    border-radius: 8px;
+    padding: 10px 18px;
+    background-color: #00c896;
+    color: #fff;
+    border-radius: 6px;
     font-size: 14px;
-    font-weight: 500;
-    border: 1px solid #dee2e6;
-    transition: all 0.2s;
-}
-.btn-back:hover {
-    background-color: #f8f9fa;
-    border-color: #5CB85C;
-    color: #5CB85C;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s ease-in-out;
+    box-shadow: 0 2px 4px rgba(0, 200, 150, 0.2);
 }
 
-/* 상세 카드 */
+.btn-back:hover {
+    background-color: #00b384;
+    box-shadow: 0 3px 8px rgba(0, 200, 150, 0.3);
+    transform: translateY(-1px);
+}
+
+/* ====== 헤더 ====== */
 .detail-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 16px;
 }
+
+.detail-header h2 {
+    font-size: 20px;
+    font-weight: 700;
+    color: #333;
+}
+
 .badge-id {
-    background-color: #e9ecef;
-    color: #495057;
+    background-color: #e6f9f4;
+    color: #00c896;
     padding: 6px 14px;
-    border-radius: 12px;
+    border-radius: 8px;
     font-size: 13px;
     font-weight: 600;
 }
+
+/* ====== 구분선 ====== */
 .detail-divider {
     height: 1px;
-    background-color: #e9ecef;
+    background-color: #eee;
     margin: 20px 0;
 }
 
-/* 정보 영역 */
+/* ====== 정보 영역 ====== */
 .info-section {
     display: grid;
     gap: 16px;
     margin-bottom: 20px;
 }
+
 .info-item {
     display: flex;
     align-items: center;
     gap: 12px;
 }
+
 .info-label {
     font-size: 14px;
     font-weight: 600;
     color: #495057;
     min-width: 80px;
 }
+
 .info-value {
     font-size: 14px;
-    color: #212
+    color: #212529;
+}
+
+/* ====== 사용자 표시 ====== */
+.user-cell {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.user-avatar-small {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #00c896, #00b384);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
+    font-size: 12px;
+}
+
+/* ====== 배지 ====== */
+.badge {
+    display: inline-block;
+    padding: 5px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.badge-success {
+    background-color: #e6f9f4;
+    color: #00c896;
+}
+
+.badge-secondary {
+    background-color: #f1f3f5;
+    color: #6c757d;
+}
+
+/* ====== 본문 ====== */
+.content-section h3 {
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.post-content {
+    padding: 16px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    color: #444;
+    line-height: 1.6;
+}
+
+/* ====== 액션 버튼 ====== */
+.action-buttons {
+    display: flex;
+    gap: 8px;
+    margin-top: 20px;
+}
+
+.btn-small {
+    padding: 6px 14px;
+    border: none;
+    border-radius: 5px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    font-weight: 500;
+}
+
+/* 색상 통일 (댓글 관리와 동일) */
+.btn-warning {
+    background-color: #ffc107;
+    color: #000;
+}
+.btn-warning:hover {
+    background-color: #ffb300;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(255, 193, 7, 0.3);
+}
+
+.btn-success-alt {
+    background-color: #00c896;
+    color: white;
+}
+.btn-success-alt:hover {
+    background-color: #00b384;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 200, 150, 0.3);
+}
+
+.btn-danger {
+    background-color: #dc3545;
+    color: white;
+}
+.btn-danger:hover {
+    background-color: #c82333;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(220, 53, 69, 0.3);
+}
