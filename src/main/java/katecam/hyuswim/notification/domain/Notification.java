@@ -21,6 +21,9 @@ public class Notification {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
+  @Column(name = "type_id")
+  private Long typeId;
+
   @Enumerated(EnumType.STRING)
   private NotiType notiType;
 
@@ -37,6 +40,7 @@ public class Notification {
   @Enumerated(EnumType.STRING)
   private TargetType targetType;
 
+  @Builder.Default
   private boolean isRead = false;
 
   @Lob
