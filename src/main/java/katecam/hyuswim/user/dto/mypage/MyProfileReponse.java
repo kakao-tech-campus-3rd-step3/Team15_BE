@@ -30,6 +30,7 @@ public class MyProfileReponse {
         private LocalDateTime lastActiveDate;
         private Integer score;
         private Integer level;
+        private long points;
     }
 
     @Getter
