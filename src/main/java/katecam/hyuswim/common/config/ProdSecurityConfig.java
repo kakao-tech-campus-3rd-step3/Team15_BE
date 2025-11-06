@@ -47,13 +47,7 @@ public class ProdSecurityConfig {
                                 "/api/auth/email/**",
                                 "/api/counsel/**"
                         ).permitAll()
-                        .requestMatchers(HttpMethod.GET,
-                                "/api/auth/**",
-                                "/api/posts/**",
-                                "/api/comments/**",
-                                "/api/missions/**",
-                                "/api/support-programs/**"
-                        ).permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .csrf(csrf -> csrf.disable())
