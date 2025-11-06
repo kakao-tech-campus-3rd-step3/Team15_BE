@@ -48,12 +48,19 @@ jobs:
       - name: Sync files to EC2 with rsync
         uses: burnett01/rsync-deployments@5.2.1
         with:
-          switches: -avzr --delete --exclude '.git' --exclude '.idea' --exclude 'build/' --exclude 'tmp/' --exclude '.gradle/' --progress
+          switches: -avzr --ignore-errors --no-perms --chmod=ugo=rwX --delete \
+            --exclude '.git' \
+            --exclude '.idea' \
+            --exclude 'build/' \
+            --exclude 'tmp/' \
+            --exclude '.gradle/' \
+            --progress
           path: ./
           remote_path: ~/Team15_BE
           remote_host: ${{ secrets.EC2_HOST }}
           remote_user: ${{ secrets.EC2_USER }}
           remote_key: ${{ secrets.EC2_PEM_KEY }}
+        continue-on-error: true
 
       - name: Copy Built Image to EC2
         uses: appleboy/scp-action@master
