@@ -163,6 +163,7 @@ public class MyPageService {
               .lastActiveDate(loginUser.getLastActiveDate())
               .score(loginUser.getScore())
               .level(loginUser.getLevel())
+              .points(loginUser.getPoints())
               .build();
   }
 
