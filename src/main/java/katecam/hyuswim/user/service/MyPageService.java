@@ -36,6 +36,7 @@ public class MyPageService {
 
   private final PostLikeRepository postLikeRepository;
   private final UserAuthRepository userAuthRepository;
+  private final UserRepository userRepository;
   private final PasswordEncoder passwordEncoder;
   private final AuthEmailService authEmailService;
   private final BadgeRepository badgeRepository;
@@ -44,9 +45,12 @@ public class MyPageService {
 
     @Transactional
   public MyOverviewResponse selectMyOverview(User loginUser) {
-    Long userId = loginUser.getId();
-    int postCount = loginUser.getPosts().size();
-    int commentCount = loginUser.getComments().size();
+        User user = userRepository.findById(loginUser.getId())
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+    Long userId = user.getId();
+    int postCount = user.getPosts().size();
+    int commentCount = user.getComments().size();
     int likeCount = selectMyLikesCount(userId);
 
     return new MyOverviewResponse(postCount, commentCount, likeCount);
@@ -54,7 +58,9 @@ public class MyPageService {
 
   @Transactional
   public List<MyPostListResponse> selectMyPostList(User loginUser) {
-    List<Post> posts = loginUser.getPosts();
+      User user = userRepository.findById(loginUser.getId())
+              .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+    List<Post> posts = user.getPosts();
     List<MyPostListResponse> myPostListReponseList = new ArrayList<>();
     for (Post post : posts) {
       myPostListReponseList.add(MyPostListResponse.from(post));
@@ -64,7 +70,9 @@ public class MyPageService {
 
   @Transactional
   public List<MyCommentResponse> selectMyCommentList(User loginUser) {
-    List<Comment> comments = loginUser.getComments();
+      User user = userRepository.findById(loginUser.getId())
+              .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+    List<Comment> comments = user.getComments();
     List<MyCommentResponse> myCommentResponseList = new ArrayList<>();
     for (Comment comment : comments) {
       myCommentResponseList.add(MyCommentResponse.from(comment));
@@ -74,7 +82,9 @@ public class MyPageService {
 
   @Transactional
   public List<MyLikedPostResponse> selectMyLikedPostList(User loginUser) {
-    List<PostLike> postLikes = postLikeRepository.findByUserId(loginUser.getId());
+      User user = userRepository.findById(loginUser.getId())
+              .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+    List<PostLike> postLikes = postLikeRepository.findByUserId(user.getId());
     List<MyLikedPostResponse> myLikedPostResponseList = new ArrayList<>();
     for (PostLike postLike : postLikes) {
       myLikedPostResponseList.add(MyLikedPostResponse.from(postLike));
@@ -84,7 +94,7 @@ public class MyPageService {
 
   @Transactional
   public int selectMyLikesCount(Long userId) {
-    return postLikeRepository.countByUserId(userId);
+    return postLikeRepository.countByUserIdAndIsDeletedFalse(userId);
   }
 
   @Transactional
@@ -94,35 +104,42 @@ public class MyPageService {
 
   @Transactional
     public void updateCommentNotification(User loginUser, Boolean enabled) {
-      loginUser.updateCommentNotificationEnabled(enabled);
+      User user = userRepository.findById(loginUser.getId())
+              .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+      user.updateCommentNotificationEnabled(enabled);
   }
 
   @Transactional
     public void updateLikeNotification(User loginUser, Boolean enabled) {
-      loginUser.updateLikeNotificationEnabled(enabled);
+      User user = userRepository.findById(loginUser.getId())
+              .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+      user.updateLikeNotificationEnabled(enabled);
   }
 
   @Transactional
     public MyProfileReponse selectMyProfile(User loginUser) {
-      List<Post> posts = loginUser.getPosts();
-      List<Comment> comments = loginUser.getComments();
-      List<MissionProgress> missionProgresses = loginUser.getMissionProgresses();
+      User user = userRepository.findById(loginUser.getId())
+              .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
-      MyProfileReponse.UserInfo userInfo = selectUserInfo(loginUser);
+      List<Post> posts = user.getPosts();
+      List<Comment> comments = user.getComments();
+      List<MissionProgress> missionProgresses = user.getMissionProgresses();
+
+      MyProfileReponse.UserInfo userInfo = selectUserInfo(user);
       MyProfileReponse.UserStats userStats = selectUserStats(posts,comments, missionProgresses);
-      List<MyProfileReponse.BadgeInfo> badgeInfos = selectBadgeInfo(loginUser);
+      List<MyProfileReponse.BadgeInfo> badgeInfos = selectBadgeInfo(user);
       List<MyProfileReponse.PostSummary> postSummaries = buildRecentPosts(posts);
       List<MyProfileReponse.CommentInfo> commentInfos = buildRecentComments(comments);
-      List<MyProfileReponse.LikedPostInfo> likedPostInfos = buildRecentLikedPosts(loginUser);
+      List<MyProfileReponse.LikedPostInfo> likedPostInfos = buildRecentLikedPosts(user);
 
-      UserAuth localAuth = userAuthRepository.findByUserAndProvider(loginUser, AuthProvider.LOCAL)
+      UserAuth localAuth = userAuthRepository.findByUserAndProvider(user, AuthProvider.LOCAL)
               .orElse(null);
 
       MyProfileReponse.AccountInfo accountInfo = MyProfileReponse.AccountInfo.builder()
               .email(localAuth != null ? localAuth.getEmail() : null)
               .passwordLastChanged(localAuth != null ? localAuth.getPasswordLastChanged() : null)
-              .newCommentNotification(loginUser.getCommentNotificationEnabled())
-              .likeNoticeNotification(loginUser.getLikeNotificationEnabled())
+              .newCommentNotification(user.getCommentNotificationEnabled())
+              .likeNoticeNotification(user.getLikeNotificationEnabled())
               .build();
 
       return new MyProfileReponse(
@@ -146,6 +163,7 @@ public class MyPageService {
               .lastActiveDate(loginUser.getLastActiveDate())
               .score(loginUser.getScore())
               .level(loginUser.getLevel())
+              .points(loginUser.getPoints())
               .build();
   }
 
@@ -268,7 +286,9 @@ public class MyPageService {
     }
 
     @Transactional
-    public BadgeCollectionResponse selectBadgeCollection(User user) {
+    public BadgeCollectionResponse selectBadgeCollection(User loginUser) {
+        User user = userRepository.findById(loginUser.getId())
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         List<UserBadge> userBadges = user.getUserBadges();
         Set<Badge> earnedBadgeSet = userBadges.stream()

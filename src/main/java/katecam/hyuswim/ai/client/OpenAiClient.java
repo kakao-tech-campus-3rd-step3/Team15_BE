@@ -3,7 +3,6 @@ package katecam.hyuswim.ai.client;
 import katecam.hyuswim.ai.dto.ChatRequest;
 import katecam.hyuswim.ai.dto.Message;
 import katecam.hyuswim.ai.util.JsonUtils;
-import katecam.hyuswim.counseling.domain.CounselingStep;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -65,7 +64,7 @@ public class OpenAiClient {
         return JsonUtils.parseContent(responseBody);
     }
 
-    public String generateCounselingReply(List<Message> conversation, CounselingStep step) {
+    public String generateCounselingReply(List<Message> conversation) {
         if (apiKey == null || apiKey.isBlank()) {
             return "[AI 상담 비활성화 상태]";
         }
@@ -77,7 +76,9 @@ public class OpenAiClient {
         존댓말이나 과도한 공손체 대신, 편한 반말 톤을 써.
         사용자가 힘든 이야기를 꺼내면 먼저 감정을 공감해주고,
         그다음에 조금 더 구체적으로 물어봐.
-        사용자가 '오늘은 여기까지 하자'라고 말하거나, 대화가 충분히 길어졌다고 판단되면 마지막 답변을 줄 때 반드시 [END_SESSION] 토큰을 포함해 마무리 멘트를 해. [END_SESSION] 토큰은 오직 상담을 종료할 때만 사용해야 해.
+        사용자가 '오늘은 여기까지 하자'라고 말하거나, 대화가 충분히 길어졌다고 판단되면
+        마지막 답변을 줄 때 반드시 [END_SESSION] 토큰을 포함해 마무리 멘트를 해.
+        [END_SESSION] 토큰은 오직 상담을 종료할 때만 사용해야 해.
         """;
 
         ChatRequest request = new ChatRequest(

@@ -1,5 +1,6 @@
 package katecam.hyuswim.notification.controller;
 
+import katecam.hyuswim.notification.dto.NotificationCountResponse;
 import katecam.hyuswim.notification.dto.NotificationResponse;
 import katecam.hyuswim.notification.service.NotificationService;
 import katecam.hyuswim.user.domain.User;
@@ -18,8 +19,9 @@ public class NotificationController {
     private final NotificationService notificationService;
 
     @GetMapping("/unread-count")
-    public ResponseEntity<Long> getUnreadCount(@LoginUser User user){
-        return ResponseEntity.ok(notificationService.getUnreadCount(user));
+    public ResponseEntity<NotificationCountResponse> getUnreadCount(@LoginUser User user) {
+        long count = notificationService.getUnreadCount(user);
+        return ResponseEntity.ok(new NotificationCountResponse(count));
     }
 
     @GetMapping

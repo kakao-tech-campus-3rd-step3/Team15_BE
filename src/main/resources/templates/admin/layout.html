@@ -27,5 +27,11 @@
 <!-- 공통 JS -->
 <script th:src="@{/js/common.js}"></script>
 <script th:src="@{/js/admin-layout.js}"></script>
+
+<!-- 페이지 전용 JS: 지원사업 등록 페이지일 때만 로드 -->
+<th:block th:if="${#strings.contains(pageTitle, '지원 사업 등록')}">
+    <script th:src="@{/js/support-form.js}"></script>
+</th:block>
+
 </body>
 </html>

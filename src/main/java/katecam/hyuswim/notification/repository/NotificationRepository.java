@@ -10,10 +10,17 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface NotificationRepository extends JpaRepository<Notification,Long> {
-    List<Notification> findByReceiverOrderByCreatedAtDesc(User receiver);
+    @Query("""
+      select n
+      from Notification n
+      where n.receiver.id = :receiverId
+      order by n.createdAt desc
+    """)
+    List<Notification> findByReceiverIdOrderByCreatedAtDesc(@Param("receiverId") Long receiverId);;
+
 
     @Modifying(clearAutomatically = true)
-    @Query("UPDATE Notification n SET n.isRead = true WHERE n.receiver = :receiver AND n.isRead = false")
+    @Query("update Notification n set n.isRead = true where n.receiver = :receiver and n.isRead = false")
     void markAllAsRead(@Param("receiver") User receiver);
 
     long countByReceiverAndIsReadFalse(User receiver);

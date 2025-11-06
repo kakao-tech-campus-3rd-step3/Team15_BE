@@ -10,7 +10,7 @@ public enum SupportType {
     STARTUP("창업"),
     EMPLOYMENT("취업"),
     WELFARE("복지"),
-    CULTURE("문화");
-
+    CULTURE("문화"),
+    TEMP("임시");
     private final String displayName;
 }

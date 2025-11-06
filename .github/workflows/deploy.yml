@@ -1,16 +1,15 @@
-name: CI/CD with Docker Compose (rsync)
+name: CI/CD with Docker Compose (Optimized & Stable)
 
 on:
   push:
     branches:
-      - develop   # 개발 서버 배포 브랜치
-      - deploy    # 운영 서버 배포 브랜치
+      - develop
+      - deploy
   pull_request:
     branches: [develop]
   workflow_dispatch:
 
 jobs:
-  # 1. PR 빌드 검증 (develop 브랜치 PR 올릴 때만)
   build-validation:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
@@ -29,12 +28,9 @@ jobs:
       - run: chmod +x ./gradlew
       - run: ./gradlew clean build -x test
 
-  # 2. 배포 (develop → dev 서버, deploy → prod 서버)
   deploy:
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
-
-    # 브랜치 이름에 따라 Environment 선택
     environment:
       name: ${{ github.ref_name }}
 
@@ -42,18 +38,47 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      # EC2로 파일 동기화
+      - name: Cache Gradle
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+
+      - name: Build Docker Image (with internal cache)
+        run: |
+          docker build -t hyuswim-app:latest -f Dockerfile .
+
+      - name: Save Docker Image to TAR
+        run: docker save hyuswim-app:latest -o hyuswim-app.tar
+
       - name: Sync files to EC2 with rsync
         uses: burnett01/rsync-deployments@5.2.1
         with:
-          switches: -avzr --delete
+          switches: -avzr --ignore-errors --no-perms --chmod=ugo=rwX --delete \
+            --exclude '.git' \
+            --exclude '.idea' \
+            --exclude 'build/' \
+            --exclude 'tmp/' \
+            --exclude '.gradle/' \
+            --progress
           path: ./
           remote_path: ~/Team15_BE
           remote_host: ${{ secrets.EC2_HOST }}
           remote_user: ${{ secrets.EC2_USER }}
           remote_key: ${{ secrets.EC2_PEM_KEY }}
+        continue-on-error: true
 
-      # EC2에서 Docker Compose 실행
+      - name: Copy Built Image to EC2
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_PEM_KEY }}
+          source: hyuswim-app.tar
+          target: ~/Team15_BE
+
       - name: Run Docker Compose on EC2
         uses: appleboy/ssh-action@v1.2.0
         with:
@@ -85,10 +110,20 @@ jobs:
             MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}
             FRONTEND_URLS=${{ secrets.FRONTEND_URLS }}
             APP_PORT=${{ secrets.APP_PORT }}
+            GF_SECURITY_ADMIN_USER=${{ secrets.GF_SECURITY_ADMIN_USER }}
+            GF_SECURITY_ADMIN_PASSWORD=${{ secrets.GF_SECURITY_ADMIN_PASSWORD }}
             EOF
 
-            echo "===== Docker Compose Restart ====="
-            docker compose -f docker-compose.yml up -d --build app redis
+            echo "===== Load Docker Image ====="
+            docker load -i hyuswim-app.tar
+
+            echo "===== App Docker Compose Restart ====="
+            docker compose -f docker-compose.yml up -d --build --force-recreate --remove-orphans app redis
+
+            echo "===== Monitoring Docker Compose Restart ====="
+            cd monitoring
+            docker compose --env-file ../.env up -d
+            cd ..
 
             echo "===== Container Status ====="
             docker compose ps

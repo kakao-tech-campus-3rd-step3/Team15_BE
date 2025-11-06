@@ -10,5 +10,9 @@ public enum BadgeTier {
     TIER4(30);
 
     private final int threshold;
-    BadgeTier(int threshold) { this.threshold = threshold; }
+
+    BadgeTier(int threshold) {
+        this.threshold = threshold;
+    }
 }
+

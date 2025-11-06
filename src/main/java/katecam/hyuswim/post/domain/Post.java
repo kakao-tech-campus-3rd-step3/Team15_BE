@@ -2,7 +2,9 @@ package katecam.hyuswim.post.domain;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -48,15 +50,15 @@ public class Post {
   @Column(name = "is_deleted")
   private Boolean isDeleted = false;
 
-    @Builder.Default private Long viewCount = 0L;
+  @Builder.Default private Long viewCount = 0L;
 
   @Builder.Default
-  @OneToMany(mappedBy = "post")
+  @OneToMany(mappedBy = "post", fetch = FetchType.LAZY)
   private List<PostLike> postLikes = new ArrayList<>();
 
   @Builder.Default
-  @OneToMany(mappedBy = "post")
-  private List<Comment> comments = new ArrayList<>();
+  @OneToMany(mappedBy = "post", fetch = FetchType.LAZY)
+  private Set<Comment> comments = new HashSet<>();
 
   @CreatedDate
   @Column(name = "created_at", updatable = false)
@@ -76,10 +78,6 @@ public class Post {
         .user(user)
         .isAnonymous(isAnonymous)
         .build();
-  }
-
-  public void increaseViewCount(){
-      this.viewCount++;
   }
 
   public void update(String title, String content, PostCategory postCategory) {

@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 @Builder
 public class NotificationResponse {
     private Long id;
+    private Long typeId;
     private NotiType type;
     private Long actorId;
     private String actorNickname;
@@ -26,6 +27,7 @@ public class NotificationResponse {
     public static NotificationResponse from(Notification notification) {
         return NotificationResponse.builder()
                 .id(notification.getId())
+                .typeId(notification.getTypeId())
                 .type(notification.getNotiType())
                 .actorId(notification.getActor() != null ? notification.getActor().getId() : null)
                 .actorNickname(notification.getActor() != null ? notification.getActor().getNickname() : null)

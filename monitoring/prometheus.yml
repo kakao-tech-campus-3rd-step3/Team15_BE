@@ -1,0 +1,17 @@
+global:
+  scrape_interval: 1h
+  evaluation_interval: 1h
+
+scrape_configs:
+  - job_name: 'hyuswim-app'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['hyuswim-app:8080']
+
+  - job_name: 'hyuswim-redis'
+    static_configs:
+      - targets: ['hyuswim-redis-exporter:9121']
+
+  - job_name: 'hyuswim-cadvisor'
+    static_configs:
+      - targets: ['hyuswim-cadvisor:8080']

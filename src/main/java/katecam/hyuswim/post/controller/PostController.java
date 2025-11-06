@@ -3,6 +3,7 @@ package katecam.hyuswim.post.controller;
 import java.time.LocalDate;
 import java.util.List;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -25,28 +26,34 @@ public class PostController {
 
   private final PostService postService;
 
-  @PostMapping
-  public ResponseEntity<PostDetailResponse> createPost(
-      @RequestBody PostRequest request, @LoginUser User user) {
-    PostDetailResponse response = postService.createPost(request, user);
+    @PostMapping
+    public ResponseEntity<PostDetailResponse> createPost(
+      @RequestBody PostRequest request, @LoginUser User currentUser) {
+    PostDetailResponse response = postService.createPost(request, currentUser);
     return ResponseEntity.status(HttpStatus.CREATED).body(response);
-  }
+    }
 
-  @GetMapping
-  public ResponseEntity<PageResponse<PostListResponse>> getPosts(
-      @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC, size = 10)
-          Pageable pageable) {
-    return ResponseEntity.ok(postService.getPosts(pageable));
-  }
+    @GetMapping
+    public ResponseEntity<PageResponse<PostListResponse>> getPosts(
+            @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC, size = 10)
+            Pageable pageable,
+            @LoginUser User currentUser
+    ) {
+        return ResponseEntity.ok(postService.getPosts(pageable, currentUser));
+    }
 
-  @GetMapping("/{id}")
-  public ResponseEntity<PostDetailResponse> getPost(@PathVariable Long id) {
-    PostDetailResponse response = postService.getPost(id);
-    return ResponseEntity.ok(response);
-  }
+    @GetMapping("/{id}")
+    public ResponseEntity<PostDetailResponse> getPost(
+            @PathVariable Long id,
+            @LoginUser User currentUser,
+            HttpServletRequest request
+    ) {
+        PostDetailResponse response = postService.getPost(id, currentUser, request);
+        return ResponseEntity.ok(response);
+    }
 
-  @GetMapping("/search")
-  public ResponseEntity<PageResponse<PostListResponse>> searchPosts(
+    @GetMapping("/search")
+    public ResponseEntity<PageResponse<PostListResponse>> searchPosts(
       @RequestParam(required = false) String keyword,
       @RequestParam(required = false) PostCategory category,
       @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
@@ -54,34 +61,36 @@ public class PostController {
       @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
           LocalDate endDate,
       @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC, size = 10)
-          Pageable pageable) {
+          Pageable pageable,
+      @LoginUser User currentUser) {
     PostSearchRequest request = new PostSearchRequest(keyword, category, startDate, endDate);
-    return ResponseEntity.ok(postService.searchPosts(request, pageable));
-  }
+    return ResponseEntity.ok(postService.searchPosts(request, pageable, currentUser));
+    }
 
-  @PatchMapping("/{id}")
-  public ResponseEntity<PostDetailResponse> updatePost(
-      @PathVariable Long id, @RequestBody PostRequest request, @LoginUser User user) {
-    PostDetailResponse response = postService.updatePost(id, request, user);
+    @PatchMapping("/{id}")
+    public ResponseEntity<PostDetailResponse> updatePost(
+      @PathVariable Long id, @RequestBody PostRequest request, @LoginUser User currentUser) {
+    PostDetailResponse response = postService.updatePost(id, request, currentUser);
     return ResponseEntity.ok(response);
-  }
+    }
 
-  @DeleteMapping("/{id}")
-  public ResponseEntity<Void> deletePost(@PathVariable Long id, @LoginUser User user) {
-    postService.deletePost(id, user);
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deletePost(@PathVariable Long id, @LoginUser User currentUser) {
+    postService.deletePost(id, currentUser);
     return ResponseEntity.noContent().build();
-  }
+    }
 
-  @GetMapping("/categories")
-  public ResponseEntity<List<PostCategoryResponse>> getCategories() {
+    @GetMapping("/categories")
+    public ResponseEntity<List<PostCategoryResponse>> getCategories() {
     return ResponseEntity.ok(postService.getCategories());
-  }
+    }
 
-  @GetMapping("/category/{category}")
-  public ResponseEntity<PageResponse<PostListResponse>> getPostsByCategory(
+    @GetMapping("/category/{category}")
+    public ResponseEntity<PageResponse<PostListResponse>> getPostsByCategory(
       @PathVariable PostCategory category,
       @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC, size = 10)
-          Pageable pageable) {
-    return ResponseEntity.ok(postService.getPostsByCategory(category, pageable));
-  }
+          Pageable pageable,
+      @LoginUser User currentUser) {
+    return ResponseEntity.ok(postService.getPostsByCategory(category, pageable,currentUser));
+    }
 }
