@@ -26,8 +26,9 @@ public class KakaoAuthController {
     private final KakaoAuthService kakaoAuthService;
 
     @GetMapping("/url")
-    public ResponseEntity<String> getKakaoLoginUrl() {
-        return ResponseEntity.ok(kakaoAuthService.generateLoginUrl());
+    public void redirectToKakao(HttpServletResponse response) throws IOException {
+        String kakaoUrl = kakaoAuthService.generateLoginUrl();
+        response.sendRedirect(kakaoUrl);
     }
 
     @GetMapping("/callback")
