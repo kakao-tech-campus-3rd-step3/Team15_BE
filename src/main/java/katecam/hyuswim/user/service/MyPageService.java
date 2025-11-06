@@ -36,6 +36,7 @@ public class MyPageService {
 
   private final PostLikeRepository postLikeRepository;
   private final UserAuthRepository userAuthRepository;
+  private final UserRepository userRepository;
   private final PasswordEncoder passwordEncoder;
   private final AuthEmailService authEmailService;
   private final BadgeRepository badgeRepository;
@@ -104,25 +105,28 @@ public class MyPageService {
 
   @Transactional
     public MyProfileReponse selectMyProfile(User loginUser) {
-      List<Post> posts = loginUser.getPosts();
-      List<Comment> comments = loginUser.getComments();
-      List<MissionProgress> missionProgresses = loginUser.getMissionProgresses();
+      User user = userRepository.findById(loginUser.getId())
+              .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
-      MyProfileReponse.UserInfo userInfo = selectUserInfo(loginUser);
+      List<Post> posts = user.getPosts();
+      List<Comment> comments = user.getComments();
+      List<MissionProgress> missionProgresses = user.getMissionProgresses();
+
+      MyProfileReponse.UserInfo userInfo = selectUserInfo(user);
       MyProfileReponse.UserStats userStats = selectUserStats(posts,comments, missionProgresses);
-      List<MyProfileReponse.BadgeInfo> badgeInfos = selectBadgeInfo(loginUser);
+      List<MyProfileReponse.BadgeInfo> badgeInfos = selectBadgeInfo(user);
       List<MyProfileReponse.PostSummary> postSummaries = buildRecentPosts(posts);
       List<MyProfileReponse.CommentInfo> commentInfos = buildRecentComments(comments);
-      List<MyProfileReponse.LikedPostInfo> likedPostInfos = buildRecentLikedPosts(loginUser);
+      List<MyProfileReponse.LikedPostInfo> likedPostInfos = buildRecentLikedPosts(user);
 
-      UserAuth localAuth = userAuthRepository.findByUserAndProvider(loginUser, AuthProvider.LOCAL)
+      UserAuth localAuth = userAuthRepository.findByUserAndProvider(user, AuthProvider.LOCAL)
               .orElse(null);
 
       MyProfileReponse.AccountInfo accountInfo = MyProfileReponse.AccountInfo.builder()
               .email(localAuth != null ? localAuth.getEmail() : null)
               .passwordLastChanged(localAuth != null ? localAuth.getPasswordLastChanged() : null)
-              .newCommentNotification(loginUser.getCommentNotificationEnabled())
-              .likeNoticeNotification(loginUser.getLikeNotificationEnabled())
+              .newCommentNotification(user.getCommentNotificationEnabled())
+              .likeNoticeNotification(user.getLikeNotificationEnabled())
               .build();
 
       return new MyProfileReponse(
