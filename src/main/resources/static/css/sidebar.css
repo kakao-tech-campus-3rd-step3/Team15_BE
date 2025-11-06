@@ -1,0 +1,85 @@
+/* ====== 사이드바 기본 구조 ====== */
+.sidebar {
+    width: 220px;
+    height: 100vh;
+    background-color: #ffffff;
+    border-right: 1px solid #e8e8e8;
+    padding: 20px 15px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    display: flex;
+    flex-direction: column;
+    font-family: 'Pretendard', 'Noto Sans KR', sans-serif;
+}
+
+/* ====== 헤더 ====== */
+.sidebar-header {
+    text-align: center;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.sidebar-header h2 {
+    color: #333333;
+    font-size: 18px;
+    font-weight: 700;
+    margin: 0;
+}
+
+/* ====== 메뉴 ====== */
+.sidebar-menu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.sidebar-menu li {
+    margin-bottom: 4px;
+}
+
+.sidebar-menu a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 15px;
+    border-radius: 6px;
+    color: #555555;
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.2s ease-in-out;
+}
+
+.sidebar-menu a i {
+    color: #00c896;
+    font-size: 16px;
+    width: 20px;
+    text-align: center;
+}
+
+/* ====== Hover 효과 ====== */
+.sidebar-menu a:hover {
+    background-color: #f0fdf9;
+    color: #00c896;
+}
+
+/* ====== 활성 상태(active) ====== */
+.sidebar-menu a.active {
+    background-color: #00c896;
+    color: white;
+    font-weight: 600;
+    box-shadow: 0 2px 4px rgba(0, 200, 150, 0.2);
+}
+
+.sidebar-menu a.active i {
+    color: white;
+}
+
+/* ====== 메인 콘텐츠 여백 확보 ====== */
+.main-wrapper {
+    margin-left: 240px;
+    padding: 30px;
+    background-color: #fafafa;
+}
