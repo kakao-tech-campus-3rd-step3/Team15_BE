@@ -45,9 +45,12 @@ public class MyPageService {
 
     @Transactional
   public MyOverviewResponse selectMyOverview(User loginUser) {
-    Long userId = loginUser.getId();
-    int postCount = loginUser.getPosts().size();
-    int commentCount = loginUser.getComments().size();
+        User user = userRepository.findById(loginUser.getId())
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+    Long userId = user.getId();
+    int postCount = user.getPosts().size();
+    int commentCount = user.getComments().size();
     int likeCount = selectMyLikesCount(userId);
 
     return new MyOverviewResponse(postCount, commentCount, likeCount);
