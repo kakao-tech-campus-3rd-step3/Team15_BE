@@ -44,6 +44,7 @@ public class NotificationService {
 
         if (isNotAuthorAction(actor, receiver)) {
             Notification notification = Notification.builder()
+                    .typeId(null)
                     .notiType(NotiType.LIKE)
                     .actor(actor)
                     .receiver(receiver)
@@ -66,6 +67,7 @@ public class NotificationService {
 
         if (isNotAuthorAction(commentAuthor, postAuthor)) {
             Notification notification = Notification.builder()
+                    .typeId(comment.getId())
                     .notiType(NotiType.COMMENT)
                     .actor(commentAuthor)
                     .receiver(postAuthor)
