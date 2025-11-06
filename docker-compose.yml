@@ -1,3 +1,5 @@
+version: "3"
+
 services:
   app:
     build: .
@@ -28,10 +30,10 @@ services:
       redis:
         condition: service_started
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:8080/actuator/health" ]
-      interval: 10s #10초마다 체크
-      timeout: 3s #응답이 없으면 3초 뒤 실패
-      retries: 5 #5번 연속 실패 시 unhealthy
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
     restart: always
     networks:
       - hyuswim-monitor
@@ -47,10 +49,23 @@ services:
     environment:
       TZ: Asia/Seoul
     healthcheck:
-      test: [ "CMD", "redis-cli", "ping" ]
+      test: ["CMD", "redis-cli", "ping"]
       interval: 5s
       timeout: 3s
       retries: 5
+    networks:
+      - hyuswim-monitor
+
+  nginx:
+    image: nginx:latest
+    container_name: hyuswim-nginx
+    restart: always
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - app
     networks:
       - hyuswim-monitor
 
