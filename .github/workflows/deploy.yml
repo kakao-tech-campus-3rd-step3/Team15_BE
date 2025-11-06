@@ -1,4 +1,4 @@
-name: CI/CD with Docker Compose (Optimized + Cached)
+name: CI/CD with Docker Compose (Optimized & Stable)
 
 on:
   push:
@@ -38,21 +38,17 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      # Docker layer cache (optional, 큰 속도 향상)
-      - name: Cache Docker layers
+      - name: Cache Gradle
         uses: actions/cache@v3
         with:
-          path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-docker-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-docker-
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
 
-      - name: Build Docker Image (Cached)
+      - name: Build Docker Image (with internal cache)
         run: |
-          docker build --cache-from=type=local,src=/tmp/.buildx-cache \
-                       --cache-to=type=local,dest=/tmp/.buildx-cache-new \
-                       -t hyuswim-app:latest -f Dockerfile .
-          mv /tmp/.buildx-cache-new /tmp/.buildx-cache || true
+          docker build -t hyuswim-app:latest -f Dockerfile .
 
       - name: Save Docker Image to TAR
         run: docker save hyuswim-app:latest -o hyuswim-app.tar
@@ -83,7 +79,7 @@ jobs:
           source: hyuswim-app.tar
           target: ~/Team15_BE
 
-      - name: Run Docker Compose on EC2 (Cached Deploy)
+      - name: Run Docker Compose on EC2
         uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.EC2_HOST }}
