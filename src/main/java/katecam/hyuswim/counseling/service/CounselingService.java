@@ -11,6 +11,7 @@ import katecam.hyuswim.counseling.dto.CounselingResponse;
 import katecam.hyuswim.counseling.repository.CounselingSessionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,11 +23,11 @@ public class CounselingService {
     private final CounselingSessionRepository sessionRepository;
     private final OpenAiClient openAiClient;
     private final CounselingSessionService sessionService;
-    private final ObjectMapper objectMapper;
 
     private static final int MAX_TURNS = 10;
     private static final String END_TOKEN = "[END_SESSION]";
 
+    @Transactional
     public CounselingResponse startSession() {
         CounselingSession session = new CounselingSession(CounselingStep.ACTIVE);
         sessionRepository.save(session);
@@ -34,20 +35,21 @@ public class CounselingService {
         String greeting = openAiClient.generateCounselingReply(List.of(), CounselingStep.ACTIVE);
         String cleanGreeting = sanitizeReply(greeting);
 
-        sessionService.saveMessage(session.getId(), new Message("assistant", cleanGreeting));
-        sessionService.saveStep(session.getId(), CounselingStep.ACTIVE.name());
+        sessionService.saveMessages(session.getId(), List.of(
+                new Message("assistant", cleanGreeting)
+        ));
 
+        sessionService.saveStep(session.getId(), CounselingStep.ACTIVE.name());
         return new CounselingResponse(session.getId(), cleanGreeting, CounselingStep.ACTIVE.name());
     }
 
+    @Transactional
     public CounselingResponse processMessage(String sessionId, String userMessage) {
         CounselingSession session = sessionRepository.findById(sessionId)
                 .orElseThrow(() -> new CustomException(ErrorCode.SESSION_NOT_FOUND));
 
         List<Message> history = new ArrayList<>(sessionService.getMessages(sessionId));
-
         history.add(new Message("user", userMessage));
-        sessionService.saveMessage(sessionId, new Message("user", userMessage));
 
         long userTurns = history.stream().filter(m -> "user".equals(m.role())).count();
         if (userTurns >= MAX_TURNS) {
@@ -57,16 +59,20 @@ public class CounselingService {
         String reply = openAiClient.generateCounselingReply(history, session.getStep());
         String cleanReply = sanitizeReply(reply);
 
-        sessionService.saveMessage(sessionId, new Message("assistant", cleanReply));
+        sessionService.saveMessages(sessionId, List.of(
+                new Message("user", userMessage),
+                new Message("assistant", cleanReply)
+        ));
 
         if (isClosingReply(reply)) {
             return closeSession(session, cleanReply);
-        } else {
-            session.updateStep(CounselingStep.ACTIVE);
-            sessionRepository.save(session);
-            sessionService.saveStep(sessionId, CounselingStep.ACTIVE.name());
-            return new CounselingResponse(sessionId, cleanReply, CounselingStep.ACTIVE.name());
         }
+
+        session.updateStep(CounselingStep.ACTIVE);
+        sessionRepository.save(session);
+        sessionService.saveStep(sessionId, CounselingStep.ACTIVE.name());
+
+        return new CounselingResponse(sessionId, cleanReply, CounselingStep.ACTIVE.name());
     }
 
     public void endSession(String sessionId) {
@@ -82,7 +88,11 @@ public class CounselingService {
         String clean = sanitizeReply(closingReply);
         session.end();
         sessionRepository.save(session);
-        sessionService.saveMessage(session.getId(), new Message("assistant", clean));
+
+        sessionService.saveMessages(session.getId(), List.of(
+                new Message("assistant", clean)
+        ));
+
         sessionService.endSession(session.getId());
         return new CounselingResponse(session.getId(), clean, CounselingStep.CLOSED.name());
     }
@@ -95,4 +105,3 @@ public class CounselingService {
         return reply == null ? "" : reply.replace(END_TOKEN, "").trim();
     }
 }
-

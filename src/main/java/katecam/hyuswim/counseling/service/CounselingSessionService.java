@@ -24,16 +24,26 @@ public class CounselingSessionService {
     private static final String STEP_SUFFIX = ":step";
     private static final Duration TTL = Duration.ofMinutes(20);
 
-    public void saveMessage(String sessionId, Message message) {
+    public void saveMessages(String sessionId, List<Message> messages) {
         String key = buildKey(sessionId, MESSAGES_SUFFIX);
         try {
-            String json = objectMapper.writeValueAsString(message);
-            redisTemplate.opsForList().rightPush(key, json);
+            List<String> jsonList = messages.stream()
+                    .map(m -> {
+                        try {
+                            return objectMapper.writeValueAsString(m);
+                        } catch (Exception e) {
+                            throw new CustomException(ErrorCode.REDIS_OPERATION_FAILED);
+                        }
+                    })
+                    .toList();
+
+            redisTemplate.opsForList().rightPushAll(key, jsonList);
             redisTemplate.expire(key, TTL);
         } catch (Exception e) {
             throw new CustomException(ErrorCode.REDIS_OPERATION_FAILED);
         }
     }
+
 
     public List<Message> getMessages(String sessionId) {
         String key = buildKey(sessionId, MESSAGES_SUFFIX);
