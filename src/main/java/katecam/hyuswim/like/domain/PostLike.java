@@ -1,43 +1,52 @@
 package katecam.hyuswim.like.domain;
 
-import java.time.LocalDateTime;
-
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-
 import jakarta.persistence.*;
 import katecam.hyuswim.post.domain.Post;
 import katecam.hyuswim.user.domain.User;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
+import java.time.LocalDateTime;
 
 @Entity
 @EntityListeners(AuditingEntityListener.class)
 @Table(
-    name = "post_likes",
-    uniqueConstraints = @UniqueConstraint(columnNames = {"post_id", "user_id"}))
+        name = "post_likes",
+        uniqueConstraints = @UniqueConstraint(columnNames = {"post_id", "user_id"})
+)
 @Getter
 @NoArgsConstructor
 public class PostLike {
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "post_id", nullable = false)
-  private Post post;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "post_id", nullable = false)
+    private Post post;
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "user_id", nullable = false)
-  private User user;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
-  @CreatedDate
-  @Column(name = "created_at", updatable = false)
-  private LocalDateTime createdAt;
+    @CreatedDate
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime createdAt;
 
-  public PostLike(Post post, User user) {
-    this.post = post;
-    this.user = user;
-  }
+    @Column(nullable = false)
+    private boolean isDeleted = false;
+
+    public PostLike(Post post, User user) {
+        this.post = post;
+        this.user = user;
+        this.isDeleted = false;
+    }
+
+    public void toggle() {
+        this.isDeleted = !this.isDeleted;
+    }
 }
+

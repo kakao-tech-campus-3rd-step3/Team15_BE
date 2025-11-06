@@ -6,25 +6,49 @@ import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import katecam.hyuswim.comment.domain.Comment;
-import org.springframework.data.jpa.repository.Query;
 
 public interface CommentRepository extends JpaRepository<Comment, Long> {
-  Page<Comment> findByPostIdAndParentIsNull(Long postId, Pageable pageable);
 
-  List<Comment> findByParentIdAndIsDeletedFalse(Long parentId);
+    @Query(
+            value = """
+                select c
+                from Comment c
+                join fetch c.user u
+                where c.post.id = :postId
+                  and c.parent is null
+                  and c.isDeleted = false
+                """,
+            countQuery = """
+                select count(c)
+                from Comment c
+                where c.post.id = :postId
+                  and c.parent is null
+                  and c.isDeleted = false
+                """
+    )
+    Page<Comment> findRootsByPostIdWithUser(@Param("postId") Long postId, Pageable pageable);
 
-  @Query("select case when exists (" +
-            "select 1 from Comment c where c.parent.id = :parentId and c.isDeleted = false" +
-            ") then true else false end " +
-            "from Comment c")
-  boolean existsByParentIdAndIsDeletedFalse(Long parentId);
+    @Query("""
+           select c
+           from Comment c
+           join fetch c.user u
+           where c.parent.id = :parentId
+             and c.isDeleted = false
+           order by c.id asc
+           """)
+    List<Comment> findChildrenWithUser(@Param("parentId") Long parentId);
 
-  Optional<Comment> findByIdAndIsDeletedFalse(Long id);
+    boolean existsByParent_IdAndIsDeletedFalse(Long parentId);
 
-  List<Comment> findAllByUserIdAndIsDeletedFalse(Long userId);
+    Optional<Comment> findByIdAndIsDeletedFalse(Long id);
+
+    List<Comment> findAllByUserIdAndIsDeletedFalse(Long userId);
 
     @Query("select count(c) from Comment c where c.user.id = :userId and c.isDeleted = false")
-    long countActiveByUserId(Long userId);
+    long countActiveByUserId(@Param("userId") Long userId);
 }
+

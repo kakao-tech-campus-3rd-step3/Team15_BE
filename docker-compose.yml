@@ -27,6 +27,11 @@ services:
     depends_on:
       redis:
         condition: service_started
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8080/actuator/health" ]
+      interval: 10s #10초마다 체크
+      timeout: 3s #응답이 없으면 3초 뒤 실패
+      retries: 5 #5번 연속 실패 시 unhealthy
     restart: always
 
   redis:
@@ -39,6 +44,11 @@ services:
       - redis_data:/data
     environment:
       TZ: Asia/Seoul
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 5s
+      timeout: 3s
+      retries: 5
 
 volumes:
   redis_data:
