@@ -1,4 +1,4 @@
-name: CI/CD with Docker Compose (Optimized Fast Deploy)
+name: CI/CD with Docker Compose (Stable & Working)
 
 on:
   push:
@@ -53,6 +53,7 @@ jobs:
             --exclude 'build/' \
             --exclude 'tmp/' \
             --exclude '.gradle/' \
+            --exclude 'src/test/' \
             --progress
           path: ./
           remote_path: ~/Team15_BE
@@ -67,10 +68,10 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_PEM_KEY }}
           script: |
-            cd ~/Team15_BE
+            cd /home/ubuntu/Team15_BE
 
             echo "===== Generate .env ====="
-            cat > .env <<EOF
+            sudo bash -c 'cat > /home/ubuntu/Team15_BE/.env <<EOF
             SPRING_PROFILES_ACTIVE=${{ secrets.SPRING_PROFILES_ACTIVE }}
             DB_HOST=${{ secrets.DB_HOST }}
             DB_PORT=${{ secrets.DB_PORT }}
@@ -93,7 +94,11 @@ jobs:
             APP_PORT=${{ secrets.APP_PORT }}
             GF_SECURITY_ADMIN_USER=${{ secrets.GF_SECURITY_ADMIN_USER }}
             GF_SECURITY_ADMIN_PASSWORD=${{ secrets.GF_SECURITY_ADMIN_PASSWORD }}
-            EOF
+            EOF'
+
+            sudo chmod 644 /home/ubuntu/Team15_BE/.env
+            echo "✅ .env file created at /home/ubuntu/Team15_BE/.env"
+            cat /home/ubuntu/Team15_BE/.env
 
             echo "===== Build & Restart App Containers ====="
             docker compose build app
