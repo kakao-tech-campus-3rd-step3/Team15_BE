@@ -43,6 +43,8 @@ public class NotificationService {
         if (actor.getId().equals(receiver.getId())) return;
 
         if (isNotAuthorAction(actor, receiver)) {
+            if (!receiver.getLikeNotificationEnabled()) return;
+
             Notification notification = Notification.builder()
                     .typeId(null)
                     .notiType(NotiType.LIKE)
@@ -66,6 +68,9 @@ public class NotificationService {
         User commentAuthor = comment.getUser();
 
         if (isNotAuthorAction(commentAuthor, postAuthor)) {
+
+            if (!postAuthor.getCommentNotificationEnabled()) return;
+
             Notification notification = Notification.builder()
                     .typeId(comment.getId())
                     .notiType(NotiType.COMMENT)
