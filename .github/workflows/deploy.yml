@@ -1,35 +1,13 @@
-name: CI/CD with Docker Compose (Stable & Working)
+name: CI/CD with Docker Compose (Fixed & Stable)
 
 on:
   push:
-    branches:
-      - develop
-      - deploy
+    branches: [develop, deploy]
   pull_request:
     branches: [develop]
   workflow_dispatch:
 
 jobs:
-  build-validation:
-    if: github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-java@v3
-        with:
-          java-version: '21'
-          distribution: 'corretto'
-
-      - uses: actions/cache@v3
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-
-      - run: chmod +x ./gradlew
-      - run: ./gradlew clean build -x test
-
   deploy:
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
@@ -41,22 +19,21 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Build Docker Image
-        run: |
-          docker build -t hyuswim-app:latest -f Dockerfile .
+        run: docker build -t hyuswim-app:latest -f Dockerfile .
 
       - name: Sync files to EC2 with rsync
         uses: burnett01/rsync-deployments@5.2.1
         with:
           switches: -avzr --ignore-errors --no-perms --chmod=ugo=rwX --delete \
-            --exclude '.git' \
-            --exclude '.idea' \
-            --exclude 'build/' \
-            --exclude 'tmp/' \
-            --exclude '.gradle/' \
-            --exclude 'src/test/' \
+            --exclude '/.git/***' \
+            --exclude '/.idea/***' \
+            --exclude '/build/***' \
+            --exclude '/tmp/***' \
+            --exclude '/.gradle/***' \
+            --exclude '/src/test/***' \
             --progress
           path: ./
-          remote_path: ~/Team15_BE
+          remote_path: /home/ubuntu/Team15_BE
           remote_host: ${{ secrets.EC2_HOST }}
           remote_user: ${{ secrets.EC2_USER }}
           remote_key: ${{ secrets.EC2_PEM_KEY }}
@@ -68,10 +45,12 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_PEM_KEY }}
           script: |
+            echo "===== Set Permission ====="
+            sudo chown -R ubuntu:ubuntu /home/ubuntu/Team15_BE
             cd /home/ubuntu/Team15_BE
 
             echo "===== Generate .env ====="
-            sudo bash -c 'cat > /home/ubuntu/Team15_BE/.env <<EOF
+            cat > /home/ubuntu/Team15_BE/.env <<EOF
             SPRING_PROFILES_ACTIVE=${{ secrets.SPRING_PROFILES_ACTIVE }}
             DB_HOST=${{ secrets.DB_HOST }}
             DB_PORT=${{ secrets.DB_PORT }}
@@ -94,18 +73,14 @@ jobs:
             APP_PORT=${{ secrets.APP_PORT }}
             GF_SECURITY_ADMIN_USER=${{ secrets.GF_SECURITY_ADMIN_USER }}
             GF_SECURITY_ADMIN_PASSWORD=${{ secrets.GF_SECURITY_ADMIN_PASSWORD }}
-            EOF'
+            EOF
 
-            sudo chmod 644 /home/ubuntu/Team15_BE/.env
-            echo "✅ .env file created at /home/ubuntu/Team15_BE/.env"
-            cat /home/ubuntu/Team15_BE/.env
+            echo ".env created successfully at /home/ubuntu/Team15_BE/.env"
+            ls -al /home/ubuntu/Team15_BE/.env
 
-            echo "===== Build & Restart App Containers ====="
+            echo "===== Build & Restart Containers ====="
             docker compose build app
             docker compose up -d app redis nginx
 
             echo "===== Container Status ====="
             docker compose ps
-
-            echo "===== Recent Logs ====="
-            docker logs --tail=100 hyuswim-app
