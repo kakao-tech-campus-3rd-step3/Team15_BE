@@ -1,39 +1,51 @@
 <meta charset="UTF-8">
 <div th:fragment="sidebar">
     <aside class="sidebar">
+        <div class="sidebar-header">
+            <h2>관리자 페이지</h2>
+        </div>
         <nav>
-            <ul>
+            <ul class="sidebar-menu">
                 <li>
                     <a th:href="@{/admin/supports}"
                        th:classappend="${currentUri.contains('/supports') ? 'active' : ''}">
+                        <i class="fa-solid fa-hand-holding-heart"></i>
                         지원 사업
                     </a>
                 </li>
                 <li>
                     <a th:href="@{/admin/reports}"
                        th:classappend="${currentUri.contains('/reports') ? 'active' : ''}">
+                        <i class="fa-solid fa-flag"></i>
                         신고 관리
                     </a>
                 </li>
                 <li>
                     <a th:href="@{/admin/users}"
                        th:classappend="${currentUri.contains('/users') ? 'active' : ''}">
+                        <i class="fa-solid fa-user"></i>
                         회원 관리
                     </a>
                 </li>
                 <li>
                     <a th:href="@{/admin/posts}"
                        th:classappend="${currentUri.contains('/posts') ? 'active' : ''}">
+                        <i class="fa-solid fa-file-lines"></i>
                         게시글 관리
                     </a>
                 </li>
                 <li>
                     <a th:href="@{/admin/comments}"
                        th:classappend="${currentUri.contains('/comments') ? 'active' : ''}">
+                        <i class="fa-solid fa-comments"></i>
                         댓글 관리
                     </a>
                 </li>
             </ul>
         </nav>
     </aside>
+
+    <!-- Font Awesome 아이콘 (한번만 head에 넣으면 됩니다) -->
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </div>

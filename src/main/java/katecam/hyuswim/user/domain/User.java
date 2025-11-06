@@ -93,6 +93,8 @@ public class User {
         this.introduction = introduction;
         this.role = role;
         this.handle = "@" + generateHandle();
+        this.commentNotificationEnabled = true;
+        this.likeNotificationEnabled = true;
     }
 
     public void delete() {
@@ -141,5 +143,6 @@ public class User {
     public void setStatus(UserStatus status) {
         this.status = status;
     }
+
 
 }

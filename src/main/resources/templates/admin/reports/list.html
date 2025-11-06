@@ -59,7 +59,7 @@
                 <tr>
                     <th style="width: 60px;">ID</th>
                     <th style="width: 180px;">신고자</th>
-                    <th style="width: auto;">게시글</th>
+                    <th style="width: auto;">신고 내용</th>
                     <th style="width: 120px;">상태</th>
                     <th style="width: 100px;">관리</th>
                 </tr>
@@ -67,27 +67,29 @@
                 <tbody>
                 <tr th:each="report : ${reports}"
                     th:attr="data-status=${report.status.name()},
-                             data-reporter=${report.reporterEmail},
-                             data-post=${report.postTitle}">
+                             data-reporter=${report.reporter},
+                             data-type=${report.reportType}">
                     <td th:text="${report.id}">1</td>
                     <td>
                         <div class="reporter-cell">
                             <div class="user-avatar-small">
-                                <span th:text="${report.reporterEmail != null ? report.reporterEmail.substring(0,1).toUpperCase() : 'U'}">U</span>
+                                <span th:text="${report.reporter != null ? report.reporter.substring(0,1).toUpperCase() : 'U'}">U</span>
                             </div>
-                            <span th:text="${report.reporterEmail}">reporter@example.com</span>
+                            <span th:text="${report.reporter}">신고자닉네임</span>
                         </div>
                     </td>
                     <td>
-                        <div class="post-title-cell" th:text="${report.postTitle}">
-                            신고된 게시글 제목입니다
+                        <div class="post-title-cell"
+                             th:text="${report.reasonDisplayName != null ? report.reasonDisplayName : '사유 미지정'}">
+                            신고 사유가 표시됩니다
                         </div>
                     </td>
                     <td>
                         <span class="badge"
                               th:classappend="${report.status.name() == 'PENDING' ? 'badge-pending' :
                                                report.status.name() == 'IN_PROGRESS' ? 'badge-progress' :
-                                               report.status.name() == 'RESOLVED' ? 'badge-success' : 'badge-danger'}"
+                                               report.status.name() == 'RESOLVED' ? 'badge-success' :
+                                               report.status.name() == 'REJECTED' ? 'badge-danger' : ''}"
                               th:text="${report.status.name() == 'PENDING' ? '대기중' :
                                        report.status.name() == 'IN_PROGRESS' ? '처리중' :
                                        report.status.name() == 'RESOLVED' ? '해결됨' :

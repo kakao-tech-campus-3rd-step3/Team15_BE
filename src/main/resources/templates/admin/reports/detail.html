@@ -38,19 +38,26 @@
                     <div class="info-value">
                         <div class="reporter-cell">
                             <div class="user-avatar-small">
-                                <span th:text="${report.reporterEmail != null ? report.reporterEmail.substring(0,1).toUpperCase() : 'U'}">U</span>
+                                <span th:text="${report.reporter != null ? report.reporter.substring(0,1).toUpperCase() : 'U'}">U</span>
                             </div>
-                            <span th:text="${report.reporterEmail}">reporter@example.com</span>
+                            <span th:text="${report.reporter}">신고자 닉네임</span>
                         </div>
                     </div>
                 </div>
 
                 <div class="info-item">
                     <div class="info-label">
-                        <span class="info-icon">📝</span>
-                        신고 대상 게시글
+                        <span class="info-icon">🙍‍♂️</span>
+                        피신고자
                     </div>
-                    <div class="info-value" th:text="${report.postTitle}">게시글 제목입니다</div>
+                    <div class="info-value">
+                        <div class="reporter-cell">
+                            <div class="user-avatar-small">
+                                <span th:text="${report.reportedUser != null ? report.reportedUser.substring(0,1).toUpperCase() : 'U'}">U</span>
+                            </div>
+                            <span th:text="${report.reportedUser}">피신고자 닉네임</span>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="info-item">
@@ -59,36 +66,46 @@
                         신고 유형
                     </div>
                     <div class="info-value">
-                        <span class="badge badge-type" th:text="${report.reportType ?: '일반'}">스팸</span>
+                        <span class="badge badge-type" th:text="${report.reportType != null ? report.reportType.name() : 'UNKNOWN'}">POST</span>
                     </div>
                 </div>
 
                 <div class="info-item">
                     <div class="info-label">
                         <span class="info-icon">🏷️</span>
-                        현재 상태
+                        신고 사유
+                    </div>
+                    <div class="info-value" th:text="${report.reasonDisplayName != null ? report.reasonDisplayName : '미지정'}">
+                        사유 표시
+                    </div>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-label">
+                        <span class="info-icon">⚙️</span>
+                        상태
                     </div>
                     <div class="info-value">
                         <span class="badge"
-                              th:classappend="${report.status == 'PENDING' ? 'badge-pending' :
-                                             report.status == 'IN_PROGRESS' ? 'badge-progress' :
-                                             report.status == 'RESOLVED' ? 'badge-success' : 'badge-danger'}"
-                              th:text="${report.status == 'PENDING' ? '대기중' :
-                                       report.status == 'IN_PROGRESS' ? '처리중' :
-                                       report.status == 'RESOLVED' ? '해결됨' : '거절됨'}">
+                              th:classappend="${report.status.name() == 'PENDING' ? 'badge-pending' :
+                                              report.status.name() == 'IN_PROGRESS' ? 'badge-progress' :
+                                              report.status.name() == 'RESOLVED' ? 'badge-success' : 'badge-danger'}"
+                              th:text="${report.status.name() == 'PENDING' ? '대기중' :
+                                        report.status.name() == 'IN_PROGRESS' ? '처리중' :
+                                        report.status.name() == 'RESOLVED' ? '해결됨' : '거절됨'}">
                             대기중
                         </span>
                     </div>
                 </div>
 
-                <div class="info-item full-width" th:if="${report.createdAt != null}">
+                <div class="info-item full-width" th:if="${report.reportedAt != null}">
                     <div class="info-label">
                         <span class="info-icon">📅</span>
                         신고 일시
                     </div>
                     <div class="info-value"
-                         th:text="${#temporals.format(report.createdAt, 'yyyy-MM-dd HH:mm:ss')}">
-                        2024-01-01 12:00:00
+                         th:text="${#temporals.format(report.reportedAt, 'yyyy-MM-dd HH:mm:ss')}">
+                        2025-11-06 12:00:00
                     </div>
                 </div>
             </div>
@@ -96,11 +113,11 @@
 
         <div class="detail-divider"></div>
 
-        <!-- 신고 사유 섹션 -->
+        <!-- 신고 내용 -->
         <div class="reason-section">
-            <h3 class="section-title">신고 사유</h3>
-            <div class="reason-box" th:text="${report.reason}">
-                신고 사유가 여기에 표시됩니다.
+            <h3 class="section-title">신고 내용</h3>
+            <div class="reason-box" th:text="${report.content}">
+                신고 상세 내용이 여기에 표시됩니다.
             </div>
         </div>
 
@@ -113,10 +130,10 @@
                 <div class="form-group">
                     <label for="status" class="form-label">처리 상태 선택</label>
                     <select name="status" id="status" class="form-select" th:value="${report.status}">
-                        <option value="PENDING" th:selected="${report.status == 'PENDING'}">대기중</option>
-                        <option value="IN_PROGRESS" th:selected="${report.status == 'IN_PROGRESS'}">처리중</option>
-                        <option value="RESOLVED" th:selected="${report.status == 'RESOLVED'}">해결됨</option>
-                        <option value="REJECTED" th:selected="${report.status == 'REJECTED'}">거절됨</option>
+                        <option value="PENDING" th:selected="${report.status.name() == 'PENDING'}">대기중</option>
+                        <option value="IN_PROGRESS" th:selected="${report.status.name() == 'IN_PROGRESS'}">처리중</option>
+                        <option value="RESOLVED" th:selected="${report.status.name() == 'RESOLVED'}">해결됨</option>
+                        <option value="REJECTED" th:selected="${report.status.name() == 'REJECTED'}">거절됨</option>
                     </select>
                 </div>
                 <button type="submit" class="btn-submit"
