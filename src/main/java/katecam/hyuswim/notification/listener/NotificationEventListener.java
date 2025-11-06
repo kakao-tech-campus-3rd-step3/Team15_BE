@@ -1,6 +1,6 @@
 package katecam.hyuswim.notification.listener;
 
-import katecam.hyuswim.notification.event.PostLikedNotificationEvent; // ← event 패키지
+import katecam.hyuswim.notification.event.PostLikedNotificationEvent;
 import katecam.hyuswim.notification.event.CommentCreatedNotificationEvent;
 import katecam.hyuswim.notification.service.NotificationService;
 import lombok.RequiredArgsConstructor;
