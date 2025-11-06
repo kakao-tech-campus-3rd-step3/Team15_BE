@@ -1,4 +1,4 @@
-name: CI/CD with Docker Compose (Stable EC2 Build)
+name: CI/CD with Docker Compose (Full Sync + Fix Permissions)
 
 on:
   push:
@@ -21,11 +21,23 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # EC2로 코드 동기화 (안정 rsync)
-      - name: Sync source files to EC2 with rsync (stable)
+      # EC2 권한 복구 (rsync 전에 실행)
+      - name: Fix permissions on EC2 before sync
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_PEM_KEY }}
+          script: |
+            echo "===== Fixing permissions before rsync ====="
+            sudo mkdir -p /home/ubuntu/Team15_BE
+            sudo chown -R ubuntu:ubuntu /home/ubuntu/Team15_BE
+
+      # EC2로 코드 완전 동기화 (깃 기준으로 삭제/덮어쓰기)
+      - name: Sync source files to EC2 (full mirror)
         uses: burnett01/rsync-deployments@5.2.1
         with:
-          switches: -avzr --no-perms --chmod=ugo=rwX --delete \
+          switches: -avzr --checksum --delete --delete-excluded --force --ignore-errors --ignore-missing-args --no-perms --chmod=ugo=rwX \
             --exclude='.git/' \
             --exclude='.idea/' \
             --exclude='.gradle/' \
@@ -35,7 +47,9 @@ jobs:
             --exclude='**/__pycache__/**' \
             --exclude='*.log' \
             --exclude='*~' \
-            --exclude='.DS_Store'
+            --exclude='.DS_Store' \
+            --exclude='.env' \
+            --exclude='docker-compose.yml'
           path: ./
           remote_path: /home/ubuntu/Team15_BE
           remote_host: ${{ secrets.EC2_HOST }}
@@ -43,8 +57,8 @@ jobs:
           remote_key: ${{ secrets.EC2_PEM_KEY }}
         continue-on-error: true
 
-      # EC2에서 빌드 및 재시작
-      - name: Run Docker Compose on EC2 (build & restart)
+      # EC2에서 Docker 빌드 및 재시작
+      - name: Run Docker Compose on EC2 (full rebuild)
         uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.EC2_HOST }}
@@ -84,11 +98,12 @@ jobs:
             echo ".env file created at /home/ubuntu/Team15_BE/.env"
             ls -al .env
 
-            echo "===== Build Application Containers ====="
-            docker compose build app || (echo "Build failed" && exit 1)
+            echo "===== Build Application Containers (no cache) ====="
+            docker compose build --no-cache app || (echo "Build failed" && exit 1)
 
-            echo "===== Restart Application ====="
-            docker compose up -d app redis || (echo "Compose up failed" && exit 1)
+            echo "===== Restart Application (force recreate) ====="
+            docker compose down app || true
+            docker compose up -d --force-recreate --build app redis || (echo "Compose up failed" && exit 1)
 
             echo "===== Container Status ====="
             docker compose ps
