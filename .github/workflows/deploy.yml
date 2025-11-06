@@ -1,4 +1,4 @@
-name: CI/CD with Docker Compose (Optimized)
+name: CI/CD with Docker Compose (Stable EC2 Build)
 
 on:
   push:
@@ -10,24 +10,6 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-validation:
-    if: github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-java@v3
-        with:
-          java-version: '21'
-          distribution: 'corretto'
-      - uses: actions/cache@v3
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-      - run: chmod +x ./gradlew
-      - run: ./gradlew clean build -x test
-
   deploy:
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
@@ -35,50 +17,43 @@ jobs:
       name: ${{ github.ref_name }}
 
     steps:
-      - name: Checkout
+      # 코드 체크아웃
+      - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Build Docker Image (Locally)
-        run: |
-          docker build -t hyuswim-app:latest -f Dockerfile .
-
-      - name: Save Docker Image to TAR
-        run: docker save hyuswim-app:latest -o hyuswim-app.tar
-
-      - name: Sync files to EC2 with rsync
+      # EC2로 코드 동기화 (안정 rsync)
+      - name: Sync source files to EC2 with rsync (stable)
         uses: burnett01/rsync-deployments@5.2.1
         with:
-          switches: -avzr --ignore-errors --no-perms --chmod=ugo=rwX --delete \
-            --exclude '.git' \
-            --exclude '.idea' \
-            --exclude 'build/' \
-            --exclude 'tmp/' \
-            --exclude '.gradle/' \
-            --progress
+          switches: -avzr --no-perms --chmod=ugo=rwX --delete \
+            --exclude='.git/' \
+            --exclude='.idea/' \
+            --exclude='.gradle/' \
+            --exclude='build/' \
+            --exclude='tmp/' \
+            --exclude='src/test/**' \
+            --exclude='**/__pycache__/**' \
+            --exclude='*.log' \
+            --exclude='*~' \
+            --exclude='.DS_Store'
           path: ./
-          remote_path: ~/Team15_BE
+          remote_path: /home/ubuntu/Team15_BE
           remote_host: ${{ secrets.EC2_HOST }}
           remote_user: ${{ secrets.EC2_USER }}
           remote_key: ${{ secrets.EC2_PEM_KEY }}
         continue-on-error: true
 
-      - name: Copy Built Image to EC2
-        uses: appleboy/scp-action@master
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_PEM_KEY }}
-          source: hyuswim-app.tar
-          target: ~/Team15_BE
-
-      - name: Run Docker Compose on EC2
+      # EC2에서 빌드 및 재시작
+      - name: Run Docker Compose on EC2 (build & restart)
         uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_PEM_KEY }}
           script: |
-            cd ~/Team15_BE
+            echo "===== Set ownership for project ====="
+            sudo chown -R ubuntu:ubuntu /home/ubuntu/Team15_BE
+            cd /home/ubuntu/Team15_BE
 
             echo "===== Generate .env ====="
             cat > .env <<EOF
@@ -102,22 +77,21 @@ jobs:
             MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}
             FRONTEND_URLS=${{ secrets.FRONTEND_URLS }}
             APP_PORT=${{ secrets.APP_PORT }}
-
             GF_SECURITY_ADMIN_USER=${{ secrets.GF_SECURITY_ADMIN_USER }}
             GF_SECURITY_ADMIN_PASSWORD=${{ secrets.GF_SECURITY_ADMIN_PASSWORD }}
             EOF
 
-            echo "===== Load Docker Image ====="
-            docker load -i hyuswim-app.tar
+            echo ".env file created at /home/ubuntu/Team15_BE/.env"
+            ls -al .env
 
-            echo "===== App Docker Compose Restart ====="
-            docker compose -f docker-compose.yml up -d --build --force-recreate --remove-orphans app redis
+            echo "===== Build Application Containers ====="
+            docker compose build app || (echo "Build failed" && exit 1)
 
-            echo "===== Monitoring Docker Compose Restart ====="
-            cd monitoring
-            docker compose --env-file ../.env up -d
+            echo "===== Restart Application ====="
+            docker compose up -d app redis || (echo "Compose up failed" && exit 1)
 
             echo "===== Container Status ====="
-            cd ..
             docker compose ps
-            docker logs --tail=200 hyuswim-app
+
+            echo "===== Last 100 Lines of App Logs ====="
+            docker logs --tail=100 hyuswim-app

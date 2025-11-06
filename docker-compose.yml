@@ -56,19 +56,6 @@ services:
     networks:
       - hyuswim-monitor
 
-  nginx:
-    image: nginx:latest
-    container_name: hyuswim-nginx
-    restart: always
-    ports:
-      - "80:80"
-    volumes:
-      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
-    depends_on:
-      - app
-    networks:
-      - hyuswim-monitor
-
 volumes:
   redis_data:
 
