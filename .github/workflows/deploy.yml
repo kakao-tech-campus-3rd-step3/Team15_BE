@@ -111,7 +111,7 @@ jobs:
             docker load -i hyuswim-app.tar
 
             echo "===== App Docker Compose Restart ====="
-            docker compose -f docker-compose.yml up -d app redis
+            docker compose -f docker-compose.yml up -d --build --force-recreate --remove-orphans app redis
 
             echo "===== Monitoring Docker Compose Restart ====="
             cd monitoring
