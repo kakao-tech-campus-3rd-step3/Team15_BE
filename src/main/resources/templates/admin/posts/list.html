@@ -25,10 +25,8 @@
                     <td th:text="${post.writer}">작성자</td>
                     <td>
                         <span class="badge"
-                              th:classappend="${post.status == 'ACTIVE' ? 'badge-success' :
-                                               post.status == 'DELETED' ? 'badge-secondary' : 'badge-type'}"
-                              th:text="${post.status == 'ACTIVE' ? '활성' :
-                                       post.status == 'DELETED' ? '삭제됨' : post.status}">
+                              th:classappend="${post.deleted} ? 'badge-secondary' : 'badge-success'"
+                              th:text="${post.deleted} ? '삭제됨' : '활성'">
                             활성
                         </span>
                     </td>
