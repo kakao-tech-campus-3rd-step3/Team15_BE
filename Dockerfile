@@ -1,24 +1,27 @@
-
 # 1단계: 빌드 (Gradle)
 FROM gradle:8.7.0-jdk21 AS builder
 WORKDIR /app
 
-# Gradle 캐시 유지용 볼륨
+# Gradle 캐시 볼륨 (EC2에서 재사용)
 VOLUME ["/root/.gradle"]
 
-# 빌드 캐시를 살리기 위해 의존성 파일만 먼저 복사
+# 메모리 제한 환경에서 안정 빌드용 설정
+ENV GRADLE_OPTS="-Xmx512m -Dorg.gradle.daemon=false -Dorg.gradle.jvmargs='-Xmx512m -XX:+UseParallelGC'"
+ENV JAVA_TOOL_OPTIONS="-Xmx512m"
+
+# 빌드 캐시를 살리기 위해 의존성 먼저 복사
 COPY build.gradle settings.gradle gradlew gradlew.bat /app/
 COPY gradle /app/gradle
 
-# gradlew 실행권한 및 의존성 미리 받기
+# gradlew 실행권한 및 의존성 미리 다운로드
 RUN chmod +x gradlew
-RUN ./gradlew dependencies --no-daemon
+RUN ./gradlew dependencies --no-daemon --stacktrace || true
 
 # 소스 복사
 COPY src /app/src
 
 # 빌드 (테스트 제외)
-RUN ./gradlew clean build -x test --no-daemon
+RUN ./gradlew clean build -x test --no-daemon --stacktrace || true
 
 
 
@@ -28,8 +31,9 @@ WORKDIR /app
 
 # 시간대 및 로그 설정
 ENV TZ=Asia/Seoul
-ENV JAVA_TOOL_OPTIONS="-Duser.timezone=Asia/Seoul"
+ENV JAVA_TOOL_OPTIONS="-Duser.timezone=Asia/Seoul -Xmx512m"
 
+# 빌드 결과 복사
 COPY --from=builder /app/build/libs/*.jar app.jar
 
 EXPOSE 8080
