@@ -3,6 +3,8 @@
       th:replace="~{admin/layout :: layout(~{::content})}">
 
 <div th:fragment="content">
+
+    <!-- 통계 카드 -->
     <div class="stats-grid">
         <div class="stat-card">
             <div class="stat-label">전체 회원</div>
@@ -22,6 +24,7 @@
         </div>
     </div>
 
+    <!-- 필터 및 검색 -->
     <div class="card" style="margin-bottom: 20px;">
         <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
             <select class="filter-select" onchange="filterUsers(this.value)">
@@ -30,7 +33,7 @@
                 <option value="SUSPENDED">정지</option>
                 <option value="DELETED">탈퇴</option>
             </select>
-            <input type="text" class="search-input" placeholder="ID 검색" onkeyup="searchUsers(this.value)">
+            <input type="text" class="search-input" placeholder="회원명 또는 ID 검색" onkeyup="searchUsers(this.value)">
             <select class="filter-select" onchange="sortUsers(this.value)">
                 <option value="recent">최근 가입순</option>
                 <option value="oldest">오래된 순</option>
@@ -38,6 +41,7 @@
         </div>
     </div>
 
+    <!-- 회원 목록 -->
     <div class="card">
         <div class="card-header">
             <h3>회원 목록</h3>
@@ -47,6 +51,7 @@
                 <thead>
                 <tr>
                     <th style="width: 60px;">ID</th>
+                    <th style="width: 200px;">회원명</th>
                     <th style="width: 100px;">상태</th>
                     <th style="width: 150px;">관리</th>
                 </tr>
@@ -55,6 +60,18 @@
                 <tr th:each="user : ${users}"
                     th:attr="data-status=${user.status}, data-id=${user.userId}">
                     <td th:text="${user.userId}">1</td>
+
+                    <!-- ✅ 회원 이름 + 핸들 -->
+                    <td>
+                        <div class="user-cell">
+                            <div class="user-avatar-small">
+                                <span th:text="${user.userName != null ? user.userName.substring(0,1).toUpperCase() : 'U'}">U</span>
+                            </div>
+                            <span th:text="${user.userName}">홍길동</span>
+                        </div>
+                    </td>
+
+                    <!-- 상태 -->
                     <td>
                         <span class="badge"
                               th:classappend="${user.status == 'ACTIVE' ? 'badge-success' :
@@ -66,14 +83,18 @@
                             활성
                         </span>
                     </td>
+
+                    <!-- 관리 버튼 -->
                     <td>
-                        <div style="display: flex; gap: 5px;">
+                        <div class="action-buttons">
                             <a th:href="@{'/admin/users/' + ${user.userId}}" class="btn-small btn-detail">상세</a>
+
                             <button class="btn-small btn-warning"
                                     th:if="${user.status == 'ACTIVE'}"
                                     th:onclick="'suspendUser(' + ${user.userId} + ')'">
                                 정지
                             </button>
+
                             <button class="btn-small btn-success"
                                     th:if="${user.status == 'SUSPENDED'}"
                                     th:onclick="'activateUser(' + ${user.userId} + ')'">
@@ -82,8 +103,9 @@
                         </div>
                     </td>
                 </tr>
+
                 <tr th:if="${users.isEmpty()}">
-                    <td colspan="3" style="text-align: center; padding: 40px; color: #868e96;">
+                    <td colspan="4" style="text-align: center; padding: 40px; color: #868e96;">
                         등록된 회원이 없습니다.
                     </td>
                 </tr>
@@ -92,7 +114,7 @@
         </div>
     </div>
 
-    <link rel="stylesheet" th:href="@{/css/users.css}"/>
+    <link rel="stylesheet" th:href="@{/css/admin-users.css}"/>
     <script th:src="@{/js/users.js}"></script>
 </div>
 </html>
