@@ -137,6 +137,24 @@ body {
     box-shadow: 0 2px 4px rgba(0, 200, 150, 0.15);
 }
 
+.btn-home {
+    display: inline-block;
+    background-color: #00c896;
+    color: white;
+    font-weight: 600;
+    padding: 10px 18px;
+    border-radius: 6px;
+    text-decoration: none;
+    transition: all 0.2s ease-in-out;
+}
+
+.btn-home:hover {
+    background-color: #00b384;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 6px rgba(0, 200, 150, 0.3);
+}
+
+
 /* ====== 메인 컨텐츠 ====== */
 .main-content {
     padding: 30px;
