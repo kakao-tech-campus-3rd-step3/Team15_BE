@@ -129,6 +129,10 @@ public class BadgeService {
             case DILIGENT_COMMENTER -> (int) commentRepository.countActiveByUserId(userId);
             case MISSION_KILLER -> (int) missionProgressRepository.countDistinctDaysByUserId(userId);
             case PERFECT_ATTENDANCE -> (int) userVisitRepository.countDaysByUserId(userId);
+            case POINT_MASTER -> userRepository.findById(userId)
+                    .map(User::getPoints)
+                    .orElse(0L)
+                    .intValue();
         };
     }
 }
