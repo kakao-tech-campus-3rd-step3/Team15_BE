@@ -110,7 +110,7 @@ public class AdminUserService {
 
     public List<UserListResponse> findAll() {
         return userRepository.findByRoleNot(UserRole.ADMIN).stream()
-                .map(u -> new UserListResponse(u.getId(), u.getStatus()))
+                .map(u -> new UserListResponse(u.getId(), u.getNickname(), u.getStatus()))
                 .collect(Collectors.toList());
     }
 
