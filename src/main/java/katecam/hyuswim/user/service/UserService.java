@@ -17,7 +17,9 @@ public class UserService {
   private final UserRepository userRepository;
 
     @Transactional
-    public void deleteUser(User user, String confirmText) {
+    public void deleteUser(User loginUser, String confirmText) {
+        User user = userRepository.findById(loginUser.getId())
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
       if (!confirmText.equals("계정 탈퇴")){
           throw new CustomException(ErrorCode.WITHDRAWAL_FAILED);
       }
