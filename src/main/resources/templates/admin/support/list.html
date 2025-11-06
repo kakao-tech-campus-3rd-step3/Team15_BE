@@ -25,7 +25,7 @@
     </div>
 
     <div class="card">
-        <div class="toolbar">
+        <div class="filter-bar">
             <input id="search" type="text" class="search-input" placeholder="제목 또는 기관명으로 검색" />
             <select id="statusFilter" class="filter-select">
                 <option value="">상태 (전체)</option>
@@ -33,10 +33,11 @@
                 <option value="DRAFT">임시저장</option>
                 <option value="CLOSED">종료</option>
             </select>
-            <button class="btn btn-search" onclick="loadSupports()">🔍 검색</button>
-            <button class="btn btn-primary" onclick="location.href='/admin/supports/form.html'">➕ 새로 만들기</button>
+            <button class="btn-search" onclick="loadSupports()">🔍 검색</button>
+            <button class="btn-create" onclick="location.href='/admin/supports/form.html'">➕ 새로 만들기</button>
         </div>
     </div>
+
 
     <div class="card">
         <div class="table-container">
@@ -60,7 +61,7 @@
         </div>
     </div>
 
-    <link rel="stylesheet" th:href="@{/css/admin-support.css}" />
+    <link rel="stylesheet" th:href="@{/css/support-list.css}" />
     <script th:src="@{/js/admin-support.js}" defer></script>
 </main>
 

@@ -119,3 +119,102 @@ table td a:hover {
 .btn-delete:hover {
     background-color: #c82333;
 }
+
+/* ====== 검색 영역 ====== */
+.filter-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background-color: #ffffff;
+    border: 1px solid #e9ecef;
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+
+    /* ✅ 핵심: 가로로 배치 + 자동 줄바꿈 방지 */
+    flex-wrap: nowrap;
+}
+
+/* 검색 입력창 */
+.search-input {
+    flex: 1; /* ✅ 남는 공간 꽉 채우기 */
+    min-width: 250px;
+    padding: 10px 14px;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    font-size: 14px;
+    color: #495057;
+    transition: all 0.2s ease-in-out;
+}
+
+.search-input:focus {
+    border-color: #5CB85C;
+    box-shadow: 0 0 0 3px rgba(92, 184, 92, 0.15);
+    outline: none;
+}
+
+.search-input::placeholder {
+    color: #adb5bd;
+}
+
+/* 상태 선택 */
+.filter-select {
+    padding: 10px 14px;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    font-size: 14px;
+    color: #495057;
+    background-color: white;
+    cursor: pointer;
+    transition: border-color 0.2s ease-in-out;
+}
+
+.filter-select:hover,
+.filter-select:focus {
+    border-color: #5CB85C;
+    outline: none;
+}
+
+/* 검색 버튼 */
+.btn-search {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 9px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #495057;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.btn-search:hover {
+    background-color: #e9ecef;
+}
+
+/* 새로 만들기 버튼 */
+.btn-create {
+    background-color: #00c896;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 18px;
+    font-size: 14px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+
+.btn-create:hover {
+    background-color: #00b380;
+    transform: translateY(-1px);
+    box-shadow: 0 3px 6px rgba(0, 200, 150, 0.25);
+}
+

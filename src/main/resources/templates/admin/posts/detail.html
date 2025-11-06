@@ -20,22 +20,38 @@
                 <span class="info-label">작성자</span>
                 <div class="user-cell">
                     <div class="user-avatar-small">
-                        <span th:text="${post.writerEmail != null ? post.writerEmail.substring(0,1).toUpperCase() : 'U'}">U</span>
+                        <span th:text="${post.writer != null ? post.writer.substring(0,1).toUpperCase() : 'U'}">U</span>
                     </div>
-                    <span th:text="${post.writerEmail}">user@example.com</span>
+                    <span th:text="${post.writer}">작성자닉네임</span>
                 </div>
             </div>
 
             <div class="info-item">
+                <span class="info-label">조회수</span>
+                <span class="info-value" th:text="${post.viewCount}">0</span>
+            </div>
+
+            <div class="info-item">
                 <span class="info-label">작성일</span>
-                <span class="info-value" th:text="${#temporals.format(post.createdAt, 'yyyy-MM-dd HH:mm')}">2024-01-01 12:00</span>
+                <span class="info-value" th:text="${#temporals.format(post.createdAt, 'yyyy-MM-dd HH:mm')}">
+                    2024-01-01 12:00
+                </span>
+            </div>
+
+            <div class="info-item">
+                <span class="info-label">수정일</span>
+                <span class="info-value" th:text="${#temporals.format(post.updatedAt, 'yyyy-MM-dd HH:mm')}">
+                    2024-01-02 10:00
+                </span>
             </div>
 
             <div class="info-item">
                 <span class="info-label">상태</span>
                 <span class="badge"
-                      th:classappend="${post.hidden ? 'badge-warning' : 'badge-success'}"
-                      th:text="${post.hidden ? '숨김' : '노출중'}">노출중</span>
+                      th:classappend="${post.deleted} ? 'badge-secondary' : 'badge-success'"
+                      th:text="${post.deleted} ? '삭제됨' : '활성'">
+                    활성
+                </span>
             </div>
         </div>
 
@@ -44,7 +60,9 @@
         <!-- 내용 -->
         <div class="content-section">
             <h3>내용</h3>
-            <div class="post-content" th:text="${post.content}">게시글 본문 내용이 표시됩니다.</div>
+            <div class="post-content" th:text="${post.content}">
+                게시글 본문 내용이 표시됩니다.
+            </div>
         </div>
 
         <div class="detail-divider"></div>
