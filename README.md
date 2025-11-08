@@ -5,10 +5,12 @@
 ## 팀원 소개
 ### BE
 
-| [김현규](https://github.com/kimpro4214) | [서영서](https://github.com/yeongseo1225) | [장완중](https://github.com/jangwanjung) | [황윤규](https://github.com/hwangyungyu) |
-|:----------------------------------------:|:------------------------------------------:|:------------------------------------------:|:------------------------------------------:|
-| <img src="https://github.com/kimpro4214.png" width="120"/> | <img src="https://github.com/yeongseo1225.png" width="120"/> | <img src="https://github.com/jangwanjung.png" width="120"/> | <img src="https://github.com/hwangyungyu.png" width="120"/> |
-| 조장 | 테크리더 | 플래너 | 메이커 |
+| 이름 | [김현규](https://github.com/kimpro4214) | [서영서](https://github.com/yeongseo1225) | [장완중](https://github.com/jangwanjung) | [황윤규](https://github.com/hwangyungyu) |
+|:----:|:----------------------------------------:|:------------------------------------------:|:------------------------------------------:|:------------------------------------------:|
+| 사진 | <img src="https://github.com/kimpro4214.png" width="120"/> | <img src="https://github.com/yeongseo1225.png" width="120"/> | <img src="https://github.com/jangwanjung.png" width="120"/> | <img src="https://github.com/hwangyungyu.png" width="120"/> |
+| 역할 | 조장 | 테크리더 | 플래너 | 메이커 |
+| 개발 범위 | 지원사업, <br> 관리자페이지 | 서버 환경 구축/운영, 게시판, <br> AI 상담, 알림, 로그인/회원가입  | 마이페이지, 로그인 | 미션|
+
 
 ## 프로젝트 실행 방법
 
