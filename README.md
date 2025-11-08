@@ -29,5 +29,9 @@
 ## API
 
 
-
+<img width="550" height="1000" alt="image" src="https://github.com/user-attachments/assets/266d5037-dcdc-42e5-b280-21be85a2176d" /> 
+<img width="550" height="1000" alt="image" src="https://github.com/user-attachments/assets/f179d0ba-0615-49a6-ab2a-22a32798b8ae" /> 
+<img width="550" height="1000" alt="image" src="https://github.com/user-attachments/assets/0fc7ab95-fcfb-4278-abac-fd2ace25d084" /> 
+<img width="550" height="1000" alt="image" src="https://github.com/user-attachments/assets/99809b4b-d746-48d5-962d-c96f78f666e6" /> 
+<img width="550" height="101" alt="image" src="https://github.com/user-attachments/assets/58755ff3-ea46-4ddd-a8af-3e64104b460a" />
 
