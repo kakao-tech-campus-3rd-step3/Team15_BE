@@ -23,10 +23,11 @@
 ## Sysyem Structure
 
 ## ERD
+<img width="1500" height="1000" alt="image" src="https://github.com/user-attachments/assets/c3fea64c-76d2-4cef-b4f3-10d2f0469314" />
+
 
 ## API
 
-## 파일 구조
 
 
 
