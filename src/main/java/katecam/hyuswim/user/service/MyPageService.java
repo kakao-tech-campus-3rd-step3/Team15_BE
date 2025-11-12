@@ -287,7 +287,7 @@ public class MyPageService {
 
     @Transactional
     public BadgeCollectionResponse selectBadgeCollection(User loginUser) {
-        User user = userRepository.findById(loginUser.getId())
+        User user = userRepository.findByIdWithBadges(loginUser.getId())
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         List<UserBadge> userBadges = user.getUserBadges();
