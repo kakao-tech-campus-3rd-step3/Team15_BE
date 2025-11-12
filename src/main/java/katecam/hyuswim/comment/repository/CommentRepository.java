@@ -23,20 +23,40 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
 
     @Query(
             value = """
-                select c
-                from Comment c
-                join fetch c.user u
-                where c.post.id = :postId
-                  and c.parent is null
-                  and c.isDeleted = false
-                """,
+        select c
+        from Comment c
+        join fetch c.user u
+        where c.post.id = :postId
+          and c.parent is null
+          and (
+                c.isDeleted = false
+                or (
+                    c.isDeleted = true
+                    and exists (
+                        select 1 from Comment r
+                        where r.parent.id = c.id
+                          and r.isDeleted = false
+                    )
+                )
+              )
+        """,
             countQuery = """
-                select count(c)
-                from Comment c
-                where c.post.id = :postId
-                  and c.parent is null
-                  and c.isDeleted = false
-                """
+        select count(c)
+        from Comment c
+        where c.post.id = :postId
+          and c.parent is null
+          and (
+                c.isDeleted = false
+                or (
+                    c.isDeleted = true
+                    and exists (
+                        select 1 from Comment r
+                        where r.parent.id = c.id
+                          and r.isDeleted = false
+                    )
+                )
+              )
+        """
     )
     Page<Comment> findRootsByPostIdWithUser(@Param("postId") Long postId, Pageable pageable);
 
