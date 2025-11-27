@@ -27,9 +27,8 @@
 
 ## 주요 기능
 
-
-## Sysyem Structure
-
+## 시연 영상
+[![YouTube Video](https://img.youtube.com/vi/UfS9uYg0rpY/0.jpg?refresh=1)](https://youtu.be/UfS9uYg0rpY)
 ## ERD
 <img width="1500" height="1000" alt="image" src="https://github.com/user-attachments/assets/c3fea64c-76d2-4cef-b4f3-10d2f0469314" />
 
